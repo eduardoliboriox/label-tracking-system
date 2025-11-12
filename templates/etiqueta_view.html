@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card p-4 shadow">
+  <h2>Etiqueta: {{ m['code'] }}</h2>
+  <p><strong>Modelo:</strong> {{ m['model_name'] }}</p>
+  <p><strong>Cliente:</strong> {{ m['cliente'] }}</p>
+  <p><strong>Linha:</strong> {{ m['linha'] }}</p>
+  <p><strong>Turno:</strong> {{ m['turno'] }}</p>
+  <p><strong>Data:</strong> {{ m['data'] }}</p>
+  <p><strong>Lote:</strong> {{ m['lote'] }}</p>
+  <p><strong>Quantidade:</strong> {{ m['quantidade'] }}</p>
+  <p><strong>Revisora:</strong> {{ m['revisora'] }}</p>
+  <p><strong>Lote:</strong> {{ m['po'] }}</p>
+  <p><strong>OP:</strong> {{ m['op'] }}</p>
+  <p><strong>Status CQ:</strong> {{ m['status_cq'] }}</p>
+  <p><strong>Processo:</strong> {{ m['processo'] }} | <strong>Setor:</strong> {{ m['setor'] or 'SMT' }}</p>
+  <p><strong>Observações:</strong> {{ m['obs'] }}</p>
+  <p><small><strong>Última atualização:</strong> {{ m['updated_at_formatted'] }}</small></p>
+
+
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+/* ===== Cabeçalho da tabela principal ===== */
+table.table thead {
+  background-color: #000 !important; /* Fundo preto sólido */
+  color: #fff !important;            /* Texto branco */
+}
+
+table.table thead th {
+  background-color: #000 !important; /* Garante fundo em cada célula */
+  color: #fff !important;
+  border: 1px solid #222;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* ===== Mantém o corpo da tabela branco ===== */
+table.table tbody {
+  background-color: #fff;
+}
+
+/* ===== Linhas alternadas (opcional, para contraste) ===== */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f8f9fa;
+}
+.table-striped tbody tr:nth-of-type(even) {
+  background-color: #ffffff;
+}
+
+.logo {
+    height: 60px;
+}
+
+.titulo-sistema {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    color: #0d3b66; /* Azul escuro */
+}
+
+/* Linha separadora */
+.linha-separadora {
+    border: 0;
+    height: 4px;
+    background-color: #0d3b66; /* Azul escuro ideal */
+    margin: 0 0 20px 0;
+}
+
+.etiqueta-container {
+    display: flex;          /* coloca as etiquetas lado a lado */
+    flex-wrap: wrap;        /* permite quebrar a linha a cada 2 etiquetas */
+    gap: 20px;              /* espaço entre etiquetas */
+}
+
+.etiqueta-container .etiqueta {
+    flex: 0 0 calc(50% - 10px);  /* cada etiqueta ocupa metade do container, subtraindo espaço do gap */
+    box-sizing: border-box;
+}
+
+.header-sistema {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #ddd;
+}
+
+.titulo-sistema {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #222;
+}
+
+.menu-topo .btn {
+  font-weight: 500;
+  border-radius: 20px;
+  transition: 0.2s;
+}
+
+.menu-topo .btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Fundo fixo branco e efeito de hover */
+.table tbody tr {
+  background-color: #ffffff !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1 !important; /* cor leve no hover */
+}
+

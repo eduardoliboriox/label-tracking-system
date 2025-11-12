@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+  <h3>{{ 'Editar dados' if model else 'Nova Ordem' }}</h3>
+  <form method="post">
+    <div class="row">
+      <div class="col-md-3 mb-2">
+        <label>Código</label>
+        <input name="code" class="form-control" required value="{{ model['code'] if model else '' }}">
+      </div>
+      <div class="col-md-4 mb-2">
+        <label>Modelo</label>
+        <input name="model_name" class="form-control" value="{{ model['model_name'] if model else '' }}">
+      </div>
+      <div class="col-md-5 mb-2">
+        <label>Cliente</label>
+        <input name="cliente" class="form-control" value="{{ model['cliente'] if model else '' }}">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-2">
+        <label>Linha</label>
+        <input name="linha" class="form-control" value="{{ model['linha'] if model else '' }}">
+      </div>
+
+      <div class="col-md-2">
+        <label>Setor</label>
+        <select name="setor" class="form-control">
+          {% for s in ['SMT', 'PTH', 'IM', 'PA', 'VTT'] %}
+            <option value="{{ s }}" {% if model and model['setor'] == s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label>Fase</label>
+        <select name="fase" class="form-control">
+          <option value="">—</option>
+          <option value="TOP" {% if model and model['fase'] == 'TOP' %}selected{% endif %}>TOP</option>
+          <option value="BOTTOM" {% if model and model['fase'] == 'BOTTOM' %}selected{% endif %}>BOTTOM</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label>Turno</label>
+        <input name="turno" class="form-control" value="{{ model['turno'] if model else '' }}">
+      </div>
+
+      <div class="col-md-3">
+        <label>Data</label>
+        <input name="data" class="form-control" value="{{ model['data'] if model else '' }}">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-3">
+        <label>Lote</label>
+        <input name="lote" class="form-control" value="{{ model['lote'] if model else '' }}">
+      </div>
+      <div class="col-md-3">
+        <label>Quantidade</label>
+        <input name="quantidade" class="form-control" value="{{ model['quantidade'] if model else '' }}">
+      </div>
+      <div class="col-md-3">
+        <label>Revisor(a)</label>
+        <input name="revisora" class="form-control" value="{{ model['revisora'] if model else '' }}">
+      </div>
+      <div class="col-md-3">
+        <label>OP</label>
+        <input name="op" class="form-control" value="{{ model['op'] if model else '' }}">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-3">
+        <label>Horário</label>
+        <input name="horario" class="form-control" value="{{ model['horario'] if model else '' }}">
+      </div>
+      <div class="col-md-3">
+        <label>PO</label>
+        <input name="po" class="form-control" value="{{ model['po'] if model else '' }}">
+      </div>
+    </div>
+
+    <div class="mb-2">
+      <label>Processo</label><br>
+      {% for p in ['TOP','BOT','AOI'] %}
+        <label>
+          <input type="checkbox" name="processo" value="{{p}}" {% if model and p in (model['processo'] or '') %}checked{% endif %}> {{p}}
+        </label>
+      {% endfor %}
+    </div>
+
+    <div class="mb-2">
+      <label>Status CQ</label><br>
+      {% for s in ['APROVADO','REJEITADO','TESTE FUNCIONAL'] %}
+        <label>
+          <input type="checkbox" name="status_cq" value="{{s}}" {% if model and s in (model['status_cq'] or '') %}checked{% endif %}> {{s}}
+        </label>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      <label for="lote_num" class="form-label">Lote (número inicial)</label>
+      <input type="number" class="form-control" id="lote_num" name="lote_num" placeholder="Ex: 25" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="lote_padrao" class="form-label">Lote (padrão)</label>
+      <input type="text" class="form-control" id="lote_padrao" name="lote_padrao" placeholder="Ex: 900" required>
+    </div>
+
+    <div class="mb-2">
+      <label>Obs.</label>
+      <input name="obs" class="form-control" value="{{ model['obs'] if model else '' }}">
+    </div>
+
+    <button class="btn btn-success">Salvar</button>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}

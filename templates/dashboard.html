@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Dashboard de Produção{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4 px-4">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div class="d-flex align-items-center flex-wrap gap-3">
+            <h2 class="fw-bold text-primary mb-0">📊 Dashboard de Produção</h2>
+            <div class="d-flex flex-wrap gap-2 ms-3">
+                <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
+                <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('SMT')">SMT</button>
+                <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('IM')">IM</button>
+                <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PA')">PA</button>
+                <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('ESTOQUE')">Estoque</button>
+                <button class="btn btn-outline-secondary btn-sm fw-bold btn-setor" onclick="filterBySetor('TODOS')">Mostrar Todos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros de status -->
+    <div class="d-flex justify-content-start flex-wrap gap-2 mb-4">
+        <button class="btn btn-outline-success btn-sm fw-bold btn-status" onclick="filterByStatus('AGUARDANDO')">🕓 Aguardando Produção</button>
+        <button class="btn btn-outline-info btn-sm fw-bold btn-status" onclick="filterByStatus('DISPONIVEL')">✅ Placas Disponíveis</button>
+    </div>
+
+    <!-- Tabela -->
+    <div class="table-responsive shadow-sm rounded-4 bg-light p-3">
+        <table class="table table-hover align-middle" id="dashboardTable">
+            <thead class="table-primary text-center">
+                <tr>
+                    <th>Modelo</th>
+                    <th>Código</th>
+                    <th>Fase</th>
+                    <th>Saldo</th>
+                </tr>
+            </thead>
+            <tbody>,
+            {% for item in data %}
+                {% for saldo in item.saldo_setores %}
+                <tr
+                    data-setor="{{ saldo.setor }}"
+                    data-status="{{ saldo.status }}"
+                    data-fase="{{ saldo.fase }}">
+                <td class="fw-bold">{{ item.model.model_name }}</td>
+                <td>{{ item.model.code }}</td>
+                <td class="text-center">{{ saldo.fase or '-' }}</td>
+                <td class="text-center fw-semibold">{{ saldo.saldo }}</td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // --- Filtro por setor ---
+    function filterBySetor(setor) {
+        const rows = document.querySelectorAll('#dashboardTable tbody tr');
+        rows.forEach(row => {
+            row.style.display = (setor === 'TODOS' || row.dataset.setor === setor) ? '' : 'none';
+        });
+        document.querySelectorAll('.btn-setor').forEach(btn => btn.classList.remove('active'));
+        const clickedBtn = document.querySelector(`[onclick="filterBySetor('${setor}')"]`);
+        if (clickedBtn) clickedBtn.classList.add('active');
+    }
+
+    // --- Filtro por status (usando fase) ---
+    function filterByStatus(status) {
+        const rows = document.querySelectorAll('#dashboardTable tbody tr');
+        rows.forEach(row => {
+            row.style.display = (status === 'TODOS' || row.dataset.status === status) ? '' : 'none';
+        });
+        document.querySelectorAll('.btn-status').forEach(btn => btn.classList.remove('active'));
+        const clickedBtn = document.querySelector(`[onclick="filterByStatus('${status}')"]`);
+        if (clickedBtn) clickedBtn.classList.add('active');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Histórico - {{model['code']}} / {{model['model_name']}}</h3>
+<a class="btn btn-secondary mb-3" href="{{ url_for('index') }}">Voltar</a>
+
+<!-- ===== HISTÓRICO DE ALTERAÇÕES ===== -->
+<h5>Últimas alterações</h5>
+<table class="table table-bordered table-hover align-middle text-center mb-4 bg-white">
+
+
+  <thead class="table-dark text-center">
+    <tr>
+      <th>Data</th>
+      <th>Usuário</th>
+      <th>Alteração</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for h in history %}
+    <tr>
+      <td>{{ h['changed_at_formatted'] }}</td>
+      <td>{{ h['changed_by'] }}</td>
+      <td>{{ h['change_text'] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- ===== ETIQUETAS GERADAS ===== -->
+<h5 class="mt-4 mb-3">Etiquetas geradas</h5>
+
+<table class="table table-bordered table-hover align-middle text-center">
+  <thead class="table-dark text-center">
+    <tr>
+      <th>ID</th>
+      <th>Lote</th>
+      <th>Produção Total</th>
+      <th>Capacidade Magazine</th>
+      <th>Data de Criação</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in etiquetas %}
+    <tr>
+      <td>{{ e['id'] }}</td>
+      <td>{{ e['lote'] }}</td>
+      <td>{{ e['producao_total'] }}</td>
+      <td>{{ e['capacidade_magazine'] }}</td>
+      <td>{{ e['created_at_formatted'] }}</td>
+      <td class="text-center">
+        <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-primary"
+                  onclick="verEtiqueta('{{ model['code'] }}', '{{ e['lote'] }}')">
+            Ver
+          </button>
+          <button class="btn btn-sm btn-success"
+                  onclick="imprimirEtiqueta('{{ model['code'] }}', '{{ e['lote'] }}')">
+            Imprimir
+          </button>
+          <button class="btn btn-sm btn-danger"
+                  onclick="excluirEtiqueta({{ e['id'] }})">
+            Excluir
+          </button>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+{% if not etiquetas %}
+  <p><em>Nenhuma etiqueta gerada ainda.</em></p>
+{% endif %}
+
+<!-- Modal para exibir etiqueta -->
+<div class="modal fade" id="modalEtiqueta" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Etiqueta Gerada</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center" id="etiquetaConteudo">
+        <p>Carregando etiqueta...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function verEtiqueta(code, lote) {
+  const cleanLote = lote.replaceAll(' ', '').replaceAll('/', '-');
+  const url = `/etiqueta_visualizar/${code}/${cleanLote}`;
+  const resp = await fetch(url);
+  const html = await resp.text();
+  document.getElementById('etiquetaConteudo').innerHTML = html;
+  const modal = new bootstrap.Modal(document.getElementById('modalEtiqueta'));
+  modal.show();
+}
+
+function imprimirEtiqueta(code, lote) {
+  const cleanLote = lote.replaceAll(' ', '').replaceAll('/', '-');
+  const url = `/etiqueta_visualizar/${code}/${cleanLote}`;
+  fetch(url)
+    .then(resp => resp.text())
+    .then(html => {
+      const printWindow = window.open("", "_blank", "width=1200,height=900");
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+        setTimeout(() => printWindow.close(), 100);
+      };
+    })
+    .catch(err => {
+      console.error("Erro ao imprimir etiqueta:", err);
+      alert("Erro ao gerar etiqueta para impressão.");
+    });
+}
+
+async function excluirEtiqueta(id) {
+  if (!confirm("Tem certeza que deseja excluir esta etiqueta?")) return;
+  const resp = await fetch(`/delete_label/${id}`, { method: 'DELETE' });
+  if (resp.ok) location.reload();
+  else alert("Erro ao excluir etiqueta.");
+}
+
+</script>
+
+{% endblock %}

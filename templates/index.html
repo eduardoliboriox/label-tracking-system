@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="d-flex justify-content-between mb-3">
+    <h2>Ordens de Produção</h2>
+    <div>
+        <form class="d-inline-flex" method="get" action="{{ url_for('index') }}">
+            <input type="text" name="search" class="form-control me-2" placeholder="Pesquisar..." value="{{ search }}">
+            <button type="submit" class="btn btn-outline-primary">Buscar</button>
+        </form>
+        <a href="{{ url_for('new') }}" class="btn btn-primary ms-2">Nova Ordem</a>
+    </div>
+</div>
+
+  <table class="table table-bordered table-hover align-middle text-center bg-white">
+
+   <thead>
+  <tr class="text-center">
+    <th>ID</th>
+    <th>Linha</th>
+    <th>Setor</th>
+    <th>Código</th>
+    <th>Modelo</th>
+    <th>Cliente</th>
+    <th>Atualizado</th>
+    <th>Ações</th>
+  </tr>
+</thead>
+<tbody>
+  {% for m in models %}
+  <tr class="text-center">
+    <td>{{ m['id'] }}</td>
+    <td>{{ m['linha'] or '-' }}</td>
+    <td>{{ m['setor'] or '-' }}</td>
+    <td>{{ m['code'] }}</td>
+    <td>{{ m['model_name'] }}</td>
+    <td>{{ m['cliente'] }}</td>
+    <td><small><strong></strong> {{ m['updated_at_formatted'] }}</small></td>
+    <td class="text-center">
+      <a class="btn btn-sm btn-secondary" href="{{ url_for('view_label', id=m['id']) }}">Etiquetas </a>
+      <a class="btn btn-sm btn-warning" href="{{ url_for('edit', id=m['id']) }}">Editar</a>
+      <a class="btn btn-sm btn-info" href="{{ url_for('history', id=m['id']) }}">Histórico</a>
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+
+  </table>
+{% endblock %}

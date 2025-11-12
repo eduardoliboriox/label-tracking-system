@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Movimentar Etiqueta{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 700px;">
+    <h2 class="mb-4 text-center fw-bold text-primary">📦 Movimentar Etiqueta</h2>
+
+    <form action="{{ url_for('movimentar') }}" method="post" class="card p-4 shadow-sm border-0 rounded-4 bg-light">
+        <div class="mb-3">
+            <label for="qr_code" class="form-label fw-bold">QR Code / Código da Etiqueta:</label>
+            <input type="text" name="qr_code" id="qr_code" class="form-control form-control-lg text-center" placeholder="Bipe o QR Code aqui" required autofocus>
+        </div>
+
+        <div class="mb-3">
+            <label for="ponto" class="form-label fw-bold">Selecione o Ponto de Marcação:</label>
+            <select name="ponto" id="ponto" class="form-select form-select-lg" required>
+                <option value="">-- Escolher Ponto --</option>
+                <option value="Ponto-01">Ponto-01 • PTH (Produção/Recebimento)</option>
+                <option value="Ponto-02">Ponto-02 • SMT (Produção/Recebimento)</option>
+                <option value="Ponto-03">Ponto-03 • SMT (Qualidade)</option>
+                <option value="Ponto-04">Ponto-04 • IM/PA (Produção/Recebimento)</option>
+                <option value="Ponto-05">Ponto-05 • IM/PA (Qualidade)</option>
+                <option value="Ponto-06">Ponto-06 • IM/PA (Qualidade)</option>
+                <option value="Ponto-07">Ponto-07 • Estoque (Saída Final)</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="acao" class="form-label fw-bold">Tipo de Ação:</label>
+            <select name="acao" id="acao" class="form-select form-select-lg" required>
+                <option value="">-- Escolher Ação --</option>
+                <option value="producao">✅ Produção</option>
+                <option value="recebimento">📥 Recebimento</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="quantidade" class="form-label fw-bold">Quantidade (opcional):</label>
+            <input type="number" name="quantidade" id="quantidade" class="form-control form-control-lg text-center" min="1" placeholder="Deixe em branco para usar a capacidade total da etiqueta">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold py-3 mt-3">Registrar Movimentação</button>
+    </form>
+
+    {% if message %}
+    <div class="alert alert-info text-center mt-4 fs-5 shadow-sm rounded-4">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    {% if historico %}
+    <div class="card mt-5 shadow-sm border-0 rounded-4">
+        <div class="card-header fw-bold bg-secondary bg-gradient text-white rounded-top-4">
+            Últimas Movimentações
+        </div>
+        <ul class="list-group list-group-flush">
+            {% for mov in historico %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>{{ mov['ponto'] }}</strong> — {{ mov['acao']|capitalize }}
+                    <br>
+                    <small class="text-muted">{{ mov['data'] }}</small>
+                </span>
+                <span class="badge bg-primary fs-6">{{ mov['quantidade'] }} un.</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Foco automático no campo de QR Code ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('qr_code');
+        input.focus();
+
+        // Pressionar Enter envia o formulário automaticamente
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.querySelector('form').submit();
+            }
+        });
+    });
+</script>
+{% endblock %}

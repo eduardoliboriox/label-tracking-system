@@ -24,6 +24,11 @@
         <button class="btn btn-outline-info btn-sm fw-bold btn-status" onclick="filterByStatus('DISPONIVEL')">✅ Placas Disponíveis</button>
     </div>
 
+    <!-- TOTAL GERAL -->
+    <div class="alert alert-primary fw-bold mb-3" id="totalGeralBox">
+        Total Geral: 0
+    </div>
+
     <!-- Tabela -->
     <div class="table-responsive shadow-sm rounded-4 bg-light p-3">
         <table class="table table-hover align-middle" id="dashboardTable">
@@ -38,7 +43,8 @@
             <tbody>,
             {% for item in data %}
                 {% for saldo in item.saldo_setores %}
-                <tr
+                <tr 
+                    class="text-center"
                     data-setor="{{ saldo.setor }}"
                     data-status="{{ saldo.status }}"
                     data-fase="{{ saldo.fase }}">
@@ -55,26 +61,80 @@
 </div>
 
 <script>
-    // --- Filtro por setor ---
-    function filterBySetor(setor) {
-        const rows = document.querySelectorAll('#dashboardTable tbody tr');
-        rows.forEach(row => {
-            row.style.display = (setor === 'TODOS' || row.dataset.setor === setor) ? '' : 'none';
-        });
-        document.querySelectorAll('.btn-setor').forEach(btn => btn.classList.remove('active'));
-        const clickedBtn = document.querySelector(`[onclick="filterBySetor('${setor}')"]`);
-        if (clickedBtn) clickedBtn.classList.add('active');
-    }
+  // estados atuais dos filtros
+  let currentSetor = 'TODOS';
+  let currentStatus = 'TODOS';
 
-    // --- Filtro por status (usando fase) ---
-    function filterByStatus(status) {
-        const rows = document.querySelectorAll('#dashboardTable tbody tr');
-        rows.forEach(row => {
-            row.style.display = (status === 'TODOS' || row.dataset.status === status) ? '' : 'none';
-        });
-        document.querySelectorAll('.btn-status').forEach(btn => btn.classList.remove('active'));
-        const clickedBtn = document.querySelector(`[onclick="filterByStatus('${status}')"]`);
-        if (clickedBtn) clickedBtn.classList.add('active');
-    }
+  // pega todas as linhas (cache)
+  const getRows = () => Array.from(document.querySelectorAll('#dashboardTable tbody tr'));
+
+  function applyFilters() {
+    const rows = getRows();
+    rows.forEach(row => {
+      const rowSetor = (row.dataset.setor || 'SEM SETOR').toString().trim();
+      const rowStatus = (row.dataset.status || '').toString().trim();
+
+      // condição setor
+      const okSetor = (currentSetor === 'TODOS') || (rowSetor === currentSetor);
+      // condição status
+      const okStatus = (currentStatus === 'TODOS') || (rowStatus === currentStatus);
+
+      // mostra apenas se BOTH true (interseção)
+      row.style.display = (okSetor && okStatus) ? '' : 'none';
+    });
+    calcularTotalGeral();
+  }
+
+  // ativa/desativa classe active nos botões de setor
+  function setActiveSetorBtn(setor) {
+    document.querySelectorAll('.btn-setor').forEach(btn => btn.classList.remove('active'));
+    const clicked = document.querySelector(`[onclick="filterBySetor('${setor}')"]`);
+    if (clicked) clicked.classList.add('active');
+  }
+
+  // ativa/desativa classe active nos botões de status
+  function setActiveStatusBtn(status) {
+    document.querySelectorAll('.btn-status').forEach(btn => btn.classList.remove('active'));
+    const clicked = document.querySelector(`[onclick="filterByStatus('${status}')"]`);
+    if (clicked) clicked.classList.add('active');
+  }
+
+  // --- Filtro por setor (mantém estado) ---
+  function filterBySetor(setor) {
+    currentSetor = setor;
+    setActiveSetorBtn(setor);
+    applyFilters();
+  }
+
+  // --- Filtro por status (mantém estado) ---
+  function filterByStatus(status) {
+    currentStatus = status;
+    setActiveStatusBtn(status);
+    applyFilters();
+  }
+
+ function calcularTotalGeral() {
+    let total = 0;
+    const rows = document.querySelectorAll('#dashboardTable tbody tr');
+
+    rows.forEach(row => {
+        if (row.style.display !== 'none') {  // só soma linhas visíveis
+            const saldo = parseInt(row.querySelector('td:nth-child(4)').innerText) || 0;
+            total += saldo;
+        }
+    });
+
+    document.getElementById("totalGeralBox").innerText = "Total Geral: " + total;
+}
+
+
+  // opcional: inicializa os botões "Mostrar Todos" como ativos
+ document.addEventListener('DOMContentLoaded', () => {
+    setActiveSetorBtn('TODOS');
+    setActiveStatusBtn('TODOS');
+    applyFilters();
+    calcularTotalGeral();   // <<< ADICIONE ESTA LINHA
+});
 </script>
+
 {% endblock %}

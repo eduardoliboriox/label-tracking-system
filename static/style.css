@@ -5,7 +5,7 @@ table.table thead {
 }
 
 table.table thead th {
-  background-color: #000 !important; /* Garante fundo em cada célula */
+  background-color: #8b2828 !important; /* Garante fundo em cada célula */
   color: #fff !important;
   border: 1px solid #222;
   text-align: center;

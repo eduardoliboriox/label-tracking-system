@@ -1,4 +1,4 @@
-Sistema-Etiquetas-QrCode/
+Sistema de Rastreabilidade via Etiquetas/
 ├─ static/
     └─ logo.png 
     └─ style.css  
@@ -1772,3 +1772,4 @@ def etiqueta_visualizar(code, lote):
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
 
+Manutenção corretiva na head do módulo 4.

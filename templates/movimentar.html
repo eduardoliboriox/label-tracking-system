@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Movimentar Etiqueta{% endblock %}
 
+{% set show_header_content = true %}
+
 {% block content %}
 <div class="container mt-4" style="max-width: 700px;">
     <h2 class="mb-4 text-center fw-bold text-primary">📦 Movimentar Etiqueta</h2>
@@ -15,13 +17,13 @@
             <label for="ponto" class="form-label fw-bold">Selecione o Ponto de Marcação:</label>
             <select name="ponto" id="ponto" class="form-select form-select-lg" required>
                 <option value="">-- Escolher Ponto --</option>
-                <option value="Ponto-01">Ponto-01 • PTH (Produção/Recebimento)</option>
-                <option value="Ponto-02">Ponto-02 • SMT (Produção/Recebimento)</option>
-                <option value="Ponto-03">Ponto-03 • SMT (Qualidade)</option>
-                <option value="Ponto-04">Ponto-04 • IM/PA (Produção/Recebimento)</option>
-                <option value="Ponto-05">Ponto-05 • IM/PA (Qualidade)</option>
-                <option value="Ponto-06">Ponto-06 • IM/PA (Qualidade)</option>
-                <option value="Ponto-07">Ponto-07 • Estoque (Saída Final)</option>
+                <option value="Ponto-01">Ponto-01 • PTH </option>
+                <option value="Ponto-02">Ponto-02 • SMT </option>
+                <option value="Ponto-03">Ponto-03 • SMT (CQ)</option>
+                <option value="Ponto-04">Ponto-04 • IM/PA </option>
+                <option value="Ponto-05">Ponto-05 • IM/PA (CQ)</option>
+                <option value="Ponto-06">Ponto-06 • IM/PA (CQ)</option>
+                <option value="Ponto-07">Ponto-07 • Estoque</option>
             </select>
         </div>
 

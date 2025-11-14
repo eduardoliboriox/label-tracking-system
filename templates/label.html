@@ -1,341 +1,335 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="no-print mb-3">
-  <form method="post" class="d-flex flex-wrap align-items-end gap-3">
-    <div>
-      <label class="form-label mb-1">Produção Total (placas)</label>
-      <input type="number" name="producao_total" class="form-control" placeholder="Ex: 1000" required>
-    </div>
-    <div>
-      <label class="form-label mb-1">Capacidade por Magazine</label>
-      <input type="number" name="capacidade_magazine" class="form-control" placeholder="Ex: 50" required>
+  {% extends "base.html" %}
+  {% block content %}
+  <div class="no-print mb-3">
+    <form method="post" class="d-flex flex-wrap align-items-end gap-3">
+      <div>
+        <label class="form-label mb-1">Produção Total (placas)</label>
+        <input type="number" name="producao_total" class="form-control" placeholder="Ex: 1000" required>
+      </div>
+      <div>
+        <label class="form-label mb-1">Capacidade por Magazine</label>
+        <input type="number" name="capacidade_magazine" class="form-control" placeholder="Ex: 50" required>
 
-          <div>
-      <label>Vincular a etiqueta existente (opcional)</label>
-      <select name="linked_label_id" class="form-control">
-        <option value="">Nenhuma</option>
-        {% for l in existing_labels %}
-          <option value="{{ l['id'] }}">{{ l['lote'] }} - {{ l['model_name'] }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    </div>
-    <button type="submit" class="btn btn-success">Gerar Etiquetas</button>
-    <a class="btn btn-secondary" href="{{ url_for('index') }}">Voltar</a>
-  </form>
+            <div>
+        <label>Vincular a etiqueta existente (opcional)</label>
+        <select name="linked_label_id" class="form-control">
+          <option value="">Nenhuma</option>
+          {% for l in existing_labels %}
+            <option value="{{ l['id'] }}">{{ l['lote'] }} - {{ l['model_name'] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      </div>
+      <button type="submit" class="btn btn-success">Gerar Etiquetas</button>
+      <a class="btn btn-secondary" href="{{ url_for('index') }}">Voltar</a>
+    </form>
 
-  {% if lotes %}
-    <button class="btn btn-primary mt-3" onclick="window.print()">Imprimir</button>
-  {% endif %}
-</div>
+    {% if lotes %}
+      <button class="btn btn-primary mt-3" onclick="window.print()">Imprimir</button>
+    {% endif %}
+  </div>
 
-<style>
-@page {
-  size: A4 landscape;
-  margin: 0mm !important;
-}
+  <style>
+  @page {
+    size: A4 landscape;
+    margin: 0mm !important;
+  }
 
-body {
-  margin: 0 !important;
-  padding: 0 !important;
-  background: #fff;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-  transform: scale(1); /* impede encolhimento automático */
-  transform-origin: top left;
-}
-
-/* ===== IGNORA QUALQUER AJUSTE AUTOMÁTICO ===== */
-* {
-  box-sizing: border-box;
-}
-
-/* ===== PÁGINA ===== */
-.pagina {
-  display: block !important;
-  width: auto !important;
-  max-width: none !important;
-  line-height: 0;
-  white-space: nowrap !important;
-  /* impede quebra e deixa expandir */
-}
-
-.etiqueta {
-  display: inline-block;
-  vertical-align: top;
-  margin-right: 3mm;   /* espaço horizontal */
-  margin-bottom: 5mm;  /* espaço entre linhas */ 
-  width: 280mm; /* largura real da etiqueta */
-  height: auto;  /* deixa crescer conforme conteúdo */
-  border: 6px solid #000;
-  padding: 8mm;
-  background: #fff;
-  font-family: Arial, sans-serif;
-  font-size: 18pt;
-  line-height: 1.4;
-  white-space: normal;
-  overflow: visible;
-  page-break-inside: avoid;
-
-  /* apenas adiciona espaçamento entre etiquetas */
-  margin-bottom: 3mm;  /* pequeno espaço vertical */
-}
-
-/* ===== CONTEÚDO ===== */
-.titulo {
-  text-align: center;
-  font-weight: bold;
-  font-size: 22pt;
-  white-space: nowrap; /* não quebra */
-}
-
-.cliente {
-  text-align: center;
-  font-weight: bold;
-  font-size: 26pt;
-  margin: 5mm 0;
-  text-transform: uppercase;
-}
-
-.etiqueta table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 18pt;
-}
-
-.etiqueta td,
-.etiqueta th {
-  border: 1px solid #000;
-  padding: 3mm 4mm;
-  vertical-align: middle;
-  word-wrap: break-word;
-}
-
-.qr-codigo {
-  width: 60mm;
-  height: 40mm;
-  border: 1px solid #000;
-  object-fit: contain;
-}
-
-.codigo-box-destaque {
-  border: 3px solid #000;
-  font-size: 32pt;
-  font-weight: bold;
-  text-align: center;
-  height: 40mm;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-
-.checkbox-box {
-  width: 12mm;
-  height: 10mm;
-  border: 1px solid #000;
-  display: inline-block;
-  margin: 0 3mm;
-}
-
-.wide-checkbox {
-  width: 60mm;
-  height: 10mm;
-  border: 1px solid #000;
-  display: inline-block;
-  margin-left: 4mm;
-}
-
-.sem-borda td,
-.sem-borda th {
-  border: none !important;
-}
-
-.linha-assinatura {
-  display: inline-block;
-  width: 100mm;       /* ← aumente ou reduza o comprimento aqui */
-  border-bottom: 1.5px solid #000; /* linha preta */
-  margin-left: 5mm;  /* distância entre o texto e a linha */
-  height: 6mm;       /* dá espaço para assinar sem encostar */
-}
-
-@media screen {
   body {
-    zoom: 0.6; 
-  }
-}
-
-/* ===== IMPRESSÃO ===== */
-@media print {
-  html, body {
-    width: 297mm;
-    height: 240mm;
-    margin: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    transform: scale(1); /* impede encolhimento automático */
+    transform-origin: top left;
   }
 
+  /* ===== IGNORA QUALQUER AJUSTE AUTOMÁTICO ===== */
+  * {
+    box-sizing: border-box;
+  }
+
+  /* ===== PÁGINA ===== */
   .pagina {
-    width: 297mm;
-    height: 245mm;
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
     line-height: 0;
-    overflow: visible;
+    white-space: nowrap !important;
+    /* impede quebra e deixa expandir */
   }
 
   .etiqueta {
-    width: 280mm !important;  /* força largura real */
-    transform: none !important;
-    zoom: 1 !important;
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 3mm;   /* espaço horizontal */
+    margin-bottom: 5mm;  /* espaço entre linhas */ 
+    width: 280mm; /* largura real da etiqueta */
+    height: auto;  /* deixa crescer conforme conteúdo */
+    border: 6px solid #000;
+    padding: 8mm;
+    background: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 18pt;
+    line-height: 1.3;
+    white-space: normal;
+    overflow: visible;
     page-break-inside: avoid;
-  }
-}
 
-@media print {
-  body {
-    margin: 0 !important;
-    padding: 0 !important;
+    /* apenas adiciona espaçamento entre etiquetas */
+    margin-bottom: 2mm;  /* pequeno espaço vertical */
   }
 
-  .pagina {
-    margin: 0 !important;
-    padding: 0 !important;
-    padding-left: 10mm !important; /* dá folga do lado esquerdo */
-    transform: none !important;
-    zoom: 1.03; /* aumenta levemente a escala na impressão */
+  /* ===== CONTEÚDO ===== */
+  .titulo {
+    text-align: center;
+    font-weight: bold;
+    font-size: 22pt;
+    white-space: nowrap; /* não quebra */
   }
-}
 
-</style>
+  .cliente {
+    text-align: center;
+    font-weight: bold;
+    font-size: 26pt;
+    margin: 5mm 0;
+    text-transform: uppercase;
+  }
 
-{% if request.endpoint == 'etiqueta_visualizar' %}
-<style>
+  .etiqueta table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 18pt;
+  }
+
+  .etiqueta td,
+  .etiqueta th {
+    border: 1px solid #000;
+    padding: 3mm 4mm;
+    vertical-align: middle;
+    word-wrap: break-word;
+  }
+
+  .qr-codigo {
+    width: 60mm;
+    height: 40mm;
+    border: 1px solid #000;
+    object-fit: contain;
+  }
+
+  .codigo-box-destaque {
+    border: 3px solid #000;
+    font-size: 32pt;
+    font-weight: bold;
+    text-align: center;
+    height: 40mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .checkbox-box {
+    width: 12mm;
+    height: 10mm;
+    border: 1px solid #000;
+    display: inline-block;
+    margin: 0 3mm;
+  }
+
+  .wide-checkbox {
+    width: 60mm;
+    height: 10mm;
+    border: 1px solid #000;
+    display: inline-block;
+    margin-left: 4mm;
+  }
+
+  .sem-borda td,
+  .sem-borda th {
+    border: none !important;
+  }
+
+  .linha-assinatura {
+    display: inline-block;
+    width: 100mm;       /* ← aumente ou reduza o comprimento aqui */
+    border-bottom: 1.5px solid #000; /* linha preta */
+    margin-left: 5mm;  /* distância entre o texto e a linha */
+    height: 6mm;       /* dá espaço para assinar sem encostar */
+  }
+
   @media screen {
     body {
-      zoom: 1 !important;
-      transform: none !important;
-      overflow: visible !important;
-    }
-    .pagina {
-      transform: scale(0.8);
-      transform-origin: top left;
+      zoom: 0.6; 
     }
   }
-</style>
-{% endif %}
 
-{% if lotes %}
-  {% set etiquetas_por_folha = 3 %}
-  {% for i in range(0, lotes|length, etiquetas_por_folha) %}
-  <div class="pagina">
-    {% for lote_num in lotes[i:i+etiquetas_por_folha] %}
-    <div class="etiqueta">
-      <table style="margin-bottom:6px;">
-        <tr>
-          <td style="width:100px; border:none;">
-            <img src="{{ url_for('static', filename='logo.png') }}" style="height:60px;">
-          </td>
-          <td class="titulo" style="border:none;">
-            ETIQUETA DE IDENTIFICAÇÃO SEMI-ACABADO
-          </td>
-          <td style="width:100px; border:none;"></td>
-        </tr>
-      </table>
+  /* ===== IMPRESSÃO ===== */
+  @media print {
+    html, body {
+      width: 297mm;
+      height: 245mm;
+      margin: 0;
+    }
 
-      <table>
-        <tr>
-          <td style="width:33%;">
-            <strong>Cód.:</strong> {{m['code']}}<br>
-            <strong>Linha:</strong> {{m['linha']}} {{m['setor'] or 'SMT'}}<br>
-            <strong>Lote:</strong> {{lote_num}}<br>
-            <strong>Horário:</strong> {{m['horario']}}
-          </td>
-          <td style="width:33%;">
-            <strong>Modelo:</strong> {{m['model_name']}}<br>
-            <strong>Turno:</strong> {{m['turno']}}<br>
-            <strong>Quant.:</strong> {{m['quantidade']}}<br>
-            <strong>Lote:</strong> {{m['po']}}
-          </td>
-          <td style="width:33%;">
-            <strong>Data:</strong> {{m['data']}}<br>
-            <strong>Revisor(a):</strong> {{m['revisora']}}<br>
-            <strong>OP:</strong> {{m['op']}}<br>
-          </td>
-        </tr>
-      </table>
+    .pagina {
+      width: 297mm;
+      height: 245mm;
+      padding-top: 14mm !important;
+      line-height: 0;
+      overflow: visible;
+    }
 
-      {% if auto_print %}
-<script>
-  window.onload = () => window.print();
-</script>
-{% endif %}
+    .etiqueta {
+      width: 280mm !important;  /* força largura real */
+      transform: none !important;
+      zoom: 1 !important;
+      page-break-inside: avoid;
+    }
+  }
 
-{% if request.args.get('auto_print') %}
-<script>
-  window.onload = () => window.print();
-</script>
-{% endif %}
+  @media print {
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      padding-top: 13mm !important;
+    }
 
-<div class="mb-3">
-  <label>Vincular a etiqueta existente (opcional)</label>
-  <select name="linked_label_id" class="form-control">
-    <option value="">Nenhuma</option>
-    {% for l in existing_labels %}
-      <option value="{{ l['id'] }}">{{ l['lote'] }} - {{ l['model_name'] }}</option>
-    {% endfor %}
-  </select>
-</div>
+    .pagina {
+      margin: 0 !important;
+      padding: 0 !important;
+      padding-top: 13mm !important;
+      padding-left: 10mm !important; /* dá folga do lado esquerdo */
+      transform: none !important;
+      zoom: 1.03; /* aumenta levemente a escala na impressão */
+    }
+  }
 
-      <div class="cliente">CLIENTE: {{ m['cliente'] or '---' }}</div>
+  </style>
 
-      <table class="sem-borda">
-        <tr>
-          <td colspan="3">
-            <strong>Alteração:</strong> SIM <span class="checkbox-box"></span>
-            NÃO <span class="checkbox-box"></span>
-            <strong>N° DESVIO</strong> <span class="wide-checkbox"></span>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="3">
-            <strong>Processo:</strong>
-            TOP <span class="checkbox-box"></span>
-            BOT <span class="checkbox-box"></span>
-            AOI <span class="checkbox-box"></span>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="3">
-            <strong>Status CQ:</strong>
-            APROVADO <span class="checkbox-box"></span>
-            REJEITADO <span class="checkbox-box"></span>
-            TESTE FUNCIONAL <span class="checkbox-box"></span>
-          </td>
-        </tr>
-      </table>
+  {% if request.endpoint == 'etiqueta_visualizar' %}
+  <style>
+    @media screen {
+      body {
+        zoom: 1 !important;
+        transform: none !important;
+        overflow: visible !important;
+      }
+      .pagina {
+        transform: scale(0.8);
+        transform-origin: top left;
+      }
+    }
+  </style>
+  {% endif %}
 
-      <table class="sem-borda" style="margin-top:6px; width: 100%;">
-        <tr>
-          <td style="width:130px;">
-            <img class="qr-codigo" src="{{ url_for('qr', code=(m['code'] ~ '-' ~ lote_num.replace(' ', '').replace('/', '-'))) }}">
-          </td>
-          <td style="text-align: right;">
-            <div class="codigo-box-destaque">{{m['code']}}</div>
-          </td>
-        </tr>
-      </table>
+  {% if lotes %}
+    {% set etiquetas_por_folha = 3 %}
+    {% for i in range(0, lotes|length, etiquetas_por_folha) %}
+    <div class="pagina">
+      {% for lote_num in lotes[i:i+etiquetas_por_folha] %}
+      <div class="etiqueta">
+        <table style="margin-bottom:6px;">
+          <tr>
+            <td style="width:100px; border:none;">
+              <img src="{{ url_for('static', filename='logo.png') }}" style="height:60px;">
+            </td>
+            <td class="titulo" style="border:none;">
+              ETIQUETA DE IDENTIFICAÇÃO SEMI-ACABADO
+            </td>
+            <td style="width:100px; border:none;"></td>
+          </tr>
+        </table>
 
-      <table class="sem-borda" style="margin-top:6px;">
-        <tr>
-          <td><strong>Obs.:</strong> {{m['obs']}}</td>
-        </tr>
-        <tr>  
-          <td class="text-end">
-            <strong>Resp. CQ:</strong>
-            <span class="linha-assinatura"></span>
-          </td>
-        </tr>
-      </table>
+        <table>
+          <tr>
+            <td style="width:33%;">
+              <strong>Cód.:</strong> {{m['code']}}<br>
+              <strong>Linha:</strong> {{m['linha']}} {{m['setor'] or 'SMT'}}<br>
+              <strong>Lote:</strong> {{lote_num}}<br>
+              <strong>Horário:</strong> {{m['horario']}}
+            </td>
+            <td style="width:33%;">
+              <strong>Modelo:</strong> {{m['model_name']}}<br>
+              <strong>Turno:</strong> {{m['turno']}}<br>
+              <strong>Quant.:</strong> {{m['quantidade']}}<br>
+              <strong>Lote:</strong> {{m['po']}}
+            </td>
+            <td style="width:33%;">
+              <strong>Data:</strong> {{m['data']}}<br>
+              <strong>Revisor(a):</strong> {{m['revisora']}}<br>
+              <strong>OP:</strong> {{m['op']}}<br>
+            </td>
+          </tr>
+        </table>
+
+        {% if auto_print %}
+  <script>
+    window.onload = () => window.print();
+  </script>
+  {% endif %}
+
+  {% if request.args.get('auto_print') %}
+  <script>
+    window.onload = () => window.print();
+  </script>
+  {% endif %}
+
+        <div class="cliente">CLIENTE: {{ m['cliente'] or '---' }}</div>
+
+        <table class="sem-borda">
+          <tr>
+            <td colspan="3">
+              <strong>Alteração:</strong> SIM <span class="checkbox-box"></span>
+              NÃO <span class="checkbox-box"></span>
+              <strong>N° DESVIO</strong> <span class="wide-checkbox"></span>
+            </td>
+          </tr>
+          
+          <tr>
+            <td colspan="3">
+              <strong>Processo:</strong>
+              TOP <span class="checkbox-box"></span>
+              BOT <span class="checkbox-box"></span>
+              AOI <span class="checkbox-box"></span>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3">
+              <strong>Status CQ:</strong>
+              APROVADO <span class="checkbox-box"></span>
+              REJEITADO <span class="checkbox-box"></span>
+              TESTE FUNCIONAL <span class="checkbox-box"></span>
+            </td>
+          </tr>
+        </table>
+
+        <table class="sem-borda" style="margin-top:6px; width: 100%;">
+          <tr>
+            <td style="width:130px;">
+              <img class="qr-codigo" src="{{ url_for('qr', code=(m['code'] ~ '-' ~ lote_num.replace(' ', '').replace('/', '-'))) }}">
+            </td>
+            <td style="text-align: right;">
+              <div class="codigo-box-destaque">{{m['code']}}</div>
+            </td>
+          </tr>
+        </table>
+
+        <table class="sem-borda" style="margin-top:6px;">
+          <tr>
+            <td><strong>Obs.:</strong> {{m['obs']}}</td>
+          </tr>
+          <tr>  
+            <td class="text-end">
+              <strong>Resp. CQ:</strong>
+              <span class="linha-assinatura"></span>
+            </td>
+          </tr>
+        </table>
+      </div>
+      {% endfor %}
     </div>
     {% endfor %}
-  </div>
-  {% endfor %}
-{% endif %}
-{% endblock %}
+  {% endif %}
+  {% endblock %}

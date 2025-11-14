@@ -113,6 +113,7 @@ def add_missing_table_labels():
                 lote TEXT,
                 producao_total INTEGER,
                 capacidade_magazine INTEGER,
+                remaining INTEGER,
                 created_at TEXT,
                 linked_label_id INTEGER,
                 setor_atual TEXT,
@@ -129,11 +130,14 @@ def add_missing_table_labels():
             c.execute("ALTER TABLE labels ADD COLUMN linked_label_id INTEGER REFERENCES labels(id);")
         if "setor_atual" not in columns:
             c.execute("ALTER TABLE labels ADD COLUMN setor_atual TEXT;")
-        if "fase" not in columns:  # 👈 Aqui entra a nova coluna
+        if "fase" not in columns:
             c.execute("ALTER TABLE labels ADD COLUMN fase TEXT;")
+        if "remaining" not in columns:
+            c.execute("ALTER TABLE labels ADD COLUMN remaining INTEGER;")
+            # Inicializa remaining com capacidade_magazine para registros antigos
+            c.execute("UPDATE labels SET remaining = capacidade_magazine WHERE remaining IS NULL;")
         conn.commit()
     conn.close()
-
 
 def add_missing_table_movements():
     conn = sqlite3.connect(DB_PATH)
@@ -372,17 +376,19 @@ def view_label(id):
             conn = get_db()
             for lote in lotes:
                 conn.execute("""
-                    INSERT INTO labels (model_id, lote, producao_total, capacidade_magazine, created_at, linked_label_id, setor_atual, fase)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO labels 
+                        (model_id, lote, producao_total, capacidade_magazine, remaining, created_at, linked_label_id, setor_atual, fase)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
-                    id, 
-                    lote, 
-                    producao_total, 
-                    capacidade_magazine, 
-                    datetime.now().isoformat(), 
-                    linked_label_id, 
-                    None,  # 👈 não atribui setor ainda
-                    "AGUARDANDO"  # 👈 fase inicial
+                    id,
+                    lote,
+                    producao_total,
+                    capacidade_magazine,
+                    capacidade_magazine,
+                    datetime.now().isoformat(),
+                    linked_label_id,
+                    model["setor"] if model["setor"] else "PTH",
+                    "AGUARDANDO"
                 ))
             conn.commit()
             conn.close()
@@ -484,18 +490,81 @@ def movimentar(full_code=None):
 
         try:
             conn = get_db()
+
+            # Se tivermos uma label (origem), usamos ela como fonte de peças.
+            # Caso contrário (nenhuma label encontrada), tratamos como movimentação sobre o modelo inteiro.
             if label:
+                # garante que a coluna remaining exista e seja int
+                remaining = int(label.get("remaining") if label.get("remaining") is not None else (label.get("capacidade_magazine") or 0))
+                transfer = int(quantidade)
+
+                if transfer <= 0:
+                    flash("Quantidade inválida.", "danger")
+                    conn.close()
+                    return redirect(url_for("index"))
+
+                if transfer > remaining:
+                    flash(f"Quantidade solicitada ({transfer}) maior que o disponível na etiqueta ({remaining}).", "danger")
+                    conn.close()
+                    return redirect(url_for("index"))
+
+                # decrementa remaining da etiqueta origem
+                new_remaining = remaining - transfer
                 conn.execute(
-                    "UPDATE labels SET setor_atual=?, updated_at=? WHERE id=?",
-                    (setor_destino, datetime.now().isoformat(), label["id"]),
+                    "UPDATE labels SET remaining=?, updated_at=? WHERE id=?",
+                    (new_remaining, datetime.now().isoformat(), label["id"])
                 )
-                label_id = label["id"]
+
+                # se precisar, marca etiqueta origem como vazia quando remaining == 0 (opcional)
+                if new_remaining == 0:
+                    # opcional: mantém setor_atual como estava, ou marca como 'CONSUMIDO'
+                    # aqui vamos deixar setor_atual inalterado, mas pode-se adicionar um flag se desejar
+                    pass
+
+                # cria nova etiqueta no setor destino representando a quantidade transferida
+                conn.execute("""
+                    INSERT INTO labels (model_id, lote, producao_total, capacidade_magazine, remaining, created_at, linked_label_id, setor_atual, fase)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    model["id"],
+                    label["lote"],
+                    transfer,            # producao_total desta "sub-etiqueta"
+                    transfer,            # capacidade_magazine = transfer (agora este lote tem tamanho transfer)
+                    transfer,            # remaining = transfer
+                    datetime.now().isoformat(),
+                    label["id"],         # linked_label_id referencia origem
+                    setor_destino,
+                    "DISPONIVEL" if acao == "PRODUCAO" else (label.get("fase") or "AGUARDANDO")
+                ))
+
+                # pega o id da nova etiqueta inserida para histórico/moviment
+                new_label_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+
             else:
-                conn.execute(
-                    "UPDATE models SET setor=?, updated_at=? WHERE id=?",
-                    (setor_destino, datetime.now().isoformat(), model["id"]),
-                )
-                label_id = None
+                # Não havia label encontrada: cria uma nova etiqueta diretamente no setor destino
+                transfer = int(quantidade)
+                if transfer <= 0:
+                    flash("Quantidade inválida.", "danger")
+                    conn.close()
+                    return redirect(url_for("index"))
+
+                conn.execute("""
+                    INSERT INTO labels (model_id, lote, producao_total, capacidade_magazine, remaining, created_at, linked_label_id, setor_atual, fase)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    model["id"],
+                    model.get("lote"),
+                    transfer,
+                    transfer,
+                    transfer,
+                    datetime.now().isoformat(),
+                    None,
+                    setor_destino,
+                    "DISPONIVEL" if acao == "PRODUCAO" else "AGUARDANDO"
+                ))
+
+                new_label_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                label_id = new_label_id  # para histórico
 
             # histórico
             conn.execute(
@@ -504,24 +573,26 @@ def movimentar(full_code=None):
                     model["id"],
                     datetime.now().isoformat(),
                     "terminal_movimentacao",
-                    f"{acao} em {ponto} (origem: {setor_origem} → destino: {setor_destino})",
+                    f"{acao} em {ponto} (origem: {setor_origem} → destino: {setor_destino}) - qtd: {transfer}"
                 ),
             )
 
-            # movimentação
+            # movimentação (registra a quantidade transferida)
             register_movement(
                 conn,
                 model["id"],
-                label_id,
+                new_label_id if 'new_label_id' in locals() else label_id,
                 ponto,
                 acao,
-                quantidade,
+                transfer,
                 setor_origem,
                 setor_destino,
                 created_by="terminal_movimentacao",
             )
+
             conn.commit()
-            flash(f"✅ {acao} registrada no {ponto} ({setor_origem} → {setor_destino})", "success")
+            flash(f"✅ {acao} registrada no {ponto} ({setor_origem} → {setor_destino}) - {transfer} un.", "success")
+
 
         except Exception as e:
             conn.rollback()
@@ -539,9 +610,8 @@ def movimentar(full_code=None):
         label=label,
         ponto=ponto_query,
         full_code=full_code,
+        header_title=ponto_query
     )
-
-
 
 @app.route("/dashboard")
 def dashboard():
@@ -554,7 +624,7 @@ def dashboard():
     dashboard_data = []
     for m in models:
         labels = conn.execute("""
-            SELECT setor_atual, fase, SUM(capacidade_magazine) AS saldo
+            SELECT setor_atual, fase, SUM(remaining) AS saldo
             FROM labels
             WHERE model_id=?
             GROUP BY setor_atual, fase

@@ -7,26 +7,33 @@
     <!-- Cabeçalho -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h2 class="fw-bold text-primary mb-0">📊 Dashboard de Produção</h2>
-        <div class="d-flex flex-wrap gap-2">
-            <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
-            <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('SMT')">SMT</button>
-            <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('IM')">IM</button>
-            <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PA')">PA</button>
-            <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('ESTOQUE')">Estoque</button>
-            <button class="btn btn-outline-secondary btn-sm fw-bold btn-setor" onclick="filterBySetor('TODOS')">Mostrar Todos</button>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <!-- Botões de Setor -->
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
+                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('SMT')">SMT</button>
+                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('IM')">IM</button>
+                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PA')">PA</button>
+                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('ESTOQUE')">Estoque</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-setor" onclick="filterBySetor('TODOS')">Mostrar Todos</button>
+            </div>
+            <form id="searchForm" class="d-inline-flex ms-3">
+                <input type="text" id="searchInput" class="form-control me-2" placeholder="Pesquisar...">
+                <button type="submit" class="btn btn-outline-primary">Buscar</button>
+            </form>
         </div>
     </div>
 
     <!-- Filtros de status -->
     <div class="d-flex justify-content-start flex-wrap gap-2 mb-4">
-        <button class="btn btn-outline-warning btn-sm fw-bold btn-status" onclick="filterByStatus('AGUARDANDO')">🕓 Aguardando</button>
-        <button class="btn btn-outline-success btn-sm fw-bold btn-status" onclick="filterByStatus('DISPONIVEL')">✅ Disponível</button>
-        <button class="btn btn-outline-info btn-sm fw-bold btn-status" onclick="filterByStatus('EXPEDIDO')">📦 Expedido</button>
-        <button class="btn btn-outline-secondary btn-sm fw-bold btn-status" onclick="filterByStatus('TODOS')">Mostrar Todos</button>
+        <button type="button" class="btn btn-outline-warning btn-sm fw-bold btn-status" onclick="filterByStatus('AGUARDANDO')">🕓 Aguardando</button>
+        <button type="button" class="btn btn-outline-success btn-sm fw-bold btn-status" onclick="filterByStatus('DISPONIVEL')">✅ Disponível</button>
+        <button type="button" class="btn btn-outline-info btn-sm fw-bold btn-status" onclick="filterByStatus('EXPEDIDO')">📦 Expedido</button>   
+        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-status" onclick="filterByStatus('TODOS')">Mostrar Todos</button>
     </div>
 
-    <!-- TOTAL GERAL -->
-    <div class="alert alert-primary fw-bold mb-3" id="totalGeralBox">
+    <div id="totalGeralBox" style="background-color: #cce5ff; color: #004085; font-weight: bold; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
         Total Geral: 0
     </div>
 
@@ -74,45 +81,90 @@
 <script>
 let currentSetor = 'TODOS';
 let currentStatus = 'TODOS';
+let currentSearch = '';
 
-const getRows = () => Array.from(document.querySelectorAll('#dashboardTable tbody tr'));
+function normalize(value) {
+    return (value || "").toString().trim().toUpperCase();
+}
 
+function getRows() {
+    return Array.from(document.querySelectorAll('#dashboardTable tbody tr'));
+}
+
+// -----------------------------
+// APLICA TODOS OS FILTROS
+// -----------------------------
 function applyFilters() {
     const rows = getRows();
+
     rows.forEach(row => {
-        const rowSetor = (row.dataset.setor || 'SEM SETOR').toString().trim();
-        const rowStatus = (row.dataset.status || '').toString().trim();
-        const okSetor = (currentSetor === 'TODOS') || (rowSetor === currentSetor);
-        const okStatus = (currentStatus === 'TODOS') || (rowStatus === currentStatus);
-        row.style.display = (okSetor && okStatus) ? '' : 'none';
+        const rowSetor = normalize(row.dataset.setor);
+        const rowStatus = normalize(row.dataset.status);
+        const rowText = normalize(row.innerText);
+
+        const okSetor = currentSetor === "TODOS" || rowSetor === currentSetor;
+        const okStatus = currentStatus === "TODOS" || rowStatus === currentStatus;
+        const okSearch = currentSearch === "" || rowText.includes(currentSearch);
+
+        row.style.display = (okSetor && okStatus && okSearch) ? '' : 'none';
     });
+
     calcularTotalGeral();
 }
 
-function setActiveSetorBtn(setor) {
-    document.querySelectorAll('.btn-setor').forEach(btn => btn.classList.remove('active'));
-    const clicked = document.querySelector(`[onclick="filterBySetor('${setor}')"]`);
-    if (clicked) clicked.classList.add('active');
-}
-
-function setActiveStatusBtn(status) {
-    document.querySelectorAll('.btn-status').forEach(btn => btn.classList.remove('active'));
-    const clicked = document.querySelector(`[onclick="filterByStatus('${status}')"]`);
-    if (clicked) clicked.classList.add('active');
-}
-
+// -----------------------------
+// FILTROS DE SETOR
+// -----------------------------
 function filterBySetor(setor) {
-    currentSetor = setor;
+    currentSetor = normalize(setor);
     setActiveSetorBtn(setor);
     applyFilters();
 }
 
+// -----------------------------
+// FILTROS DE STATUS
+// -----------------------------
 function filterByStatus(status) {
-    currentStatus = status;
+    currentStatus = normalize(status);
     setActiveStatusBtn(status);
     applyFilters();
 }
 
+// -----------------------------
+// CAMPO DE BUSCA (NÃO RECARREGA A PÁGINA)
+// -----------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("searchForm");
+    const searchInput = document.getElementById("searchInput");
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault(); 
+
+        currentSearch = normalize(searchInput.value);
+        applyFilters();
+    });
+
+    applyFilters();
+});
+
+// -----------------------------
+// ATIVA BOTÕES VISUALMENTE
+// -----------------------------
+function setActiveSetorBtn(setor) {
+    document.querySelectorAll('.btn-setor').forEach(btn => btn.classList.remove('active'));
+    const btn = document.querySelector(`[onclick="filterBySetor('${setor}')"]`);
+    if (btn) btn.classList.add('active');
+}
+
+function setActiveStatusBtn(status) {
+    document.querySelectorAll('.btn-status').forEach(btn => btn.classList.remove('active'));
+    const btn = document.querySelector(`[onclick="filterByStatus('${status}')"]`);
+    if (btn) btn.classList.add('active');
+}
+
+// -----------------------------
+// SOMA
+// -----------------------------
 function calcularTotalGeral() {
     let total = 0;
     getRows().forEach(row => {
@@ -123,11 +175,6 @@ function calcularTotalGeral() {
     });
     document.getElementById("totalGeralBox").innerText = "Total Geral: " + total;
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    setActiveSetorBtn('TODOS');
-    setActiveStatusBtn('TODOS');
-    applyFilters();
-});
 </script>
+
 {% endblock %}

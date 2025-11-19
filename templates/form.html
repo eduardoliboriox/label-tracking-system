@@ -42,13 +42,13 @@
       </div>
 
       <div class="col-md-2">
-  <label>Tipo de Fase</label>
-  <select name="phase_type" class="form-control" required>
-    {% for pt in ['TOP_ONLY', 'TOP_BOTTOM'] %}
-      <option value="{{ pt }}" {% if model and model['phase_type'] == pt %}selected{% endif %}>{{ pt.replace('_', ' ') }}</option>
-    {% endfor %}
-  </select>
-</div>
+        <label>Tipo de Fase</label>
+        <select name="phase_type" class="form-control" required>
+          {% for pt in ['TOP_ONLY', 'TOP_BOTTOM'] %}
+            <option value="{{ pt }}" {% if model and model['phase_type'] == pt %}selected{% endif %}>{{ pt.replace('_', ' ') }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
       <div class="col-md-2">
         <label>Turno</label>
@@ -96,7 +96,6 @@
 </div>
 
 <input type="hidden" id="lote_num" name="lote_num">
-
 
 <div class="mb-3">
   <label for="lote_padrao" class="form-label">Lote (padrão)</label>

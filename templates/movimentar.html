@@ -3,24 +3,45 @@
 {% set show_header_content = true %}
 
 {% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="container mb-3" style="max-width: 760px;">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show fw-bold shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+{% if hide_top_menu %}
+<div class="text-center mb-3">
+    <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-sm mx-1"><strong>Ordens de Produção</strong></a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm mx-1"><strong>Dashboard</strong></a>
+    <a href="{{ url_for('movimentar') }}" class="btn btn-outline-warning btn-sm mx-1"><strong>Movimentar</strong></a>
+    <a href="#" class="btn btn-outline-success btn-sm mx-1"><strong>Configurações</strong></a>
+</div>
+<hr>
+{% endif %}
 
 <style>
 /* Destaca o botão selecionado */
 .action-btn.active {
-    border: 3px solid #0d6efd; /* azul primário do Bootstrap */
-    background-color: #0d6efd !important;
+    border: 3px solid hwb(216 9% 81%); /* azul primário do Bootstrap */
+    background-color: #2f4363 !important;
     color: white !important;
     box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
 }
 </style>
 
-
 <div class="container mt-4" style="max-width: 760px;">
-
     <h2 class="mb-4 text-center fw-bold text-primary">📦 Terminal de Movimentação</h2>
 
     <!-- Formulário principal -->
     <form action="{{ url_for('movimentar') }}" method="post" class="card p-4 shadow-sm border-0 rounded-4 bg-light">
+        <input type="hidden" name="ponto_url" value="{{ request.args.get('p') or request.args.get('ponto') }}">
         
         <!-- QR CODE -->
         <div class="mb-4">
@@ -129,9 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            // se o ponto já estiver preenchido, movemos o foco para os botões de ação
             if (pontoSelect && pontoSelect.value) {
-                // tenta focar o primeiro botão de ação
                 const firstAction = document.querySelector('.action-btn');
                 if (firstAction) firstAction.focus();
             } else if (pontoSelect) {

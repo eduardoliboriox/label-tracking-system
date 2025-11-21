@@ -1,5 +1,3 @@
-Perfeito! Posso te ajudar a reorganizar seu README para que fique limpo, sem quebras estranhas, mantendo a formatação Markdown que o GitHub interpreta corretamente. Aqui está uma versão ajustada:
-
 ---
 
 # 🏷️ Sistema de Rastreabilidade via Etiquetas

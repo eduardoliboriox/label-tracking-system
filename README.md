@@ -153,7 +153,7 @@ ________________________________________
 pip install -r requirements.txt
 
 👨‍💻 Autor
-Desenvolvido por Eduardo Libório    
+- Desenvolvido por Eduardo Libório    
 📧 eduardosoleno@protonmail.com
 
 GUARDAR

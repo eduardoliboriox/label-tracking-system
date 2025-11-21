@@ -9,6 +9,7 @@ Ele utiliza QR Codes, etiquetas individuais por lote e pontos de rastreio (termi
 ## 📁 Estrutura do Projeto
 Sistema de Rastreabilidade via Etiquetas/
 ├─ static/
+
     └─ logo.png 
     └─ style.css  
   ├─ qrcodes/

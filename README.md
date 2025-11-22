@@ -26,8 +26,9 @@ Sistema de Rastreabilidade via Etiquetas/
 │   ├─ label.html
 │   └─ movimentar.html
 ├─ app.py
-├─ estrutura.txt
-├─ models.db  
+├─ models.db
+├─ ping.py
+├─ Profile  
 ├─ README.md
 ├─ requirements.txt
 ```

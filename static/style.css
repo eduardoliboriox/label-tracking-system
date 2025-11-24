@@ -86,3 +86,72 @@ table.table tbody {
   background-color: #f1f1f1 !important; /* cor leve no hover */
 }
 
+/* ===== Ajustes para telas pequenas ===== */
+@media (max-width: 767px) {
+
+  /* Títulos menores */
+  .titulo-sistema {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .logo {
+    height: 45px;
+  }
+
+  /* Etiquetas ficam 100% no celular */
+  .etiqueta-container .etiqueta {
+    flex: 0 0 100% !important;
+  }
+
+  /* Tabelas rolam horizontalmente se estiverem grandes */
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  table.table th, table.table td {
+    font-size: 14px;
+    padding: 8px;
+    white-space: nowrap; 
+  }
+
+  /* Botões no topo */
+  .menu-topo .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+/* ======== MOBILE FIX — MENUS LADO A LADO ======== */
+@media (max-width: 768px) {
+
+    .logo,
+    .titulo-sistema {
+        display: none !important;
+    }
+
+    .header-sistema {
+        flex-direction: column !important;
+        text-align: center;
+        height: auto;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .menu-topo {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        width: 100%;
+    }
+
+    .menu-topo .btn {
+        flex: 1 1 auto !important;
+        white-space: nowrap !important;
+        width: auto !important;      
+        margin-bottom: 0 !important;
+    }
+}
+
+

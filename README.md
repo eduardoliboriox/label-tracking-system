@@ -185,6 +185,14 @@ python app.py
 
 ---
 
+## 🔗 Acesso ao Sistema (Deploy)
+
+O sistema está disponível online pelo Render:
+
+➡️ **https://sistema-de-rastreabilidade-via-etiquetas-zlk9.onrender.com**
+
+---
+
 ## 👨‍💻 Autor
 
 * Desenvolvido por **Eduardo Libório**

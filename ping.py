@@ -1,7 +1,7 @@
 import time
 import requests
 
-URL = "https://sistema-de-rastreabilidade-via-etiquetas.onrender.com"
+URL = "https://sistema-de-rastreabilidade-via-etiquetas-zlk9.onrender.com"
 
 while True:
     try:

@@ -5,6 +5,8 @@ O **Sistema de Rastreabilidade via Etiquetas** é uma plataforma interna desenvo
 
 É um sistema **automatizado em tempo real**, que substitui controles manuais (planilhas, papéis, anotações), reduz falhas humanas e aumenta a confiabilidade da informação.
 
+Visualize a aplicação real através do link no final deste README.md.
+
 ---
 
 ## 📁 Estrutura do Projeto
@@ -188,6 +190,7 @@ python app.py
 ## 🔗 Acesso ao Sistema (Deploy)
 
 O sistema está disponível online pelo Render:
+Uso contramedidas até na versão free para a página não fechar por inatividade, caso feche, aguarde 50 segundos.
 
 ➡️ **https://sistema-de-rastreabilidade-via-etiquetas-zlk9.onrender.com**
 

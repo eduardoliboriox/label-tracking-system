@@ -1,18 +1,16 @@
+# 🏷️ Label Tracking System
 
-# 🏷️ Sistema de Rastreabilidade via Etiquetas
+The **Label Tracking System** is an internal platform designed to control, monitor, and record the movement of plates/parts within the production workflow. It uses **QR Codes**, batch-specific labels, and tracking points (terminals) installed in departments to ensure every item is traced from production to shipping.
 
-O **Sistema de Rastreabilidade via Etiquetas** é uma plataforma interna desenvolvida para controlar, monitorar e registrar toda a movimentação de placas/peças dentro do fluxo produtivo. Ele utiliza **QR Codes**, etiquetas individuais por lote e pontos de rastreio (terminais) instalados nos setores para garantir que cada item seja rastreado desde a produção até a expedição.
-
-É um sistema **automatizado em tempo real**, que substitui controles manuais (planilhas, papéis, anotações), reduz falhas humanas e aumenta a confiabilidade da informação.
-
-Visualize a aplicação real através do link no final deste README.md.
+This is a **real-time automated system** that replaces manual controls (spreadsheets, paper, notes), reduces human errors, and increases data reliability.
+Check out the live application via the link at the end of this README.md.
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📁 Project Structure
 
 ```
-Sistema de Rastreabilidade via Etiquetas/
+label-tracking-system/
 ├─ static/
 │   ├─ logo.png 
 │   └─ style.css  
@@ -32,153 +30,156 @@ Sistema de Rastreabilidade via Etiquetas/
 ├─ ping.py
 ├─ Profile  
 ├─ README.md
+├─ README.EN.md
 ├─ requirements.txt
 ```
 
 ---
 
-## 🚀 Funcionalidades
+## 🚀 Features
 
-* Cadastro de novos modelos (com lote, PO, linha, cliente etc.)
-* Geração automática de **QR Codes**
-* Impressão de etiquetas formatadas (modo rótulo)
-* Edição e atualização de modelos
-* Histórico de alterações por usuário e data
-* Interface HTML responsiva com **Bootstrap**
+* Register new models (with batch, PO, line, client, etc.)
+* Automatic **QR Code generation**
+* Print formatted labels (label mode)
+* Edit and update models
+* Change history by user and date
+* Responsive HTML interface with **Bootstrap**
 
 ---
 
-## ⚙️ Tecnologias Utilizadas
+## ⚙️ Technologies
 
 * [Python 3](https://www.python.org/)
-* [Flask](https://flask.palletsprojects.com/) — servidor web principal
-* [SQLite](https://www.sqlite.org/) — banco de dados interno
-* [qrcode](https://pypi.org/project/qrcode/) — geração de códigos QR
-* [Pillow](https://pypi.org/project/Pillow/) — manipulação de imagens
-* HTML / CSS / Bootstrap — interface web e templates Jinja2
+* [Flask](https://flask.palletsprojects.com/) — main web server
+* [SQLite](https://www.sqlite.org/) — internal database
+* [qrcode](https://pypi.org/project/qrcode/) — QR code generation
+* [Pillow](https://pypi.org/project/Pillow/) — image handling
+* HTML / CSS / Bootstrap — web interface and Jinja2 templates
 
 ---
 
-## 📊 Fluxo de Dados e Pontos de Controle
+## 📊 Data Flow and Control Points
 
-* **Ponto-01**: PTH — PRODUÇÃO e RECEBIMENTO, controle na porta do setor.
-* **Ponto-02**: SMT — PRODUÇÃO e RECEBIMENTO, controle na porta do setor.
-* **Ponto-03**: SMT — PRODUÇÃO e RECEBIMENTO, posto de qualidade.
-* **Ponto-04**: IM/PA — PRODUÇÃO e RECEBIMENTO, porta do setor.
-* **Ponto-05**: IM/PA — PRODUÇÃO e RECEBIMENTO, posto de qualidade.
-* **Ponto-06**: IM/PA — PRODUÇÃO e RECEBIMENTO, posto de qualidade.
-* **Ponto-07**: Estoque — marca apenas PRODUÇÃO, registra saída para cliente.
-
----
-
-## ⚙️ Como o Sistema Funciona
-
-### 1. Cadastro de Modelos
-
-Cada produto/modelo recebe um cadastro contendo:
-
-* Código, Nome, Cliente
-* Linha e setor inicial
-* Lote e produção prevista
-* PO/OP, processo e CQ
-* Revisora/Operadora
-* Data e horário
-
-Este cadastro gera o registro-mestre que será rastreado.
+* **Point-01**: PTH — Production & Receiving, department entrance control
+* **Point-02**: SMT — Production & Receiving, department entrance control
+* **Point-03**: SMT — Production & Receiving, quality checkpoint
+* **Point-04**: IM/PA — Production & Receiving, department entrance control
+* **Point-05**: IM/PA — Production & Receiving, quality checkpoint
+* **Point-06**: IM/PA — Production & Receiving, quality checkpoint
+* **Point-07**: Stock — registers only production, records client shipment
 
 ---
 
-### 2. Geração de Etiquetas e Lotes
+## ⚙️ How the System Works
 
-Após cadastrar o modelo:
+### 1. Model Registration
 
-1. O sistema calcula o número de etiquetas necessárias com base em **produção total** e **capacidade por magazine/caixa**.
-2. Cada etiqueta recebe:
+Each product/model is registered with:
 
-   * Lote individual (Ex.: "08 / 504")
-   * QR Code próprio
-   * Relação com o modelo original
-3. Cada etiqueta possui:
+* Code, Name, Client
+* Line and initial department
+* Batch and planned production
+* PO/OP, process, and CQ
+* Reviewer/Operator
+* Date and time
 
-   * Quantidade original e restante
-   * Setor atual
-   * Fase (aguardando, disponível, expedido, etc.)
-   * Histórico de movimentações
+This creates a master record to be tracked.
 
 ---
 
-### 3. Rastreabilidade com QR Code
+### 2. Label and Batch Generation
 
-Nos terminais, o colaborador escaneia o QR Code. O sistema identifica:
+After registering a model:
 
-* Modelo, lote, setor, terminal (Ponto-01, 02, …)
-* Ação (produção, recebimento, inspeção, expedição)
+1. The system calculates the number of labels needed based on **total production** and **capacity per magazine/box**.
 
-Cada registro contém:
+2. Each label receives:
 
-* Data e hora
-* Quantidade
-* Setor de origem e destino
-* Usuário e equipamento
+   * Individual batch number (e.g., "08 / 504")
+   * Unique QR Code
+   * Link to the original model
 
-Isso garante **trilha completa e detalhada** do processo.
+3. Each label tracks:
 
----
-
-### 4. Regras de Produção e Movimentação
-
-O sistema impede erros como:
-
-* Registro duplicado de produção
-* Entrada repetida em um setor
-* Movimentação acima do disponível
-* Pular etapas do fluxo
-* Mistura de lotes incorretos
-* Confusão de modelos com fluxos diferentes (SMT-FIRST)
+   * Original and remaining quantity
+   * Current department
+   * Stage (waiting, available, shipped, etc.)
+   * Movement history
 
 ---
 
-### 5. Histórico Completo
+### 3. QR Code Traceability
 
-Para cada modelo, é possível visualizar:
+At terminals, employees scan the QR Code. The system identifies:
 
-* Etiquetas criadas
-* Movimentações por setor
-* Baixas de produção
-* Saldo atual por fase
-* Histórico de edição
-* Registro cronológico completo com data/hora
+* Model, batch, department, terminal (Point-01, 02, …)
+* Action (production, receiving, inspection, shipment)
 
----
+Each record includes:
 
-### 6. Dashboard e Indicadores
+* Date and time
+* Quantity
+* Source and destination department
+* User and device
 
-O dashboard mostra:
-
-* Saldo por setor (PTH, SMT, IM, PA, Estoque)
-* Fase (Aguardando, Disponível, Expedido, etc.)
-* Quantidade disponível por lote
-* Identificação de gargalos
-* Situação atualizada em tempo real
+This ensures a **complete and detailed audit trail**.
 
 ---
 
-## ✅ Benefícios para a Empresa
+### 4. Production and Movement Rules
 
-**Produtividade:**
+The system prevents errors such as:
 
-* Reduz erros manuais
-* Elimina retrabalhos
-* Aumenta eficiência no chão de fábrica
-
-**Segurança:**
-
-* Registro imutável de cada ação
-* Histórico completo para auditoria
+* Duplicate production records
+* Repeated department entries
+* Moving more than available quantity
+* Skipping workflow steps
+* Mixing incorrect batches
+* Confusing models with different workflows (SMT-FIRST)
 
 ---
 
-## 📁 Como Rodar
+### 5. Complete History
+
+For each model, you can view:
+
+* Created labels
+* Movements by department
+* Production deductions
+* Current balance by stage
+* Edit history
+* Chronological log with date/time
+
+---
+
+### 6. Dashboard and Indicators
+
+The dashboard shows:
+
+* Balance by department (PTH, SMT, IM, PA, Stock)
+* Stage (Waiting, Available, Shipped, etc.)
+* Quantity available per batch
+* Bottleneck identification
+* Real-time status updates
+
+---
+
+## ✅ Benefits
+
+**Productivity:**
+
+* Reduces manual errors
+* Eliminates rework
+* Increases factory floor efficiency
+
+**Security:**
+
+* Immutable action records
+* Complete audit history
+
+---
+
+## 📁 How to Run
 
 ```bash
 pip install -r requirements.txt
@@ -187,20 +188,19 @@ python app.py
 
 ---
 
-## 🔗 Acesso ao Sistema (Deploy)
+## 🔗 Access the System (Deployment)
 
-O sistema está disponível online pelo Render:
-Uso contramedidas até na versão free para a página não fechar por inatividade, caso feche, aguarde 50 segundos.
+The system is available online via Render.
+Countermeasures are applied even in the free version to prevent inactivity shutdown. If it closes, wait 50 seconds and reopen.
 
-➡️ **https://label-tracking-system.onrender.com**
+➡️ **[https://label-tracking-system.onrender.com](https://label-tracking-system.onrender.com)**
 
 ---
 
-## 👨‍💻 Autor
+## 👨‍💻 Author
 
-* Desenvolvido por **Eduardo Libório**
+* Developed by **Eduardo Libório**
 * 📧 [eduardosoleno@protonmail.com](mailto:eduardosoleno@protonmail.com)
 
 ---
-
 

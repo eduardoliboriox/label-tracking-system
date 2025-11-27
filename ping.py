@@ -9,4 +9,4 @@ while True:
         print("Ping OK:", r.status_code)
     except Exception as e:
         print("Erro:", e)
-    time.sleep(600)  # 10 minutos
+    time.sleep(300)  # 5 minutos

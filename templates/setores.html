@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Selecionar Setor para a OP {{ model['code'] }} - {{ model['model_name'] }}</h3>
+
+<div class="list-group mt-4">
+  {% for s in setores %}
+    <a class="list-group-item list-group-item-action" 
+       href="{{ url_for('setor_form', id=model['id'], setor=s) }}">
+       {{ s }}
+    </a>
+  {% endfor %}
+</div>
+
+<a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Voltar</a>
+
+{% endblock %}

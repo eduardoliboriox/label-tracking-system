@@ -1,5 +1,5 @@
-AGORA ESSE 
-# 🏷️ Label Tracking System
+
+# 🏷️ label-tracking-system-venttos
 
 O **Label Tracking System** é uma plataforma interna desenvolvida para controlar, monitorar e registrar toda a movimentação de placas/peças dentro do fluxo produtivo. Ele utiliza **QR Codes**, etiquetas individuais por lote e pontos de rastreio (terminais) instalados nos setores para garantir que cada item seja rastreado desde a produção até a expedição.
 
@@ -12,7 +12,7 @@ Visualize a aplicação real através do link no final deste README.md.
 ## 📁 Estrutura do Projeto
 
 ```
-label-tracking-system/
+label-tracking-system
 ├─ static/
 │   ├─ logo.png 
 │   └─ style.css  
@@ -27,6 +27,7 @@ label-tracking-system/
 │   ├─ index.html
 │   ├─ label.html
 │   └─ movimentar.html
+│   └─ setores.html
 ├─ app.py
 ├─ models.db
 ├─ ping.py

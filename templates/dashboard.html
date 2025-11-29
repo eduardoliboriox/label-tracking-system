@@ -27,14 +27,14 @@
     </div>
 
     <!-- Filtros de status -->
-    <div class="d-flex justify-content-start flex-wrap gap-2 mb-4">
+    <div class="d-flex justify-content-start flex-wrap gap-2 mb-2 align-items-center">
         <button type="button" class="btn btn-outline-warning btn-sm fw-bold btn-status" onclick="filterByStatus('AGUARDANDO')">🕓 Aguardando</button>
         <button type="button" class="btn btn-outline-success btn-sm fw-bold btn-status" onclick="filterByStatus('DISPONIVEL')">✅ Disponível</button>
         <button type="button" class="btn btn-outline-info btn-sm fw-bold btn-status" onclick="filterByStatus('EXPEDIDO')">📦 Expedido</button>
         <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-status" onclick="filterByStatus('TODOS')">Mostrar Todos</button>
 
         <!-- 🔵 SELECT DE CLIENTES -->
-        <select id="clienteSelect" class="form-select form-select-sm fw-bold" style="width: 200px;"
+        <select id="clienteSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
                 onchange="filterByCliente(this.value)">
             <option value="TODOS">CLIENTES: TODOS</option>
 
@@ -43,63 +43,105 @@
                 <option value="{{ cliente|upper }}">{{ cliente }}</option>
             {% endfor %}
         </select>
+
+        <!-- 🔵 SELECTS TOP/BOTTOM — inline, mesmo estilo do CLIENTE -->
+        <select id="filterTopSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
+                onchange="filterTop(this.value)">
+            <option value="ALL">FASE TOP: TODOS</option>
+            <option value="ZERO">PENDENTE PRODUÇÃO</option>
+            <option value="COMPLETE">TOP PRONTO</option>
+        </select>
+
+        <select id="filterBottomSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
+                onchange="filterBottom(this.value)">
+            <option value="ALL">FASE BOTTOM: TODOS</option>
+            <option value="ZERO">PENDENTE PRODUÇÃO</option>
+            <option value="COMPLETE">BOTTOM PRONTO</option>
+        </select>
+
     </div>
 
     <div id="totalGeralBox" style="background-color: #cce5ff; color: #004085; font-weight: bold; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
         Total Geral: 0
     </div>
 
-    <!-- Tabela -->
-    <div class="table-responsive shadow-sm rounded-4 bg-light p-3">
-        <table class="table table-hover table-bordered align-middle" id="dashboardTable">
-            <thead class="table-primary text-center">
-            <tr>
-                <th>Cliente</th>
-                <th>Modelo</th>
-                <th>Código</th>
-                <th>OP</th>   
-                <th>Setor</th>
-                <th>Fase</th>
-                <th>Saldo Blank</th>
-            </tr>
-            </thead>
-            <tbody>
-                {% for item in data %}
-                    {% for saldo in item.saldo_setores %}
-                    <tr class="text-center"
-                        data-setor="{{ saldo.setor }}"
-                        data-status="{{ saldo.status }}">
-                        <td class="fw-bold">{{ item.model.cliente }}</td>
-                        <td class="fw-bold">{{ item.model.model_name }}</td>
-                        <td class="fw-bold">{{ item.model.code }}</td>
-                        <td class="fw-bold text-primary">{{ item.model.op }}</td>
-                        <td class="fw-bold">{{ saldo.setor }}</td>
-                        <td>
-                            {% if saldo.status == "AGUARDANDO" %}
-                                <span class="badge bg-warning text-dark">{{ saldo.fase }}</span>
-                            {% elif saldo.status == "DISPONIVEL" %}
-                                <span class="badge bg-success">{{ saldo.fase }}</span>
-                            {% elif saldo.status == "EXPEDIDO" %}
-                                <span class="badge bg-info text-dark">{{ saldo.fase }}</span>
-                            {% else %}
-                                <span class="badge bg-secondary">{{ saldo.fase }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="fw-bold">{{ saldo.saldo }}</td>
-                    </tr>
-                    {% endfor %}
+<!-- Tabela -->
+<div class="table-responsive shadow-sm rounded-4 bg-light p-3">
+    <table class="table table-hover table-bordered align-middle" id="dashboardTable">
+        <thead class="table-primary text-center">
+        <tr>
+            <th>Cliente</th>
+            <th>Modelo</th>
+            <th>Código</th>
+            <th>OP</th>
+            <th>Setor</th>
+            <th>Status</th>
+            <th>Tipo de Fase</th>
+            <th>Status TOP</th>
+            <th>Status BOTTOM</th>
+            <th>Saldo Blank</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+                {% for saldo in item.saldo_setores %}
+                <tr class="text-center"
+                    data-setor="{{ saldo.setor }}"
+                    data-status="{{ saldo.status }}"
+                    data-topdone="{{ saldo.status_top.split('/')[0].replace('⬜ (','') }}"
+                    data-bottomdone="{% if item.model.phase_type.strip().upper() == 'TOP_ONLY' %}N/A{% else %}{{ saldo.status_bottom.split('/')[0].replace('⬜ (','') }}{% endif %}"
+                    data-total="{{ (saldo.status_top.split('/')[1] if '/' in saldo.status_top else saldo.saldo_blank) | replace(')','') }}">
+
+                    <td class="fw-bold">{{ item.model.cliente }}</td>
+                    <td class="fw-bold">{{ item.model.model_name }}</td>
+                    <td class="fw-bold">{{ item.model.code }}</td>
+                    <td class="fw-bold text-primary">{{ item.model.op }}</td>
+                    <td class="fw-bold">{{ saldo.setor }}</td>
+
+                    <td>
+                        {% if saldo.status == "AGUARDANDO" %}
+                            <span class="badge bg-warning text-dark">{{ saldo.fase }}</span>
+                        {% elif saldo.status == "DISPONIVEL" %}
+                            <span class="badge bg-success">{{ saldo.fase }}</span>
+                        {% elif saldo.status == "EXPEDIDO" %}
+                            <span class="badge bg-info text-dark">{{ saldo.fase }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ saldo.fase }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="fw-bold">{{ item.model.phase_type.replace('_', ' ') }}</td>
+
+                    <td class="fw-bold text-center">{{ saldo.status_top }}</td>
+
+                    <td class="fw-bold text-center">
+                        {% if item.model.phase_type.strip().upper() == "TOP_ONLY" %}
+                            <span class="text-muted">N/A</span>
+                        {% else %}
+                            {{ saldo.status_bottom }}
+                        {% endif %}
+                    </td>
+
+                    <td class="fw-bold text-center">{{ saldo.saldo_blank }}</td>
+
+                </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+
 </div>
 
 <script>
-
 let currentSetor = 'PTH';
 let currentStatus = 'DISPONIVEL';
 let currentSearch = '';
 let currentCliente = 'TODOS';
+
+let currentTopFilter = "ALL";
+let currentBottomFilter = "ALL";
 
 function normalize(value) {
     return (value || "").toString().trim().toUpperCase();
@@ -109,11 +151,12 @@ function getRows() {
     return Array.from(document.querySelectorAll('#dashboardTable tbody tr'));
 }
 
-/* ---------------------------
-   APLICA TODOS OS FILTROS
------------------------------ */
 function applyFilters() {
     const rows = getRows();
+
+    // lê selects TOP/BOTTOM atual (inline)
+    const topSelectVal = (document.getElementById('filterTopSelect') || {}).value || 'ALL';
+    const bottomSelectVal = (document.getElementById('filterBottomSelect') || {}).value || 'ALL';
 
     rows.forEach(row => {
         const rowSetor = normalize(row.dataset.setor);
@@ -126,38 +169,58 @@ function applyFilters() {
         const okCliente = currentCliente === "TODOS" || rowCliente === currentCliente;
         const okSearch = currentSearch === "" || rowText.includes(currentSearch);
 
-        row.style.display = (okSetor && okStatus && okCliente && okSearch) ? '' : 'none';
+        const rowTopDone = parseInt(row.dataset.topdone) || 0;
+        const rowBottomDone = row.dataset.bottomdone === "N/A" ? "N/A" : (parseInt(row.dataset.bottomdone) || 0);
+        const total = parseInt(row.dataset.total) || 0;
+
+        let okTop = true;
+        if (topSelectVal === "ZERO") okTop = (rowTopDone === 0);
+        if (topSelectVal === "COMPLETE") okTop = (total > 0 && rowTopDone === total);
+
+        let okBottom = true;
+        if (rowBottomDone !== "N/A") {
+            if (bottomSelectVal === "ZERO") okBottom = (rowBottomDone === 0);
+            if (bottomSelectVal === "COMPLETE") okBottom = (total > 0 && rowBottomDone === total);
+        } // if N/A, passa sempre
+
+        row.style.display = (okSetor && okStatus && okCliente && okSearch && okTop && okBottom) ? '' : 'none';
     });
 
     calcularTotalGeral();
 }
 
-/* ---------------------------
-   BOTÕES DE SETOR
------------------------------ */
 function filterBySetor(setor) {
     currentSetor = normalize(setor);
     setActiveSetorBtn(setor);
     applyFilters();
 }
 
-/* ---------------------------
-   BOTÕES DE STATUS
------------------------------ */
 function filterByStatus(status) {
     currentStatus = normalize(status);
     setActiveStatusBtn(status);
     applyFilters();
 }
 
-/* ---------------------------
-   BUSCA
------------------------------ */
+function filterTop(option) {
+    // permite ser chamado tanto por select (string) quanto por função com valor
+    currentTopFilter = option;
+    // sincroniza select visual (se necessário)
+    const s = document.getElementById('filterTopSelect');
+    if (s && s.value !== option) s.value = option;
+    applyFilters();
+}
+
+function filterBottom(option) {
+    currentBottomFilter = option;
+    const s = document.getElementById('filterBottomSelect');
+    if (s && s.value !== option) s.value = option;
+    applyFilters();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("searchForm");
     const searchInput = document.getElementById("searchInput");
     document.getElementById("clienteSelect").value = "TODOS";
-
 
     form.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -168,12 +231,15 @@ document.addEventListener("DOMContentLoaded", () => {
     setActiveSetorBtn('PTH');
     setActiveStatusBtn('DISPONIVEL');
 
+    // garantir selects TOP/BOTTOM como "Todos"
+    const t = document.getElementById('filterTopSelect');
+    const b = document.getElementById('filterBottomSelect');
+    if (t) t.value = 'ALL';
+    if (b) b.value = 'ALL';
+
     applyFilters();
 });
 
-/* ---------------------------
-   ESTILO DOS BOTÕES
------------------------------ */
 function setActiveSetorBtn(setor) {
     document.querySelectorAll('.btn-setor').forEach(btn => btn.classList.remove('active'));
     const btn = document.querySelector(`[onclick="filterBySetor('${setor}')"]`);
@@ -191,14 +257,11 @@ function filterByCliente(cliente) {
     applyFilters();
 }
 
-/* ---------------------------
-   SOMA DO TOTAL EXIBIDO
------------------------------ */
 function calcularTotalGeral() {
     let total = 0;
     getRows().forEach(row => {
         if (row.style.display !== 'none') {
-            const saldo = parseInt(row.querySelector('td:nth-child(7)').innerText) || 0;
+            const saldo = parseInt(row.querySelector('td:nth-child(10)').innerText) || 0;
             total += saldo;
         }
     });

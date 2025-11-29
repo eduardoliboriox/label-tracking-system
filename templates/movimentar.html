@@ -27,9 +27,9 @@
 {% endif %}
 
 <style>
-/* Destaca o botão selecionado */
-.action-btn.active {
-    border: 3px solid hwb(216 9% 81%); /* azul primário do Bootstrap */
+.action-btn.active,
+.phase-btn.active {
+    border: 3px solid hwb(216 9% 81%);
     background-color: #2f4363 !important;
     color: white !important;
     box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
@@ -39,25 +39,22 @@
 <div class="container mt-4" style="max-width: 760px;">
     <h2 class="mb-4 text-center fw-bold text-primary">📦 Terminal de Movimentação</h2>
 
-    <!-- Formulário principal -->
     <form action="{{ url_for('movimentar') }}" method="post" class="card p-4 shadow-sm border-0 rounded-4 bg-light">
+
         <input type="hidden" name="ponto_url" value="{{ request.args.get('p') or request.args.get('ponto') }}">
-        
-            <!-- QR CODE -->
-            <div class="mb-4">
-                <label for="qr_code" class="form-label fw-bold">Bipe o QR Code:</label>
-                <input type="text"
-                    name="qr_code"
-                    id="qr_code"
-                    class="form-control form-control-lg text-center"
-                    placeholder="Bipe o QR Code aqui"
-                    value="{{ clean_display_code }}"
-                    required
-                    autofocus>
-            </div>
 
+        <div class="mb-4">
+            <label for="qr_code" class="form-label fw-bold">Bipe o QR Code:</label>
+            <input type="text"
+                   name="qr_code"
+                   id="qr_code"
+                   class="form-control form-control-lg text-center"
+                   placeholder="Bipe o QR Code aqui"
+                   value="{{ clean_display_code }}"
+                   required
+                   autofocus>
+        </div>
 
-        <!-- PONTO -->
         <div class="mb-4">
             <label for="ponto" class="form-label fw-bold">Ponto de Marcação:</label>
             <select name="ponto" id="ponto" class="form-select form-select-lg" required>
@@ -72,41 +69,51 @@
             </select>
         </div>
 
-        <!-- AÇÕES EM FORMATO DE BOTÕES GRANDES -->
+        <!-- GRUPO DAS AÇÕES -->
         <div class="mb-3 fw-bold">Selecione a Ação:</div>
-
-        <div class="row g-2 action-buttons">
-            <div class="col-6">
-                <button type="button" class="btn btn-primary btn-lg w-100 py-4 action-btn" data-value="producao">
-                    ✅ Produção
-                </button>
+        <div class="row g-2">
+            <div class="col-4">
+                <button type="button" class="btn btn-primary btn-lg w-100 py-4 action-btn" data-value="producao">✅ Produção</button>
+            </div>
+            <div class="col-4">
+                <button type="button" class="btn btn-success btn-lg w-100 py-4 action-btn" data-value="recebimento">📥 Recebimento</button>
+            </div>
+            <div class="col-4">
+                <button type="button" class="btn btn-warning btn-lg w-100 py-4 action-btn" data-value="cq">🧪 CQ / Liberar</button>
             </div>
             <div class="col-6">
-                <button type="button" class="btn btn-success btn-lg w-100 py-4 action-btn" data-value="recebimento">
-                    📥 Recebimento
-                </button>
+                <button type="button" class="btn btn-secondary btn-lg w-100 py-4 action-btn" data-value="retrabalho">♻ Retrabalho</button>
             </div>
             <div class="col-6">
-                <button type="button" class="btn btn-warning btn-lg w-100 py-4 action-btn" data-value="cq">
-                    🧪 CQ / Liberar
-                </button>
-            </div>
-            <div class="col-6">
-                <button type="button" class="btn btn-secondary btn-lg w-100 py-4 action-btn" data-value="retrabalho">
-                    ♻ Retrabalho
-                </button>
-            </div>
-            <div class="col-12">
-                <button type="button" class="btn btn-danger btn-lg w-100 py-4 action-btn" data-value="rejeicao">
-                    🛑 Rejeição
-                </button>
+                <button type="button" class="btn btn-danger btn-lg w-100 py-4 action-btn" data-value="rejeicao">🛑 Rejeição</button>
             </div>
         </div>
 
-        <!-- Campo oculto onde será armazenada a ação escolhida -->
-        <input type="hidden" name="acao" id="acao">
+        <!-- GRUPO TOP/BOTTOM -->
+        <div class="mt-4 mb-2 fw-bold">Selecione a Fase:</div>
+        <div class="row g-2">
+            <div class="col-6">
+                <button type="button"
+                        class="btn btn-info btn-lg w-100 py-4 phase-btn"
+                        data-phase="top">
+                    🔝 FASE TOP
+                </button>
+            </div>
 
-        <!-- QUANTIDADE -->
+    <div class="col-6">
+        <button type="button"
+                class="btn btn-dark btn-lg w-100 py-4 phase-btn"
+                data-phase="bottom">
+            ⬇️ FASE BOTTOM
+        </button>
+    </div>
+</div>
+
+
+        <input type="hidden" name="acao" id="acao">
+        <input type="hidden" name="top_mark" id="top_mark" value="0">
+        <input type="hidden" name="bottom_mark" id="bottom_mark" value="0">
+
         <div class="mb-3 mt-4">
             <label for="quantidade" class="form-label fw-bold">Quantidade (opcional):</label>
             <input type="number" name="quantidade" id="quantidade"
@@ -119,7 +126,6 @@
         </button>
     </form>
 
-    <!-- CARTÃO DE INFORMAÇÕES DA ETIQUETA -->
     {% if label %}
     <div class="card shadow-sm border-0 rounded-4 mt-4">
         <div class="card-header bg-dark text-white fw-bold rounded-top-4">
@@ -144,40 +150,51 @@
 </div>
 
 <script>
-// Foco automático e comportamento do Enter (NÃO SUBMETER automaticamente)
-document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('qr_code');
-    const pontoSelect = document.getElementById('ponto');
-    const acaoHidden = document.getElementById('acao');
+document.addEventListener("DOMContentLoaded", () => {
+    const acaoHidden = document.getElementById("acao");
+    const topHidden = document.getElementById("top_mark");
+    const bottomHidden = document.getElementById("bottom_mark");
 
-    input.focus();
-
-     input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (pontoSelect && pontoSelect.value) {
-                const firstAction = document.querySelector('.action-btn');
-                if (firstAction) firstAction.focus();
-            } else if (pontoSelect) {
-                pontoSelect.focus();
-            }
-        }
+    document.querySelectorAll(".action-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".action-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            acaoHidden.value = btn.dataset.value;
+        });
     });
 
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const acao = btn.getAttribute('data-value');
-                document.getElementById('acao').value = acao;
+    document.querySelectorAll(".phase-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const phase = btn.dataset.phase;
 
-                document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('active'));
-                btn.classList.add('active');
+            if (phase === "top") {
+                topHidden.value = 1;
+                bottomHidden.value = 0;
+            } else if (phase === "bottom") {
+                topHidden.value = 0;
+                bottomHidden.value = 1;
+            }
 
-                // foca no botão de submit
-                const submitBtn = document.querySelector('button[type="submit"]');
-                if (submitBtn) submitBtn.focus();
-            });
+            document.querySelectorAll(".phase-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
         });
+    });
+
+    // Antes de enviar o form, garanta que apenas um lado está marcado
+    const form = document.querySelector("form");
+    form.addEventListener("submit", () => {
+        if (parseInt(topHidden.value) === 1 && parseInt(bottomHidden.value) === 1) {
+            // força apenas TOP
+            bottomHidden.value = 0;
+        }
+        if (parseInt(topHidden.value) === 0 && parseInt(bottomHidden.value) === 0) {
+            // nenhum lado selecionado → erro
+            alert("Escolha uma fase: TOP ou BOTTOM!");
+            event.preventDefault();
+        }
+    });
 });
 </script>
+
 
 {% endblock %}

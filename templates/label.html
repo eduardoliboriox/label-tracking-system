@@ -245,7 +245,7 @@
         <table>
           <tr>
             <td style="width:33%;">
-              <strong>Cód.:</strong> {{m['code']}}<br>
+              <strong>Cód.:</strong> {{ m['code'].replace('_SMT','') }}<br>
               <strong>Linha:</strong> {{m['linha']}} {{m['setor'] or 'SMT'}}<br>
               <strong>Lote:</strong> {{lote_num}}<br>
               <strong>Horário:</strong> {{m['horario']}}

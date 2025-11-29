@@ -1,16 +1,18 @@
-# 🏷️ Label Tracking System
+# 🏷️ Label Tracking System — Venttos
 
-The **Label Tracking System** is an internal platform designed to control, monitor, and record the movement of plates/parts within the production workflow. It uses **QR Codes**, batch-specific labels, and tracking points (terminals) installed in departments to ensure every item is traced from production to shipping.
+The **Label Tracking System** is an internal platform designed to control, monitor, and register the movement of boards/parts throughout the entire production flow.
+It uses **QR Codes**, individual labels per lot, and tracking points (terminals) installed in each sector to ensure every item is traceable from production to shipment.
 
-This is a **real-time automated system** that replaces manual controls (spreadsheets, paper, notes), reduces human errors, and increases data reliability.
-Check out the live application via the link at the end of this README.md.
+This is a **real-time automated system** that replaces manual processes (spreadsheets, notes, paper forms), reduces human error, and increases information reliability.
+
+You can view the live version through the link at the end of this README.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-label-tracking-system/
+label-tracking-system
 ├─ static/
 │   ├─ logo.png 
 │   └─ style.css  
@@ -25,6 +27,7 @@ label-tracking-system/
 │   ├─ index.html
 │   ├─ label.html
 │   └─ movimentar.html
+│   └─ setores.html
 ├─ app.py
 ├─ models.db
 ├─ ping.py
@@ -38,35 +41,42 @@ label-tracking-system/
 
 ## 🚀 Features
 
-* Register new models (with batch, PO, line, client, etc.)
+* Model registration (lot, PO, line, client, etc.)
 * Automatic **QR Code generation**
-* Print formatted labels (label mode)
-* Edit and update models
-* Change history by user and date
-* Responsive HTML interface with **Bootstrap**
+* Label printing in formatted layout
+* Editing and updating model information
+* Complete history tracking (who changed what and when)
+* Fully responsive HTML interface using **Bootstrap**
+* Real-time label movement tracking across sectors
 
 ---
 
-## ⚙️ Technologies
+## ⚙️ Technologies Used
 
-* [Python 3](https://www.python.org/)
-* [Flask](https://flask.palletsprojects.com/) — main web server
-* [SQLite](https://www.sqlite.org/) — internal database
-* [qrcode](https://pypi.org/project/qrcode/) — QR code generation
-* [Pillow](https://pypi.org/project/Pillow/) — image handling
-* HTML / CSS / Bootstrap — web interface and Jinja2 templates
+* **Python 3**
+* **Flask** — main web framework
+* **SQLite** — internal embedded database
+* **qrcode** — QR Code generation
+* **Pillow** — image processing
+* **HTML / CSS / Bootstrap** — UI and Jinja2 templates
 
 ---
 
-## 📊 Data Flow and Control Points
+## 📊 Tracking Flow & Control Points
 
-* **Point-01**: PTH — Production & Receiving, department entrance control
-* **Point-02**: SMT — Production & Receiving, department entrance control
-* **Point-03**: SMT — Production & Receiving, quality checkpoint
-* **Point-04**: IM/PA — Production & Receiving, department entrance control
-* **Point-05**: IM/PA — Production & Receiving, quality checkpoint
-* **Point-06**: IM/PA — Production & Receiving, quality checkpoint
-* **Point-07**: Stock — registers only production, records client shipment
+Each terminal (called **Ponto**) registers the production or receipt of labels in each sector:
+
+| Point        | Sector | Function                |
+| ------------ | ------ | ----------------------- |
+| **Ponto-01** | PTH    | Production & Receiving  |
+| **Ponto-02** | SMT    | Production & Receiving  |
+| **Ponto-03** | SMT    | Quality Check           |
+| **Ponto-04** | IM/PA  | Production & Receiving  |
+| **Ponto-05** | IM/PA  | Quality Check           |
+| **Ponto-06** | IM/PA  | Quality Check           |
+| **Ponto-07** | Stock  | Shipment (final output) |
+
+Every scan creates a validated movement record.
 
 ---
 
@@ -76,106 +86,105 @@ label-tracking-system/
 
 Each product/model is registered with:
 
-* Code, Name, Client
-* Line and initial department
-* Batch and planned production
-* PO/OP, process, and CQ
-* Reviewer/Operator
+* Code, Name, Customer
+* Production line and initial sector
+* Lot number and production quantity
+* PO/OP, quality process, operator/reviewer
 * Date and time
 
-This creates a master record to be tracked.
+This becomes the master record for traceability.
 
 ---
 
-### 2. Label and Batch Generation
+### 2. Label & Lot Generation
 
-After registering a model:
+After a model is registered:
 
-1. The system calculates the number of labels needed based on **total production** and **capacity per magazine/box**.
-
+1. The system calculates how many labels are needed based on **production total** and **magazine/case capacity**.
 2. Each label receives:
 
-   * Individual batch number (e.g., "08 / 504")
+   * Individual lot (e.g., `"08 / 504"`)
    * Unique QR Code
-   * Link to the original model
-
+   * Relation to the model
 3. Each label tracks:
 
    * Original and remaining quantity
-   * Current department
-   * Stage (waiting, available, shipped, etc.)
-   * Movement history
+   * Current sector
+   * Phase status (waiting, available, shipped, etc.)
+   * Full movement history
 
 ---
 
-### 3. QR Code Traceability
+### 3. QR-Code Traceability
 
-At terminals, employees scan the QR Code. The system identifies:
+On terminals, employees scan the label QR Code.
+The system identifies:
 
-* Model, batch, department, terminal (Point-01, 02, …)
-* Action (production, receiving, inspection, shipment)
+* Model, lot, sector, and terminal (Ponto-01, Ponto-02, etc.)
+* Action type (production, receiving, inspection, shipment)
 
-Each record includes:
+Every registered movement contains:
 
-* Date and time
+* Timestamp
 * Quantity
-* Source and destination department
-* User and device
+* Origin and destination sector
+* User and workstation
+* Phase (TOP/BOTTOM) when applicable
 
-This ensures a **complete and detailed audit trail**.
-
----
-
-### 4. Production and Movement Rules
-
-The system prevents errors such as:
-
-* Duplicate production records
-* Repeated department entries
-* Moving more than available quantity
-* Skipping workflow steps
-* Mixing incorrect batches
-* Confusing models with different workflows (SMT-FIRST)
+This ensures **complete, auditable traceability**.
 
 ---
 
-### 5. Complete History
+### 4. Production Rules & Movement Validation
 
-For each model, you can view:
+The system actively prevents:
 
-* Created labels
-* Movements by department
-* Production deductions
-* Current balance by stage
-* Edit history
-* Chronological log with date/time
-
----
-
-### 6. Dashboard and Indicators
-
-The dashboard shows:
-
-* Balance by department (PTH, SMT, IM, PA, Stock)
-* Stage (Waiting, Available, Shipped, etc.)
-* Quantity available per batch
-* Bottleneck identification
-* Real-time status updates
+* Duplicate production entries
+* Re-entering a sector without leaving it
+* Moving more units than available
+* Skipping mandatory production stages
+* Lot mixing or swapping
+* Crossing different model flows (e.g., SMT-FIRST logic)
 
 ---
 
-## ✅ Benefits
+### 5. Full History Tracking
 
-**Productivity:**
+For every model, you can view:
 
-* Reduces manual errors
-* Eliminates rework
-* Increases factory floor efficiency
+* All generated labels
+* All movements by sector
+* Production counts
+* Current available quantities
+* Editing history
+* A complete timeline of events
 
-**Security:**
+---
 
-* Immutable action records
-* Complete audit history
+### 6. Dashboard & KPI Summary
+
+The dashboard provides:
+
+* Stock per sector (PTH, SMT, IM, PA, Stock)
+* Production phase (Waiting, In-Process, Completed)
+* Lot availability and status
+* Bottleneck detection
+* Real-time process monitoring
+
+---
+
+## ✅ Benefits for the Company
+
+### **Productivity**
+
+* Eliminates spreadsheet/manual controls
+* Reduces human error
+* Increases operational efficiency
+
+### **Security & Reliability**
+
+* Immutable logs for each operation
+* Full traceability for audits and certifications
 
 ---
 
@@ -188,19 +197,18 @@ python app.py
 
 ---
 
-## 🔗 Access the System (Deployment)
+## 🔗 Online Deployment
 
-The system is available online via Render.
-Countermeasures are applied even in the free version to prevent inactivity shutdown. If it closes, wait 50 seconds and reopen.
+Hosted on Render.
+The free plan may suspend for inactivity — if the page sleeps, wait **~50 seconds** for the server to restart.
 
-➡️ **[https://label-tracking-system.onrender.com](https://label-tracking-system.onrender.com)**
+➡️ **[https://label-tracking-system-venttos.onrender.com](https://label-tracking-system-venttos.onrender.com)**
 
 ---
 
 ## 👨‍💻 Author
 
-* Developed by **Eduardo Libório**
-* 📧 [eduardosoleno@protonmail.com](mailto:eduardosoleno@protonmail.com)
+Developed by **Eduardo Libório**
+📧 [eduardosoleno@protonmail.com](mailto:eduardosoleno@protonmail.com)
 
 ---
-

@@ -8,7 +8,7 @@ import re
 
 app = Flask(__name__)
 app.secret_key = "chave_super_secreta_trocar"
-DB_PATH = "models.db"
+DB_PATH = "models_pb.db"
 
 # ---------------- Banco de Dados ----------------
 def init_db():

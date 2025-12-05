@@ -1,11 +1,14 @@
-/* ===== Cabeçalho da tabela principal ===== */
+/* ============================================================
+   ESTILOS PRINCIPAIS (DESKTOP)
+   ============================================================ */
+
 table.table thead {
-  background-color: #000 !important; /* Fundo preto sólido */
-  color: #fff !important;            /* Texto branco */
+  background-color: #000 !important;
+  color: #fff !important;
 }
 
 table.table thead th {
-  background-color: #8b2828 !important; /* Garante fundo em cada célula */
+  background-color: #8b2828 !important;
   color: #fff !important;
   border: 1px solid #222;
   text-align: center;
@@ -13,58 +16,53 @@ table.table thead th {
   font-size: 16px;
 }
 
-/* ===== Mantém o corpo da tabela branco ===== */
 table.table tbody {
   background-color: #fff;
 }
 
-/* ===== Linhas alternadas (opcional, para contraste) ===== */
 .table-striped tbody tr:nth-of-type(odd) {
   background-color: #f8f9fa;
 }
+
 .table-striped tbody tr:nth-of-type(even) {
   background-color: #ffffff;
 }
 
 .logo {
-    height: 60px;
+  height: 60px;
 }
 
 .titulo-sistema {
-    font-size: 28px;
-    font-weight: bold;
-    text-align: center;
-    color: #0d3b66; /* Azul escuro */
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  color: #0d6efd;
 }
 
-/* Linha separadora */
 .linha-separadora {
-    border: 0;
-    height: 4px;
-    background-color: #0d3b66; /* Azul escuro ideal */
-    margin: 0 0 20px 0;
+  border: 0;
+  height: 4px;
+  background-color: #0d3b66;
+  margin: 0 0 20px 0;
 }
 
 .etiqueta-container {
-    display: flex;          /* coloca as etiquetas lado a lado */
-    flex-wrap: wrap;        /* permite quebrar a linha a cada 2 etiquetas */
-    gap: 20px;              /* espaço entre etiquetas */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .etiqueta-container .etiqueta {
-    flex: 0 0 calc(50% - 10px);  /* cada etiqueta ocupa metade do container, subtraindo espaço do gap */
-    box-sizing: border-box;
+  flex: 0 0 calc(50% - 10px);
+  box-sizing: border-box;
 }
 
 .header-sistema {
   background-color: #f8f9fa;
   border-bottom: 2px solid #ddd;
-}
-
-.titulo-sistema {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #222;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .menu-topo .btn {
@@ -77,81 +75,694 @@ table.table tbody {
   transform: translateY(-2px);
 }
 
-/* Fundo fixo branco e efeito de hover */
 .table tbody tr {
   background-color: #ffffff !important;
 }
 
 .table-hover tbody tr:hover {
-  background-color: #f1f1f1 !important; /* cor leve no hover */
+  background-color: #f1f1f1 !important;
 }
 
-/* ===== Ajustes para telas pequenas ===== */
-@media (max-width: 767px) {
+.btn-purple {
+    background-color: #ce0aad !important;
+    border-color: #ce0aad !important;
+    color: white !important;
+}
+.btn-purple:hover {
+    background-color: #ce0aad !important;
+    border-color: #0c040b !important;
+}
 
-  /* Títulos menores */
-  .titulo-sistema {
+
+/* ============================================================
+   SIDEBAR MOBILE
+   ============================================================ */
+
+.sidebar-mobile {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 230px;
+  height: 100vh;
+  background: #0d6efd;
+  padding-top: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: 0.3s;
+  z-index: 9999;
+}
+
+.sidebar-mobile.show {
+  left: 0;
+}
+
+/* Logo dentro do sidebar */
+.sidebar-mobile .sidebar-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.sidebar-mobile .sidebar-header .logo-sidebar {
+  height: 40px;
+  max-width: 80%;
+}
+
+/* Links do menu */
+.sidebar-mobile a {
+  color: white;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-mobile a:hover {
+  background: #8b2828;
+}
+
+.sidebar-mobile {
+  background: #ffffff; /
+}
+
+.sidebar-mobile a {
+  color: #000000; 
+}
+
+.sidebar-mobile a:hover {
+  background: #f1f1f1; 
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  /* Header mobile */
+  .header-sistema {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 10px 15px;
+  }
+
+  /* Título principal */
+.titulo-sistema {
+    font-size: 1rem;       
+    font-weight: 700;        
+    line-height: 1.2;         
+    color: #0d6efd;           
+    text-align: center;       
+    margin: 0;                
+}
+
+    .header-sistema .titulo-sistema {
+        position: relative !important;  
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 0 auto;
+        text-align: center;
+        width: auto;
+    }
+
+  /* Botão hamburguer */
+  #btnToggleSidebar {
     font-size: 20px;
-    text-align: center;
+    flex-shrink: 0;
   }
 
-  .logo {
-    height: 45px;
+  .header-sistema > * {
+    vertical-align: middle;
   }
 
-  /* Etiquetas ficam 100% no celular */
+  /* Menu desktop escondido */
+  .menu-topo {
+    display: none !important;
+  }
+
+  /* Etiquetas ocupam 100% da largura */
   .etiqueta-container .etiqueta {
     flex: 0 0 100% !important;
   }
 
-  /* Tabelas rolam horizontalmente se estiverem grandes */
+  /* Scroll horizontal das tabelas */
   .table-responsive {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  table.table th, table.table td {
-    font-size: 14px;
+  /* Tabelas */
+  table.table th,
+  table.table td {
+    font-size: 12px;
     padding: 8px;
-    white-space: nowrap; 
+    white-space: nowrap;
   }
 
-  /* Botões no topo */
-  .menu-topo .btn {
+  table.table thead th {
+    font-size: 12px;
+  }
+
+  table.table tbody td {
+    font-size: 12px;
+  }
+
+  /* Container da header mobile */
+  .page-header-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Título */
+  .page-header-mobile h2.page-title {
+    font-size: 16px;
+    margin-bottom: 0;
+  }
+
+  /* Linha de ações */
+  .page-header-mobile .actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Input de busca */
+  .page-header-mobile .actions form {
+    flex: 1;
+    margin: 0;
+  }
+
+  .page-header-mobile .actions form input.form-control {
     width: 100%;
-    margin-bottom: 10px;
+  }
+
+  /* Botão de busca */
+  .page-header-mobile .actions form button.btn {
+    flex: 0 0 auto;
+    font-size: 12px;
+    padding: 4px 8px;
+    margin-left: 5px;
+  }
+
+  /* Botão Nova Ordem: maior largura */
+  .page-header-mobile .actions a.btn {
+    flex: 0 0 auto;
+    padding: 9px 8px;
+    font-size: 12px;
+    min-width: 95px;
+    white-space: nowrap;
+  }
+
+  /* Esconde versão desktop no mobile */
+  .page-header-desktop {
+    display: none !important;
   }
 }
-/* ======== MOBILE FIX — MENUS LADO A LADO ======== */
+
+/* ============================================================
+   DESKTOP
+   ============================================================ */
+
+@media (min-width: 769px) {
+  .page-header-mobile {
+    display: none !important;
+  }
+}
+/* Esconde logo externa apenas no mobile */
+@media (max-width: 768px) {
+    .header-sistema .logo {
+        display: none !important;
+    }
+}
+
+/* ============================================================
+   DASHBOARD — MOBILE 
+   ============================================================ */
 @media (max-width: 768px) {
 
-    .logo,
-    .titulo-sistema {
+    /* --------------------------------------------------------
+       Título
+    -------------------------------------------------------- */
+    h2.fw-bold.text-primary.mb-0 {
+        font-size: 18px !important;
+        text-align: left !important;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* --------------------------------------------------------
+       Containers principais
+    -------------------------------------------------------- */
+    .d-flex.justify-content-between.align-items-center.mb-4.flex-wrap.gap-2 {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .d-flex.flex-wrap.gap-2 {
+        display: flex !important;
+        flex-wrap: wrap !important;
+    }
+
+    /* --------------------------------------------------------
+       Botões de SETOR
+    -------------------------------------------------------- */
+    .btn-setor {
+        font-size: 11px !important;
+        padding: 4px 6px !important;
+        flex: 1 1 calc(33.33% - 6px);
+        text-align: center;
+    }
+
+    .d-flex.flex-wrap.gap-2 > .d-flex.flex-wrap.gap-2 {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    /* --------------------------------------------------------
+       Botões de STATUS
+    -------------------------------------------------------- */
+    .btn-status {
+        font-size: 11px !important;
+        padding: 4px 6px !important;
+        flex: 1 1 calc(50% - 6px);
+        text-align: center;
+    }
+
+    .d-flex.justify-content-start.flex-wrap.gap-2.mb-2.align-items-center {
+        width: 100%;
+        justify-content: center !important;
+        gap: 6px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+    }
+
+    /* --------------------------------------------------------
+       MOVENDO O FORM DE BUSCA PARA BAIXO DOS STATUS
+    -------------------------------------------------------- */
+    #searchForm {
+        order: 10 !important; 
+        width: 100% !important;
+        justify-content: center;
+        margin: 10px 0 0 0 !important;
+    }
+
+    #searchForm input {
+        width: 70% !important;
+        font-size: 13px;
+    }
+
+    #searchForm button {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+    /* --------------------------------------------------------
+       Selects
+    -------------------------------------------------------- */
+    #clienteSelect,
+    #filterTopSelect,
+    #filterBottomSelect {
+        width: 100% !important;
+        max-width: 100%;
+        margin-top: 5px;
+    }
+
+    /* --------------------------------------------------------
+       Total Geral
+    -------------------------------------------------------- */
+    #totalGeralBox {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    /* --------------------------------------------------------
+       Tabela
+    -------------------------------------------------------- */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table.table th,
+    table.table td {
+        font-size: 10px;
+        padding: 6px;
+        white-space: nowrap;
+    }
+
+    /* --------------------------------------------------------
+       Cards e gráficos
+    -------------------------------------------------------- */
+    .dashboard-card,
+    .chart-container {
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
+
+    /* --------------------------------------------------------
+       Botões gerais
+    -------------------------------------------------------- */
+    .btn {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+}
+
+/* ============================================================
+   MOVIMENTAR – MOBILE ONLY
+   ============================================================ */
+@media (max-width: 768px) {
+
+    /* Título */
+    h2.text-primary.text-center {
+        font-size: 20px !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* Card principal */
+    form.card {
+        padding: 20px !important;
+    }
+
+    /* Input QR e Quantidade */
+    #qr_code,
+    #quantidade,
+    #ponto {
+        font-size: 16px !important;
+        padding: 10px !important;
+    }
+
+    /* LABELS */
+    label.form-label {
+        font-size: 14px !important;
+    }
+
+    .action-btn {
+        font-size: 12px !important;
+        padding: 18px 0 !important;
+        border-radius: 12px;
+    }
+
+    /* 3 primeiros botões (3 por linha) */
+    .row.g-2 .col-4 {
+        flex: 0 0 33.33%;
+        max-width: 33.33%;
+    }
+
+    /* retrabalho e rejeição (2 por linha) */
+    .row.g-2 .col-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    /* Botões de fase TOP/BOTTOM */
+    .phase-btn {
+        font-size: 13px !important;
+        padding: 20px 0 !important;
+        border-radius: 12px;
+        white-space: nowrap;
+    }
+
+    /* Container das fases (2 por linha) */
+    .row.g-2 .col-6 {
+        flex: 0 0 50%;
+    }
+
+    .mb-4,
+    .mt-4,
+    .mb-3 {
+        margin-bottom: 12px !important;
+        margin-top: 12px !important;
+    }
+
+    /* Botão principal */
+    button.btn-primary.w-100 {
+        font-size: 16px !important;
+        padding: 14px !important;
+        border-radius: 14px;
+    }
+
+    .card.shadow-sm {
+        margin-top: 20px !important;
+    }
+
+    .card-body p {
+        font-size: 14px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .action-btn {
+        font-size: 12px !important;
+        padding: 16px 4px !important;
+        border-radius: 12px;
+        line-height: 1.2;
+        white-space: normal !important;
+        height: 78px; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .row.g-2 .col-4 {
+        flex: 0 0 33.33% !important;
+        max-width: 33.33% !important;
+        padding: 0 4px !important;
+    }
+
+@media (max-width: 768px) {
+
+    button.action-btn[data-value="producao"],
+    button.action-btn[data-value="recebimento"],
+    button.action-btn[data-value="cq_liberar"] {
+        font-size: 12px !important;
+        padding: 16px 4px !important;
+        border-radius: 12px !important;
+        line-height: 1.2 !important;
+        height: 78px !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        hyphens: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .row.g-2 .col-4 {
+        flex: 0 0 33.33% !important;
+        max-width: 33.33% !important;
+        padding: 0 4px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-movimentar-desktop {
+        display: none !important;
+    }
+}
+
+}
+
+/* ============================================================
+   HISTÓRICO – MOBILE
+   ============================================================ */
+@media (max-width: 768px) {
+
+    /* Título da página */
+    h3 {
+        font-size: 18px !important;
+        text-align: center !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* Botão voltar */
+    a.btn.btn-secondary {
+        font-size: 12px !important;
+        padding: 6px 10px !important;
+    }
+
+    /* Força scroll horizontal suave */
+    .table-responsive {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Ajustes da tabela */
+    table.table th,
+    table.table td {
+        font-size: 11px !important;
+        padding: 6px !important;
+        white-space: nowrap !important;
+        text-align: center;
+    }
+
+    table.table thead th {
+        font-size: 11px !important;
+        white-space: nowrap !important;
+    }
+
+    /* Botões dentro das células */
+    td .btn {
+        font-size: 10px !important;
+        padding: 4px 6px !important;
+        margin: 2px !important;
+        min-width: 60px;
+    }
+
+    /* O "flex-wrap" dos botões no mobile */
+    td .d-flex {
+        gap: 4px !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+
+    /* Espaçamento entre seções */
+    h5 {
+        font-size: 15px !important;
+        margin-top: 20px !important;
+        margin-bottom: 10px !important;
+    }
+}
+@media (max-width: 1024px) and (orientation: landscape) {
+
+    /* Esconder menu desktop, logo e header desktop */
+    .menu-topo,
+    .page-header-desktop,
+    .header-sistema .logo {
         display: none !important;
     }
 
-    .header-sistema {
-        flex-direction: column !important;
+    /* Mantém o título principal do header intacto */
+    .header-sistema .titulo-sistema {
+        font-size: 22px !important;
         text-align: center;
-        height: auto;
-        justify-content: center;
-        align-items: center;
+        width: auto;
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 0 auto;
     }
 
-    .menu-topo {
+    /* Botão hamburguer visível */
+    #btnToggleSidebar {
+        display: inline-block !important;
+    }
+
+    /* Sidebar mobile funcional */
+    #sidebarMobile {
         display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        gap: 8px !important;
+        left: -260px;
+    }
+
+    #sidebarMobile.show {
+        left: 0 !important;
+    }
+
+    /* Scroll horizontal das tabelas */
+    .table-responsive {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    table.table {
+        width: 100%;
+        min-width: 600px;
+    }
+
+    table.table th,
+    table.table td {
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    /* título em cima, ocupando 100% */
+    .page-header-mobile.landscape h2.page-title {
+        display: block;
+        width: 100%;
+        margin: 0;
+        margin-bottom: 6px;
+        font-size: 18px;
+        line-height: 1.1;
+    }
+
+    .page-header-mobile.landscape {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+        width: 100%;
+
+
+    }
+
+    .page-header-mobile.landscape {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+    .page-header-mobile.landscape .actions form {
+        display: flex;
+        flex: 1 1 auto;        /* cresce e encolhe conforme o espaço */
+        min-width: 0;          /* necessário para o input encolher corretamente */
+        gap: 8px;
+    }
+
+    .page-header-mobile.landscape .actions form {
+        flex: 1 1 auto;
+        display: flex;
+        gap: 5px;
+    }
+
+    /* input: ocupa todo o espaço do form, mas pode encolher */
+    .page-header-mobile.landscape .actions form .form-control,
+    .page-header-mobile.landscape .actions form input.form-control {
+        flex: 1 1 auto;
+        min-width: 0;          /* evita overflow em flex containers */
+    }
+
+    /* botão Buscar mantém tamanho natural, sem ocupar espaço extra */
+    .page-header-mobile.landscape .actions form button.btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    /* botão "Nova Ordem": tenta ficar na mesma linha (à direita); se não couber, quebra para nova linha */
+    .page-header-mobile.landscape .actions a.btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        /* empurra para a direita quando houver espaço (após o form ocupar o resto) */
+        margin-left: auto;
+    }
+
+    /* fallback: em telas mais estreitas dentro do landscape, força "Nova Ordem" a ocupar 100% (linha separada) */
+@media (max-width: 900px) {
+    .page-header-mobile.landscape .actions a.btn {
+        margin-left: 0;
         width: 100%;
     }
-
-    .menu-topo .btn {
-        flex: 1 1 auto !important;
-        white-space: nowrap !important;
-        width: auto !important;      
-        margin-bottom: 0 !important;
+    .page-header-mobile.landscape .actions form {
+        width: 100%;
     }
+}
+
 }
 
 

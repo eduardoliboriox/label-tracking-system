@@ -8,7 +8,7 @@ import re
 
 app = Flask(__name__)
 app.secret_key = "chave_super_secreta_trocar"
-DB_PATH = "models_pb.db"
+DB_PATH = "models.db"
 
 # ---------------- Banco de Dados ----------------
 def init_db():
@@ -102,6 +102,9 @@ def add_missing_column():
 
     if "operadora" not in columns:
         c.execute("ALTER TABLE models ADD COLUMN operadora TEXT;")
+    
+    if "lote_padrao" not in columns:
+        c.execute("ALTER TABLE models ADD COLUMN lote_padrao TEXT;")
 
     conn.commit()   
     conn.close()
@@ -267,13 +270,14 @@ def register_movement(conn, model_id, label_id, new_label_id, ponto, acao, quant
         acao,
         quantidade,
         from_setor,
-        to_setor,
+       to_setor,
         fase,
         now,
         created_by
     ))
 
 # ---------------- Rotas ----------------
+
 @app.route("/")
 def index():
     search = request.args.get("search", "").strip()
@@ -346,6 +350,7 @@ def new():
                 )
             )
             conn.commit()
+
             flash("Modelo cadastrado com sucesso!", "success")
         except sqlite3.Error as e:
             flash(f"Erro ao salvar: {e}", "danger")
@@ -354,6 +359,7 @@ def new():
             conn.close()
         return redirect(url_for("index"))
     return render_template("form.html", model=None)
+
 
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit(id):
@@ -415,6 +421,8 @@ def edit(id):
 
             conn.commit()
             flash("Modelo atualizado com sucesso!", "success")
+
+  
             return redirect(url_for("index"))
 
         # -----------------------------------------------
@@ -636,8 +644,13 @@ def movimentar():
         conn.close()
 
     def get_fase(ponto, acao):
-        if ponto == "Ponto-02" and acao == "RECEBIMENTO":
-            return "AGUARDANDO"
+        # Ponto-02 e Ponto-03 são SMT e seguem o mesmo fluxo:
+        # RECEBIMENTO -> AGUARDANDO, caso contrário -> DISPONIVEL
+        if ponto in ("Ponto-02", "Ponto-03"):
+            if acao == "RECEBIMENTO":
+                return "AGUARDANDO"
+            return "DISPONIVEL"
+        # default para outros pontos
         return "DISPONIVEL"
 
     # --- START POST handling ---
@@ -654,6 +667,7 @@ def movimentar():
             top_mark = int(request.form.get("top_mark") or 0)
             bottom_mark = int(request.form.get("bottom_mark") or 0)
 
+            # --- validação de fase existente ---
             if top_mark == 1 and bottom_mark == 1:
                 bottom_mark = 0
 
@@ -661,7 +675,7 @@ def movimentar():
                 flash("Escolha uma fase: TOP ou BOTTOM!", "danger")
                 return redirect(url_for("movimentar", p=ponto_url))
 
-            # --- validação: respeitar tipo de fase do modelo (TOP ONLY / BOTTOM ONLY / TOP BOTTOM)
+            # --- validação: tipo de fase ---
             possible_keys = ["tipo_de_fase", "tipo_fase", "phase_type", "fase_tipo", "type_phase", "tipo"]
             tipo_de_fase = None
             for k in possible_keys:
@@ -671,7 +685,6 @@ def movimentar():
 
             if tipo_de_fase:
                 if "TOP ONLY" in tipo_de_fase or tipo_de_fase == "TOPONLY" or tipo_de_fase == "TOP":
-                    # não permite marcar BOTTOM
                     if bottom_mark == 1 and top_mark == 0:
                         flash("Modelo é TOP ONLY — não é permitido registrar BOTTOM.", "danger")
                         return redirect(url_for("movimentar", p=ponto_url))
@@ -686,60 +699,57 @@ def movimentar():
             top_done_new = old_top + quantidade if top_mark == 1 else old_top
             bottom_done_new = old_bottom + quantidade if bottom_mark == 1 else old_bottom
 
-            # Se for RECEBIMENTO → ZERA CONTADORES
-            if acao == "RECEBIMENTO":
-                new_top_done = 0
-                new_bottom_done = 0
-            else:
-                new_top_done = top_done_new
-                new_bottom_done = bottom_done_new
+            # --- Lógica do RECEBIMENTO (SMT) ---
+            # Se for RECEBIMENTO em SMT (Ponto-02 ou Ponto-03) -> zera contadores para a nova etiqueta
+            if acao == "RECEBIMENTO" and ponto in ("Ponto-02", "Ponto-03"):
+                top_done_new = 0
+                bottom_done_new = 0
 
-                # ============================ BLOQUEIO DUPLICADO POR FASE (robusto) ============================
-                label_id = label["id"]
+            fase_nova = get_fase(ponto, acao)
 
-                if top_mark == 1:
-                    already_top = conn.execute("""
-                        SELECT 1
-                        FROM movements
-                        WHERE (
-                            label_id = ? OR
-                            new_label_id = ? OR
-                            label_id IN (SELECT id FROM labels WHERE linked_label_id = ?) OR
-                            new_label_id IN (SELECT id FROM labels WHERE linked_label_id = ?)
-                        )
-                        AND ponto = ?
-                        AND acao = ?
-                        AND UPPER(TRIM(fase)) = 'TOP'
-                        LIMIT 1
-                    """, (label_id, label_id, label_id, label_id, ponto, acao)).fetchone()
+            # --- BLOQUEIO DUPLICADO por fase (igual já existente) ---
+            label_id = label["id"]
+            if top_mark == 1:
+                already_top = conn.execute("""
+                    SELECT 1
+                    FROM movements
+                    WHERE (
+                        label_id = ? OR
+                        new_label_id = ? OR
+                        label_id IN (SELECT id FROM labels WHERE linked_label_id = ?) OR
+                        new_label_id IN (SELECT id FROM labels WHERE linked_label_id = ?)
+                    )
+                    AND ponto = ?
+                    AND acao = ?
+                    AND UPPER(TRIM(fase)) = 'TOP'
+                    LIMIT 1
+                """, (label_id, label_id, label_id, label_id, ponto, acao)).fetchone()
+                if already_top:
+                    conn.close()
+                    flash("TOP já foi registrado para esta etiqueta (ou filha) neste ponto.", "danger")
+                    return redirect(url_for("movimentar", p=ponto_url))
 
-                    if already_top:
-                        conn.close()
-                        flash("TOP já foi registrado para esta etiqueta (ou filha) neste ponto.", "danger")
-                        return redirect(url_for("movimentar", p=ponto_url))
+            if bottom_mark == 1:
+                already_bottom = conn.execute("""
+                    SELECT 1
+                    FROM movements
+                    WHERE (
+                        label_id = ? OR
+                        new_label_id = ? OR
+                        label_id IN (SELECT id FROM labels WHERE linked_label_id = ?) OR
+                        new_label_id IN (SELECT id FROM labels WHERE linked_label_id = ?)
+                    )
+                    AND ponto = ?
+                    AND acao = ?
+                    AND UPPER(TRIM(fase)) = 'BOTTOM'
+                    LIMIT 1
+                """, (label_id, label_id, label_id, label_id, ponto, acao)).fetchone()
+                if already_bottom:
+                    conn.close()
+                    flash("BOTTOM já foi registrado para esta etiqueta (ou filha) neste ponto.", "danger")
+                    return redirect(url_for("movimentar", p=ponto_url))
 
-                if bottom_mark == 1:
-                    already_bottom = conn.execute("""
-                        SELECT 1
-                        FROM movements
-                        WHERE (
-                            label_id = ? OR
-                            new_label_id = ? OR
-                            label_id IN (SELECT id FROM labels WHERE linked_label_id = ?) OR
-                            new_label_id IN (SELECT id FROM labels WHERE linked_label_id = ?)
-                        )
-                        AND ponto = ?
-                        AND acao = ?
-                        AND UPPER(TRIM(fase)) = 'BOTTOM'
-                        LIMIT 1
-                    """, (label_id, label_id, label_id, label_id, ponto, acao)).fetchone()
-
-                    if already_bottom:
-                        conn.close()
-                        flash("BOTTOM já foi registrado para esta etiqueta (ou filha) neste ponto.", "danger")
-                        return redirect(url_for("movimentar", p=ponto_url))
-
-            # ============================ FLUXO NORMAL ============================
+            # --- FLUXO NORMAL (DISPONIVEL) ---
             transfer = quantidade if quantidade > 0 else remaining
             if transfer <= 0 or transfer > remaining:
                 conn.close()
@@ -761,8 +771,8 @@ def movimentar():
                 "Ponto-07": "ESTOQUE"
             }
             setor_destino = destino_map.get(ponto, setor_origem)
-            fase_nova = get_fase(ponto, acao)
 
+            # Insere nova etiqueta/registro
             conn.execute("""
                 INSERT INTO labels
                 (model_id, lote, producao_total, capacidade_magazine, remaining,
@@ -773,7 +783,7 @@ def movimentar():
                 model["id"], label["lote"], transfer, transfer, transfer,
                 datetime.now().isoformat(), label["id"],
                 setor_destino, fase_nova,
-                new_top_done, new_bottom_done
+                top_done_new, bottom_done_new
             ))
             new_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
 
@@ -781,8 +791,8 @@ def movimentar():
                 register_movement(
                     conn,
                     model["id"],
-                    label["id"],  
-                    new_id,       
+                    label["id"],
+                    new_id,
                     ponto,
                     acao,
                     transfer,
@@ -810,7 +820,6 @@ def movimentar():
             return redirect(url_for("movimentar", p=ponto_url))
 
         except Exception as e:
-            # rollback safe
             try:
                 conn.rollback()
             except:
@@ -832,6 +841,7 @@ def movimentar():
         hide_top_menu=True,
         clean_display_code=clean_display_code
     )
+
 
 def extract_real_code(raw):
     if not raw:
@@ -905,6 +915,10 @@ def dashboard():
                 status = "DISPONIVEL"
             elif fase.startswith("AGUARDANDO"):
                 status = "AGUARDANDO"
+            elif fase == "PENDENTE CQ":
+                status = "PENDENTE CQ"
+            elif fase == "CQ APROVOU":
+                status = "CQ APROVOU"
             elif fase in ("EXPEDIDO", "EXPEDICAO"):
                 status = "EXPEDIDO"
             else:
@@ -920,8 +934,8 @@ def dashboard():
                 status_top = f"⬜ ({top_done}/{total})"
                 status_bottom = "N/A"
             else:
-                status_top = f"⬜ ({top_done}/{total})"
-                status_bottom = f"⬜ ({bottom_done}/{total})"
+                status_top = f" ({top_done}/{total})"
+                status_bottom = f" ({bottom_done}/{total})"
 
             saldo_setores.append({
                 "setor": setor,
@@ -989,7 +1003,7 @@ def etiqueta(code):
     if "-" in code:
         base_code = code.split("-")[0]
         lote_sufixo = "-".join(code.split("-")[1:])
-        # Reconstrói o formato original (ex: "08-504" → "08 / 504")
+        # formato original (ex: "08-504" → "08 / 504")
         lote_sufixo = lote_sufixo.replace("-", " / ")
     else:
         base_code = code
@@ -1072,5 +1086,19 @@ def etiqueta_visualizar(code, lote):
 
     return render_template("label.html", m=model, lotes=[lote_formatado])
 
+@app.get("/api/atualizado")
+def api_atualizado():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT MAX(id) FROM movements")
+    mov = cur.fetchone()[0] or 0
+
+    cur.execute("SELECT MAX(id) FROM history")
+    his = cur.fetchone()[0] or 0
+
+    conn.close()
+    return {"ultimo": max(mov, his)}
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=True)

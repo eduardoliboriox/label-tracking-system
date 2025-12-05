@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h2 class="fw-bold text-primary mb-0">📊 Dashboard de Produção</h2>
 
-        <div class="d-flex flex-wrap gap-2 align-items-center">
+        <div class="d-flex flex-wrap gap-2">
             <!-- Botões de Setor -->
             <div class="d-flex flex-wrap gap-2">
                 <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
@@ -44,18 +44,18 @@
             {% endfor %}
         </select>
 
-        <!-- 🔵 SELECTS TOP/BOTTOM — inline, mesmo estilo do CLIENTE -->
+        <!-- 🔵 SELECTS TOP/BOTTOM -->
         <select id="filterTopSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
                 onchange="filterTop(this.value)">
             <option value="ALL">FASE TOP: TODOS</option>
-            <option value="ZERO">PENDENTE PRODUÇÃO</option>
+            <option value="ZERO">PRODUÇÃO PENDENTE</option>
             <option value="COMPLETE">TOP PRONTO</option>
         </select>
 
         <select id="filterBottomSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
                 onchange="filterBottom(this.value)">
             <option value="ALL">FASE BOTTOM: TODOS</option>
-            <option value="ZERO">PENDENTE PRODUÇÃO</option>
+            <option value="ZERO">PRODUÇÃO PENDENTE</option>
             <option value="COMPLETE">BOTTOM PRONTO</option>
         </select>
 
@@ -74,12 +74,13 @@
             <th>Modelo</th>
             <th>Código</th>
             <th>OP</th>
-            <th>Setor</th>
+            <th>Lote</th>
+            <!--<th>Setor</th>-->
             <th>Status</th>
             <th>Tipo de Fase</th>
-            <th>Status TOP</th>
-            <th>Status BOTTOM</th>
-            <th>Saldo Blank</th>
+            <th>TOP</th>
+            <th>BOTTOM</th>
+            <th>Saldo/Etiqueta</th>
         </tr>
         </thead>
         <tbody>
@@ -88,15 +89,16 @@
                 <tr class="text-center"
                     data-setor="{{ saldo.setor }}"
                     data-status="{{ saldo.status }}"
-                    data-topdone="{{ saldo.status_top.split('/')[0].replace('⬜ (','') }}"
-                    data-bottomdone="{% if item.model.phase_type.strip().upper() == 'TOP_ONLY' %}N/A{% else %}{{ saldo.status_bottom.split('/')[0].replace('⬜ (','') }}{% endif %}"
+                    data-topdone="{{ saldo.status_top.split('/')[0].replace(' (','') }}"
+                    data-bottomdone="{% if item.model.phase_type.strip().upper() == 'TOP_ONLY' %}N/A{% else %}{{ saldo.status_bottom.split('/')[0].replace(' (','') }}{% endif %}"
                     data-total="{{ (saldo.status_top.split('/')[1] if '/' in saldo.status_top else saldo.saldo_blank) | replace(')','') }}">
 
                     <td class="fw-bold">{{ item.model.cliente }}</td>
                     <td class="fw-bold">{{ item.model.model_name }}</td>
                     <td class="fw-bold">{{ item.model.code }}</td>
                     <td class="fw-bold text-primary">{{ item.model.op }}</td>
-                    <td class="fw-bold">{{ saldo.setor }}</td>
+                    <td class="fw-bold">{{ item.model.po }}</td>
+                    <!-- Tabela<td class="fw-bold">{{ saldo.setor }}</td>-->
 
                     <td>
                         {% if saldo.status == "AGUARDANDO" %}
@@ -154,7 +156,7 @@ function getRows() {
 function applyFilters() {
     const rows = getRows();
 
-    // lê selects TOP/BOTTOM atual (inline)
+
     const topSelectVal = (document.getElementById('filterTopSelect') || {}).value || 'ALL';
     const bottomSelectVal = (document.getElementById('filterBottomSelect') || {}).value || 'ALL';
 
@@ -181,7 +183,7 @@ function applyFilters() {
         if (rowBottomDone !== "N/A") {
             if (bottomSelectVal === "ZERO") okBottom = (rowBottomDone === 0);
             if (bottomSelectVal === "COMPLETE") okBottom = (total > 0 && rowBottomDone === total);
-        } // if N/A, passa sempre
+        } 
 
         row.style.display = (okSetor && okStatus && okCliente && okSearch && okTop && okBottom) ? '' : 'none';
     });
@@ -202,9 +204,7 @@ function filterByStatus(status) {
 }
 
 function filterTop(option) {
-    // permite ser chamado tanto por select (string) quanto por função com valor
     currentTopFilter = option;
-    // sincroniza select visual (se necessário)
     const s = document.getElementById('filterTopSelect');
     if (s && s.value !== option) s.value = option;
     applyFilters();
@@ -231,7 +231,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setActiveSetorBtn('PTH');
     setActiveStatusBtn('DISPONIVEL');
 
-    // garantir selects TOP/BOTTOM como "Todos"
     const t = document.getElementById('filterTopSelect');
     const b = document.getElementById('filterBottomSelect');
     if (t) t.value = 'ALL';
@@ -268,5 +267,6 @@ function calcularTotalGeral() {
     document.getElementById("totalGeralBox").innerText = "Total Geral: " + total;
 }
 </script>
+
 
 {% endblock %}

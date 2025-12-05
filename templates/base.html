@@ -4,12 +4,18 @@
   <meta charset="UTF-8">
   <title>Sistema de Rastreabilidade via Etiquetas</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+
 <!-- Cabeçalho -->
 <header class="header-sistema d-flex align-items-center justify-content-between px-3 py-3 position-relative">
+
+    <!-- BOTÃO HAMBÚRGUER (SÓ NO MOBILE *) -->
+    <button id="btnToggleSidebar" class="btn btn-outline-dark d-md-none me-2">
+        ☰
+    </button>
 
     <!-- LOGO À ESQUERDA -->
     <div class="d-flex align-items-center">
@@ -23,17 +29,30 @@
     </h1>
     {% endif %}
 
-    <!-- MENU À DIREITA -->
+    <!-- MENU DESKTOP -->
     {% if show_header_content|default(true) and not hide_top_menu %}
-    <nav class="menu-topo d-flex align-items-center">
-        <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-sm mx-1"><strong>Ordens de Produção</strong></a>
-        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm mx-1"><strong>Dashboard</strong></a>
-        <a href="{{ url_for('movimentar') }}" class="btn btn-outline-warning btn-sm mx-1"><strong>Movimentar</strong></a>
-        <a href="#" class="btn btn-outline-success btn-sm mx-1"><strong>Configurações</strong></a>
+    <nav class="menu-topo align-items-center">
+
+        <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-sm mx-1">Ordens de Produção</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm mx-1">Dashboard</a>
+        <a href="{{ url_for('movimentar') }}" class="btn btn-outline-warning btn-sm mx-1">Movimentar</a>
+        <a href="#" class="btn btn-outline-success btn-sm mx-1">Configurações</a>
     </nav>
     {% endif %}
-    
+
 </header>
+
+<nav id="sidebarMobile" class="sidebar-mobile d-md-none">
+
+    <div class="sidebar-header text-center mb-3">
+        <img src="{{ url_for('static', filename='logo.png') }}" class="logo-sidebar" alt="Logo">
+    </div>
+
+    <a href="{{ url_for('index') }}">🏭 Ordens de Produção</a>
+    <a href="{{ url_for('dashboard') }}">📊 Dashboard</a>
+    <a href="{{ url_for('movimentar') }}">📦 Movimentar</a>
+    <a href="#">⚙️ Configurações</a>
+</nav>
 
 <hr class="linha-separadora">
 
@@ -41,12 +60,13 @@
     {% block content %}{% endblock %}
 </main>
 
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Fechar alerts automaticamente -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const alerts = document.querySelectorAll(".alert");
-
     alerts.forEach(alert => {
         setTimeout(() => {
             const bsAlert = new bootstrap.Alert(alert);
@@ -56,5 +76,55 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<!-- Toggle sidebar mobile e fechar ao clicar fora -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById('btnToggleSidebar');
+    const sidebar = document.getElementById('sidebarMobile');
+
+    if (btn && sidebar) {
+        // Toggle sidebar ao clicar no botão
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // impede que o clique se propague
+            sidebar.classList.toggle('show');
+        });
+
+        // Fecha o sidebar ao clicar fora dele
+        document.addEventListener('click', (e) => {
+            if (sidebar.classList.contains('show') && 
+                !sidebar.contains(e.target) && 
+                !btn.contains(e.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+
+        sidebar.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+});
+</script>
+
+<script>
+let ultimo = null;
+
+function checarAtualizacao() {
+    fetch("/api/atualizado")
+        .then(r => r.json())
+        .then(data => {
+            if (ultimo === null) {
+                ultimo = data.ultimo;  // primeira leitura
+            } 
+            else if (data.ultimo !== ultimo) {
+                console.log("Atualização detectada! Recarregando...");
+                location.reload();
+            }
+        })
+        .catch(err => console.warn("Erro ao verificar atualização:", err));
+}
+
+setInterval(checarAtualizacao, 2000); // verifica a cada 2 segundos
+</script>
+ 
 </body>
 </html>

@@ -17,7 +17,8 @@
 {% endwith %}
 
 {% if hide_top_menu %}
-<div class="text-center mb-3">
+<div class="text-center mb-3 menu-movimentar-desktop">
+
     <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-sm mx-1"><strong>Ordens de Produção</strong></a>
     <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm mx-1"><strong>Dashboard</strong></a>
     <a href="{{ url_for('movimentar') }}" class="btn btn-outline-warning btn-sm mx-1"><strong>Movimentar</strong></a>
@@ -29,8 +30,8 @@
 <style>
 .action-btn.active,
 .phase-btn.active {
-    border: 3px solid hwb(216 9% 81%);
-    background-color: #2f4363 !important;
+    border: 3px solid hwb(0 0% 100%);
+    background-color: #07090c !important;  
     color: white !important;
     box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
 }
@@ -102,13 +103,12 @@
 
     <div class="col-6">
         <button type="button"
-                class="btn btn-dark btn-lg w-100 py-4 phase-btn"
+                class="btn btn-purple btn-lg w-100 py-4 phase-btn"
                 data-phase="bottom">
             ⬇️ FASE BOTTOM
         </button>
     </div>
 </div>
-
 
         <input type="hidden" name="acao" id="acao">
         <input type="hidden" name="top_mark" id="top_mark" value="0">
@@ -118,7 +118,7 @@
             <label for="quantidade" class="form-label fw-bold">Quantidade (opcional):</label>
             <input type="number" name="quantidade" id="quantidade"
                    class="form-control form-control-lg text-center" min="1"
-                   placeholder="Deixe vazio para usar a quantidade da etiqueta">
+                   placeholder="Vazio = Quantidade da etiqueta">
         </div>
 
         <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold py-3 mt-3">
@@ -180,15 +180,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Antes de enviar o form, garanta que apenas um lado está marcado
     const form = document.querySelector("form");
     form.addEventListener("submit", () => {
         if (parseInt(topHidden.value) === 1 && parseInt(bottomHidden.value) === 1) {
-            // força apenas TOP
             bottomHidden.value = 0;
         }
         if (parseInt(topHidden.value) === 0 && parseInt(bottomHidden.value) === 0) {
-            // nenhum lado selecionado → erro
             alert("Escolha uma fase: TOP ou BOTTOM!");
             event.preventDefault();
         }

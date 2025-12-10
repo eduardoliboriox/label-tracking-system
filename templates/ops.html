@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Controle de OPs{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4 px-4">
+
+    <!-- Cabeçalho com filtros -->
+    <div class="ops-header d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
+        <h2 class="fw-bold text-primary mb-0">📘 Controle de OPs</h2>
+
+<div class="d-flex flex-wrap gap-2 align-items-center">
+
+    <!-- Botões de Setores -->
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('SMT')">SMT</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('IM')">IM</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PA')">PA</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('ESTOQUE')">Estoque</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-setor" onclick="filterBySetor('TODOS')">Todos</button>
+    </div>
+
+    <!-- Busca -->
+    <form id="searchOPForm" class="d-inline-flex ms-3">
+        <input type="text" id="searchOPInput" class="form-control me-2" placeholder="Buscar...">
+        <button type="submit" class="btn btn-outline-primary btn-sm">Buscar</button>
+    </form>
+
+    <!-- Botão Nova OP -->
+    <button class="btn btn-primary fw-bold ms-2" data-bs-toggle="modal" data-bs-target="#modalAddOP">➕ Adicionar OP</button>
+
+</div>
+
+    </div>
+
+    <!-- Tabela de OPs -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Filial</th>
+                            <th>OP</th>
+                            <th>Produto</th>
+                            <th>Descrição</th>
+                            <th>Armazém</th>
+                            <th>Quantidade</th>
+                            <th>Produzido</th>
+                            <th>Setores</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="opsTableBody">
+                        {% for op in ops %}
+                        <tr>
+                            <td>{{ op.filial }}</td>
+                            <td>{{ op.numero_op }}</td>
+                            <td>{{ op.produto }}</td>
+                            <td>{{ op.descricao }}</td>
+                            <td>{{ op.armazem }}</td>
+                            <td>{{ op.quantidade }}</td>
+                            <td>{{ op.produzido }}</td>
+                            <td>
+                                {% for s in op.setores.split(",") %}
+                                    <span class="badge bg-primary">{{ s }}</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <a href="/ops/delete/{{ op.id }}" onclick="return confirm('Excluir OP?')" class="btn btn-sm btn-danger">🗑️ Excluir</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function setActiveSetorBtn(setor) {
+    document.querySelectorAll('.btn-setor').forEach(btn => btn.classList.remove('active'));
+    const btn = document.querySelector(`[onclick="filterBySetor('${setor}')"]`);
+    if (btn) btn.classList.add('active');
+}
+
+// Função exemplo para filtrar a tabela
+function filterBySetor(setor) {
+    setActiveSetorBtn(setor);
+    const rows = document.querySelectorAll('#opsTableBody tr');
+    rows.forEach(row => {
+        const setores = Array.from(row.querySelectorAll('td:nth-child(8) .badge')).map(b => b.textContent);
+        if (setor === 'TODOS' || setores.includes(setor)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Função exemplo para buscar
+document.getElementById('searchOPForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const term = document.getElementById('searchOPInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#opsTableBody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(term) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

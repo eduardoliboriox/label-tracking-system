@@ -204,6 +204,30 @@ def add_new_label_id_column_movements():
     conn.commit()
     conn.close()
 
+def add_missing_table_ops():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ops';")
+    if not c.fetchone():
+        c.execute('''
+            CREATE TABLE ops (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                filial TEXT,
+                numero_op TEXT,
+                produto TEXT,
+                descricao TEXT,
+                armazem TEXT,
+                quantidade INTEGER,
+                produzido INTEGER,
+                setores TEXT,
+                created_at TEXT
+            )
+        ''')
+        conn.commit()
+
+    conn.close()
+
 def get_db():
     conn = sqlite3.connect(DB_PATH, timeout=10, check_same_thread=False)
     conn.row_factory = sqlite3.Row
@@ -217,6 +241,7 @@ with app.app_context():
     add_missing_table_movements() 
     add_missing_columns_movements()
     add_new_label_id_column_movements() 
+    add_missing_table_ops()  
 
 # ---------------- Regras de Ponto / Roteiro ----------------
 # Definir um mapeamento básico dos pontos para setores.
@@ -602,6 +627,126 @@ def qr(code):
     buf.seek(0)
     return send_file(buf, mimetype="image/png")
 
+def salvar_op(dados):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    # 1) Salva a OP principal
+    c.execute("""
+        INSERT INTO ops (filial, numero_op, produto, descricao, armazem, quantidade, produzido, setores, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        dados["filial"],
+        dados["numero_op"],
+        dados["produto"],
+        dados["descricao"],
+        dados["armazem"],
+        dados["quantidade"],
+        dados["produzido"],
+        ",".join(dados["setores"]),
+        datetime.now().isoformat()
+    ))
+
+    id_op = c.lastrowid  # pega o ID da OP recém cadastrada
+
+    # 2) Cria uma linha para cada setor selecionado
+    for setor in dados["setores"]:
+        c.execute("""
+            INSERT INTO ops_saldos (id_op, setor, quantidade)
+            VALUES (?, ?, ?)
+        """, (id_op, setor, dados["quantidade"]))
+
+    conn.commit()
+    conn.close()
+
+
+def buscar_ops():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM ops ORDER BY id DESC")
+    resultado = c.fetchall()
+    conn.close()
+    return resultado
+
+@app.route("/ops/delete/<int:id>", methods=["GET"])
+def delete_op(id):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    # remove saldos dos setores
+    c.execute("DELETE FROM ops_saldos WHERE id_op = ?", (id,))
+    # remove OP
+    c.execute("DELETE FROM ops WHERE id = ?", (id,))
+
+    conn.commit()
+    conn.close()
+
+    flash("OP removida com sucesso!", "success")
+    return redirect(url_for("ops"))
+
+
+@app.route("/ops")
+def ops():
+    lista_ops = buscar_ops()
+    return render_template("ops.html", ops=lista_ops)
+
+
+@app.route("/ops/add", methods=["POST"])
+def add_op():
+    dados = {
+        "filial": request.form.get("filial"),
+        "numero_op": request.form.get("numero_op"),
+        "produto": request.form.get("produto"),
+        "descricao": request.form.get("descricao"),
+        "armazem": request.form.get("armazem"),
+        "quantidade": int(request.form.get("quantidade")),
+        "produzido": int(request.form.get("produzido")),
+        "setores": request.form.getlist("setores")
+    }
+    salvar_op(dados)
+    flash("OP cadastrada com sucesso!", "success")
+    return redirect(url_for("ops"))
+
+
+@app.route("/ops/update/<int:id>", methods=["POST"])
+def update_op(id):
+    dados = {
+        "filial": request.form.get("filial"),
+        "numero_op": request.form.get("numero_op"),
+        "produto": request.form.get("produto"),
+        "descricao": request.form.get("descricao"),
+        "armazem": request.form.get("armazem"),
+        "quantidade": int(request.form.get("quantidade")),
+        "produzido": int(request.form.get("produzido")),
+        "setores": ",".join(request.form.getlist("setores"))
+    }
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("""
+        UPDATE ops SET 
+            filial = ?,
+            numero_op = ?,
+            produto = ?,
+            descricao = ?,
+            armazem = ?,
+            quantidade = ?,
+            produzido = ?,
+            setores = ?
+        WHERE id = ?
+    """, (
+        dados["filial"], dados["numero_op"], dados["produto"], dados["descricao"],
+        dados["armazem"], dados["quantidade"], dados["produzido"], dados["setores"],
+        id
+    ))
+    conn.commit()
+    conn.close()
+
+    flash("OP atualizada com sucesso!", "success")
+    return redirect(url_for("ops"))
+
+
 @app.route("/movimentar", methods=["GET", "POST"])
 def movimentar():
     ponto_url = request.form.get("ponto_url") or request.args.get("p") or request.args.get("ponto")
@@ -644,12 +789,24 @@ def movimentar():
         conn.close()
 
     def get_fase(ponto, acao):
-        # Ponto-02 e Ponto-03 são SMT e seguem o mesmo fluxo:
+        p = (ponto or "").strip()
+        a = (acao or "").strip().upper()
+
+        if p == "Ponto-03":
+            if a == "RECEBIMENTO":
+                return "PENDENTE CQ"
+            if a == "CQ":
+                return "CQ APROVOU"
+            return "DISPONIVEL"
+
+
+        # Ponto-02 (SMT) segue fluxo SMT normal:
         # RECEBIMENTO -> AGUARDANDO, caso contrário -> DISPONIVEL
-        if ponto in ("Ponto-02", "Ponto-03"):
-            if acao == "RECEBIMENTO":
+        if p == "Ponto-02":
+            if a == "RECEBIMENTO":
                 return "AGUARDANDO"
             return "DISPONIVEL"
+
         # default para outros pontos
         return "DISPONIVEL"
 
@@ -920,7 +1077,7 @@ def dashboard():
             elif fase == "CQ APROVOU":
                 status = "CQ APROVOU"
             elif fase in ("EXPEDIDO", "EXPEDICAO"):
-                status = "EXPEDIDO"
+                status = "QUALIDADE"
             else:
                 status = "AGUARDANDO"
 

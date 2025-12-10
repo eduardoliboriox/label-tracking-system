@@ -30,10 +30,10 @@
     <div class="d-flex justify-content-start flex-wrap gap-2 mb-2 align-items-center">
         <button type="button" class="btn btn-outline-warning btn-sm fw-bold btn-status" onclick="filterByStatus('AGUARDANDO')">🕓 Aguardando</button>
         <button type="button" class="btn btn-outline-success btn-sm fw-bold btn-status" onclick="filterByStatus('DISPONIVEL')">✅ Disponível</button>
-        <button type="button" class="btn btn-outline-info btn-sm fw-bold btn-status" onclick="filterByStatus('EXPEDIDO')">📦 Expedido</button>
+        <button type="button" class="btn btn-outline-info btn-sm fw-bold btn-status" onclick="filterByStatus('QUALIDADE')">🔍 Qualidade</button>
         <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-status" onclick="filterByStatus('TODOS')">Mostrar Todos</button>
 
-        <!-- 🔵 SELECT DE CLIENTES -->
+        <!-- SELECT CLIENTES -->
         <select id="clienteSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
                 onchange="filterByCliente(this.value)">
             <option value="TODOS">CLIENTES: TODOS</option>
@@ -44,7 +44,7 @@
             {% endfor %}
         </select>
 
-        <!-- 🔵 SELECTS TOP/BOTTOM -->
+        <!-- SELECTS TOP/BOTTOM -->
         <select id="filterTopSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
                 onchange="filterTop(this.value)">
             <option value="ALL">FASE TOP: TODOS</option>
@@ -57,6 +57,14 @@
             <option value="ALL">FASE BOTTOM: TODOS</option>
             <option value="ZERO">PRODUÇÃO PENDENTE</option>
             <option value="COMPLETE">BOTTOM PRONTO</option>
+        </select>
+
+        <!-- NOVO SELECT QC -->
+        <select id="filterQCSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
+                onchange="filterQC(this.value)">
+            <option value="ALL">OQC: TODOS</option>
+            <option value="ZERO">PENDENTE</option>
+            <option value="COMPLETE">LIBERADO</option>
         </select>
 
     </div>
@@ -75,7 +83,6 @@
             <th>Código</th>
             <th>OP</th>
             <th>Lote</th>
-            <!--<th>Setor</th>-->
             <th>Status</th>
             <th>Tipo de Fase</th>
             <th>TOP</th>
@@ -88,7 +95,10 @@
                 {% for saldo in item.saldo_setores %}
                 <tr class="text-center"
                     data-setor="{{ saldo.setor }}"
-                    data-status="{{ saldo.status }}"
+                    data-status="
+                    {% if saldo.fase in ['PENDENTE CQ', 'CQ APROVOU'] %}QUALIDADE
+                    {% else %}{{ saldo.status }}{% endif %}"
+                    data-qc="{% if saldo.fase == 'PENDENTE CQ' %}PENDENTE{% elif saldo.fase == 'CQ APROVOU' %}LIBERADO{% else %}OUTRO{% endif %}"
                     data-topdone="{{ saldo.status_top.split('/')[0].replace(' (','') }}"
                     data-bottomdone="{% if item.model.phase_type.strip().upper() == 'TOP_ONLY' %}N/A{% else %}{{ saldo.status_bottom.split('/')[0].replace(' (','') }}{% endif %}"
                     data-total="{{ (saldo.status_top.split('/')[1] if '/' in saldo.status_top else saldo.saldo_blank) | replace(')','') }}">
@@ -98,17 +108,16 @@
                     <td class="fw-bold">{{ item.model.code }}</td>
                     <td class="fw-bold text-primary">{{ item.model.op }}</td>
                     <td class="fw-bold">{{ item.model.po }}</td>
-                    <!-- Tabela<td class="fw-bold">{{ saldo.setor }}</td>-->
 
                     <td>
                         {% if saldo.status == "AGUARDANDO" %}
                             <span class="badge bg-warning text-dark">{{ saldo.fase }}</span>
                         {% elif saldo.status == "DISPONIVEL" %}
                             <span class="badge bg-success">{{ saldo.fase }}</span>
-                        {% elif saldo.status == "EXPEDIDO" %}
+                        {% elif saldo.status == "QUALIDADE" %}
                             <span class="badge bg-info text-dark">{{ saldo.fase }}</span>
                         {% else %}
-                            <span class="badge bg-secondary">{{ saldo.fase }}</span>
+                            <span class="badge bg-info text-dark">{{ saldo.fase }}</span>
                         {% endif %}
                     </td>
 
@@ -144,6 +153,7 @@ let currentCliente = 'TODOS';
 
 let currentTopFilter = "ALL";
 let currentBottomFilter = "ALL";
+let currentQCFilter = "ALL";
 
 function normalize(value) {
     return (value || "").toString().trim().toUpperCase();
@@ -156,13 +166,13 @@ function getRows() {
 function applyFilters() {
     const rows = getRows();
 
-
     const topSelectVal = (document.getElementById('filterTopSelect') || {}).value || 'ALL';
     const bottomSelectVal = (document.getElementById('filterBottomSelect') || {}).value || 'ALL';
 
     rows.forEach(row => {
         const rowSetor = normalize(row.dataset.setor);
         const rowStatus = normalize(row.dataset.status);
+        const rowQC = normalize(row.dataset.qc);
         const rowText = normalize(row.innerText);
         const rowCliente = normalize(row.querySelector('td:nth-child(1)').innerText);
 
@@ -183,9 +193,16 @@ function applyFilters() {
         if (rowBottomDone !== "N/A") {
             if (bottomSelectVal === "ZERO") okBottom = (rowBottomDone === 0);
             if (bottomSelectVal === "COMPLETE") okBottom = (total > 0 && rowBottomDone === total);
-        } 
+        }
 
-        row.style.display = (okSetor && okStatus && okCliente && okSearch && okTop && okBottom) ? '' : 'none';
+        // FILTRO QC
+        let okQC = true;
+        if (currentQCFilter === "ZERO") okQC = (rowQC === "PENDENTE");
+        if (currentQCFilter === "COMPLETE") okQC = (rowQC === "LIBERADO");
+
+        row.style.display =
+            (okSetor && okStatus && okCliente && okSearch && okTop && okBottom && okQC)
+            ? '' : 'none';
     });
 
     calcularTotalGeral();
@@ -205,19 +222,21 @@ function filterByStatus(status) {
 
 function filterTop(option) {
     currentTopFilter = option;
-    const s = document.getElementById('filterTopSelect');
-    if (s && s.value !== option) s.value = option;
     applyFilters();
 }
 
 function filterBottom(option) {
     currentBottomFilter = option;
-    const s = document.getElementById('filterBottomSelect');
-    if (s && s.value !== option) s.value = option;
+    applyFilters();
+}
+
+function filterQC(option) {
+    currentQCFilter = option;
     applyFilters();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
     const form = document.getElementById("searchForm");
     const searchInput = document.getElementById("searchInput");
     document.getElementById("clienteSelect").value = "TODOS";
@@ -230,11 +249,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setActiveSetorBtn('PTH');
     setActiveStatusBtn('DISPONIVEL');
-
-    const t = document.getElementById('filterTopSelect');
-    const b = document.getElementById('filterBottomSelect');
-    if (t) t.value = 'ALL';
-    if (b) b.value = 'ALL';
 
     applyFilters();
 });
@@ -267,6 +281,5 @@ function calcularTotalGeral() {
     document.getElementById("totalGeralBox").innerText = "Total Geral: " + total;
 }
 </script>
-
 
 {% endblock %}

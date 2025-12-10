@@ -12,7 +12,7 @@ Visualize a aplicação real através do link no final deste README.md.
 ## 📁 Estrutura do Projeto
 
 ```
-label-tracking-system
+label-tracking-system-venttos
 ├─ static/
 │   ├─ logo.png 
 │   └─ style.css  

@@ -65,7 +65,7 @@
                             <td>{{ op.quantidade }}</td>
                             <td>{{ op.produzido }}</td>
                             <td>
-                                <span class="badge bg-primary">{{ op.setor }}</span>
+                                <span class="badge bg-primary">{{ op.setor }} - {{ op.fase }}</span>
                             </td>
                             <td>
                                 <a href="/ops/delete/{{ op.id }}" onclick="return confirm('Excluir OP?')" class="btn btn-sm btn-danger">
@@ -144,10 +144,16 @@
               <label><input type="checkbox" name="setores" value="ESTOQUE"> Estoque</label>
             </div>
           </div>
-
-        </div>
-
+         <div class="col-md-12 mt-3">
+            <label class="form-label">Fase da Placa</label>
+            <div class="d-flex flex-wrap gap-3 mt-2">
+                <label><input type="checkbox" name="fase" value="TOP"> TOP</label>
+                <label><input type="checkbox" name="fase" value="BOTTOM"> BOTTOM</label>
+           </div>
+          </div>
       </div>
+
+    </div>
 
       <div class="modal-footer d-flex justify-content-between">
 
@@ -192,7 +198,11 @@ function aplicarFiltros() {
         const setores = Array.from(row.querySelectorAll('td:nth-child(8) .badge')).map(b => b.textContent);
 
         const atendeBusca = textoLinha.includes(term);
-        const atendeFiltro = (filtroAtual === "TODOS" || setores.includes(filtroAtual));
+        const atendeFiltro = (
+    filtroAtual === "TODOS" ||
+    setores.some(s => s.toUpperCase().startsWith(filtroAtual))
+);
+
 
         row.style.display = (atendeBusca && atendeFiltro) ? '' : 'none';
     });

@@ -232,7 +232,7 @@ def add_missing_table_ops_saldos():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # Se a tabela não existe, cria corretamente
+    # Se a tabela não existe, cria corretamente já com fase
     c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ops_saldos';")
     if not c.fetchone():
         c.execute("""
@@ -240,6 +240,7 @@ def add_missing_table_ops_saldos():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_op INTEGER,
                 setor TEXT,
+                fase TEXT,                        -- 👈 ADICIONADO AQUI
                 quantidade INTEGER DEFAULT 0,
                 updated_at TEXT,
                 FOREIGN KEY (id_op) REFERENCES ops(id)
@@ -256,11 +257,15 @@ def add_missing_table_ops_saldos():
     if "setor" not in columns:
         c.execute("ALTER TABLE ops_saldos ADD COLUMN setor TEXT;")
 
+    if "fase" not in columns:
+        c.execute("ALTER TABLE ops_saldos ADD COLUMN fase TEXT;")   # 👈 ADICIONADO
+
     if "quantidade" not in columns:
         c.execute("ALTER TABLE ops_saldos ADD COLUMN quantidade INTEGER DEFAULT 0;")
 
     conn.commit()
     conn.close()
+
 
 def get_db():
     conn = sqlite3.connect(DB_PATH, timeout=10, check_same_thread=False)
@@ -666,7 +671,7 @@ def salvar_op(dados):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # 1) Salva a OP principal
+    # salva OP
     c.execute("""
         INSERT INTO ops (filial, numero_op, produto, descricao, armazem, quantidade, produzido, setores, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -682,17 +687,19 @@ def salvar_op(dados):
         datetime.now().isoformat()
     ))
 
-    id_op = c.lastrowid  # pega o ID da OP recém cadastrada
+    id_op = c.lastrowid
 
-    # 2) Cria uma linha para cada setor selecionado
+    # NOVO: criar entradas por setor × fase
     for setor in dados["setores"]:
-        c.execute("""
-            INSERT INTO ops_saldos (id_op, setor, quantidade)
-            VALUES (?, ?, ?)
-        """, (id_op, setor, dados["quantidade"]))
+        for fase in dados["fases"]:
+            c.execute("""
+                INSERT INTO ops_saldos (id_op, setor, fase, quantidade)
+                VALUES (?, ?, ?, ?)
+            """, (id_op, setor, fase, dados["quantidade"]))
 
     conn.commit()
     conn.close()
+
 
 def buscar_ops():
     conn = sqlite3.connect(DB_PATH)
@@ -710,11 +717,13 @@ def buscar_ops():
             o.quantidade,
             o.produzido,
             s.setor,
+            s.fase,
             s.quantidade AS saldo_setor
         FROM ops o
         LEFT JOIN ops_saldos s ON o.id = s.id_op
-        ORDER BY o.id DESC, s.setor
+        ORDER BY o.id DESC, s.setor, s.fase
     """)
+
 
     res = c.fetchall()
     conn.close()
@@ -752,7 +761,8 @@ def add_op():
         "armazem": request.form.get("armazem"),
         "quantidade": int(request.form.get("quantidade")),
         "produzido": int(request.form.get("produzido")),
-        "setores": request.form.getlist("setores")
+        "setores": request.form.getlist("setores"),
+        "fases": request.form.getlist("fase")   # 👈 NOVO
     }
     salvar_op(dados)
     flash("OP cadastrada com sucesso!", "success")

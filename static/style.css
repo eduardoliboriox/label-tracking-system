@@ -579,4 +579,64 @@ table.table tbody {
   }
 }
 
+#searchForm {
+    order: 10 !important; 
+    width: 100% !important;
+    justify-content: center;
+    margin: 10px 0 0 0 !important;
+    display: flex;
+    gap: 5px;
+}
+
+.btn-setor {
+    min-width: 80px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    #searchForm {
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
+}
+
+/* === PADRONIZAÇÃO DOS FILTROS NO DESKTOP === */
+.filtros-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap !important;
+}
+
+#searchForm {
+    width: auto !important;
+    order: 0 !important;
+    margin: 0 !important;
+    display: flex;
+    gap: 5px;
+}
+
+/* === MOBILE (até 768px) === */
+@media (max-width: 768px) {
+    .filtros-container {
+        flex-wrap: wrap !important;
+    }
+    #searchForm {
+        width: 100% !important;
+        order: 10 !important;
+        margin-top: 10px !important;
+    }
+}
+
+.filtros-container button[data-bs-target="#modalAddOP"] {
+    order: 1; /
+}
+
+@media (max-width: 768px) {
+    .filtros-container button[data-bs-target="#modalAddOP"] {
+        width: 100% !important;
+        order: 20 !important;  
+        margin-top: 10px;
+    }
+}
 

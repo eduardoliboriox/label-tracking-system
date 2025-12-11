@@ -27,6 +27,7 @@ label-tracking-system-venttos
 │   ├─ index.html
 │   ├─ label.html
 │   └─ movimentar.html
+│   └─ ops.html
 │   └─ setores.html
 ├─ app.py
 ├─ models.db

@@ -12,7 +12,7 @@ You can view the live version through the link at the end of this README.
 ## 📁 Project Structure
 
 ```
-label-tracking-system
+label-tracking-system-venttos
 ├─ static/
 │   ├─ logo.png 
 │   └─ style.css  
@@ -27,6 +27,7 @@ label-tracking-system
 │   ├─ index.html
 │   ├─ label.html
 │   └─ movimentar.html
+│   └─ ops.html
 │   └─ setores.html
 ├─ app.py
 ├─ models.db

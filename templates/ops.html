@@ -5,43 +5,43 @@
 {% block content %}
 <div class="container-fluid mt-4 px-4">
 
-    <!-- Cabeçalho com filtros -->
-    <div class="ops-header d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
 
         <h2 class="fw-bold text-primary mb-0">📘 Controle de OPs</h2>
 
-<div class="d-flex flex-wrap gap-2 align-items-center">
+        <div class="filtros-container mt-2">
 
-    <!-- Botões de Setores -->
-    <div class="d-flex flex-wrap gap-2">
-        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
-        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('SMT')">SMT</button>
-        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('IM')">IM</button>
-        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PA')">PA</button>
-        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('ESTOQUE')">Estoque</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-setor" onclick="filterBySetor('TODOS')">Todos</button>
-    </div>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
+                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('SMT')">SMT</button>
+                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('IM')">IM</button>
+                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PA')">PA</button>
+                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('ESTOQUE')">Estoque</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-setor" onclick="filterBySetor('TODOS')">Mostrar Todos</button>
+            </div>
 
-    <!-- Busca -->
-    <form id="searchOPForm" class="d-inline-flex ms-3">
-        <input type="text" id="searchOPInput" class="form-control me-2" placeholder="Buscar...">
-        <button type="submit" class="btn btn-outline-primary btn-sm">Buscar</button>
-    </form>
+            <form id="searchForm">
+                <input type="text" id="searchInput" class="form-control form-control-sm me-2" placeholder="Buscar por...">
+                <button type="submit" class="btn btn-outline-primary btn-sm">Buscar</button>
+            </form>
+           
+            <!-- Botão Nova OP -->
+            <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddOP">
+                ➕ Adicionar OP
+            </button>
 
-    <!-- Botão Nova OP -->
-    <button class="btn btn-primary fw-bold ms-2" data-bs-toggle="modal" data-bs-target="#modalAddOP">➕ Adicionar OP</button>
-
-</div>
-
+        </div>
+        </div>
     </div>
 
     <!-- Tabela de OPs -->
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped table-bordered">
-                    <thead class="table-primary">
-                        <tr>
+                <table class="table table-striped table-bordered align-middle">
+                    <thead class="table-primary text-center">
+                        <tr class="text-center">
                             <th>Filial</th>
                             <th>OP</th>
                             <th>Produto</th>
@@ -53,9 +53,10 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
+
                     <tbody id="opsTableBody">
                         {% for op in ops %}
-                        <tr>
+                        <tr class="text-center">
                             <td>{{ op.filial }}</td>
                             <td>{{ op.numero_op }}</td>
                             <td>{{ op.produto }}</td>
@@ -64,16 +65,17 @@
                             <td>{{ op.quantidade }}</td>
                             <td>{{ op.produzido }}</td>
                             <td>
-                                {% for s in op.setores.split(",") %}
-                                    <span class="badge bg-primary">{{ s }}</span>
-                                {% endfor %}
+                                <span class="badge bg-primary">{{ op.setor }}</span>
                             </td>
                             <td>
-                                <a href="/ops/delete/{{ op.id }}" onclick="return confirm('Excluir OP?')" class="btn btn-sm btn-danger">🗑️ Excluir</a>
+                                <a href="/ops/delete/{{ op.id }}" onclick="return confirm('Excluir OP?')" class="btn btn-sm btn-danger">
+                                    🗑️ Excluir
+                                </a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
+
                 </table>
             </div>
         </div>
@@ -81,36 +83,150 @@
 
 </div>
 
+<!-- =======================
+       MODAL ADICIONAR OP
+========================== -->
+<div class="modal fade" id="modalAddOP" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <form action="/ops/add" method="POST" class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">➕ Nova OP</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="row g-3">
+
+          <div class="col-md-3">
+            <label class="form-label">Filial</label>
+            <input type="text" name="filial" class="form-control" required>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Número OP</label>
+            <input type="text" name="numero_op" class="form-control" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Produto</label>
+            <input type="text" name="produto" class="form-control" required>
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label">Descrição</label>
+            <input type="text" name="descricao" class="form-control">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Armazém</label>
+            <input type="text" name="armazem" class="form-control">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Quantidade</label>
+            <input type="number" name="quantidade" class="form-control" required>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Produzido</label>
+            <input type="number" name="produzido" class="form-control" value="0">
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label">Setores</label>
+            <div class="d-flex flex-wrap gap-3 mt-2">
+              <label><input type="checkbox" name="setores" value="PTH"> PTH</label>
+              <label><input type="checkbox" name="setores" value="SMT"> SMT</label>
+              <label><input type="checkbox" name="setores" value="IM"> IM</label>
+              <label><input type="checkbox" name="setores" value="PA"> PA</label>
+              <label><input type="checkbox" name="setores" value="ESTOQUE"> Estoque</label>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="modal-footer d-flex justify-content-between">
+
+          <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">
+              Cancelar
+          </button>
+
+          <button class="btn btn-success fw-bold" type="submit">
+              Salvar
+          </button>
+
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- =======================
+     JAVASCRIPT DAS FUNÇÕES
+========================== -->
 <script>
+let filtroAtual = "TODOS";
+
 function setActiveSetorBtn(setor) {
+    filtroAtual = setor;
     document.querySelectorAll('.btn-setor').forEach(btn => btn.classList.remove('active'));
     const btn = document.querySelector(`[onclick="filterBySetor('${setor}')"]`);
     if (btn) btn.classList.add('active');
+    aplicarFiltros();
 }
 
-// Função exemplo para filtrar a tabela
 function filterBySetor(setor) {
     setActiveSetorBtn(setor);
+}
+
+function aplicarFiltros() {
+    const term = document.getElementById('searchInput').value.toLowerCase();
     const rows = document.querySelectorAll('#opsTableBody tr');
+
     rows.forEach(row => {
+        const textoLinha = row.textContent.toLowerCase();
         const setores = Array.from(row.querySelectorAll('td:nth-child(8) .badge')).map(b => b.textContent);
-        if (setor === 'TODOS' || setores.includes(setor)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+
+        const atendeBusca = textoLinha.includes(term);
+        const atendeFiltro = (filtroAtual === "TODOS" || setores.includes(filtroAtual));
+
+        row.style.display = (atendeBusca && atendeFiltro) ? '' : 'none';
     });
 }
 
-// Função exemplo para buscar
-document.getElementById('searchOPForm').addEventListener('submit', function(e) {
+document.getElementById('searchForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const term = document.getElementById('searchOPInput').value.toLowerCase();
-    const rows = document.querySelectorAll('#opsTableBody tr');
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(term) ? '' : 'none';
-    });
+    aplicarFiltros();
 });
+
+// buscar enquanto digita (opcional, mas melhora muito)
+document.getElementById('searchInput').addEventListener('input', aplicarFiltros);
+
 </script>
+
+<script>
+let lastOpsId = 0;
+
+async function verificarOpsAtualizadas() {
+    try {
+        const response = await fetch("/api/ops_atualizado");
+        const data = await response.json();
+
+        if (data.ultimo > lastOpsId) {
+            lastOpsId = data.ultimo;
+            location.reload(); // recarrega a tabela automaticamente
+        }
+    } catch (e) {
+        console.error("Erro ao verificar atualizações:", e);
+    }
+}
+
+// Verifica a cada 3 segundos
+setInterval(verificarOpsAtualizadas, 3000);
+</script>
+
 {% endblock %}

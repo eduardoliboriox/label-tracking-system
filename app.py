@@ -228,6 +228,40 @@ def add_missing_table_ops():
 
     conn.close()
 
+def add_missing_table_ops_saldos():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    # Se a tabela não existe, cria corretamente
+    c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ops_saldos';")
+    if not c.fetchone():
+        c.execute("""
+            CREATE TABLE ops_saldos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id_op INTEGER,
+                setor TEXT,
+                quantidade INTEGER DEFAULT 0,
+                updated_at TEXT,
+                FOREIGN KEY (id_op) REFERENCES ops(id)
+            );
+        """)
+        conn.commit()
+        conn.close()
+        return
+
+    # Se já existe, garantir que todas as colunas necessárias existem
+    c.execute("PRAGMA table_info(ops_saldos);")
+    columns = [col[1] for col in c.fetchall()]
+
+    if "setor" not in columns:
+        c.execute("ALTER TABLE ops_saldos ADD COLUMN setor TEXT;")
+
+    if "quantidade" not in columns:
+        c.execute("ALTER TABLE ops_saldos ADD COLUMN quantidade INTEGER DEFAULT 0;")
+
+    conn.commit()
+    conn.close()
+
 def get_db():
     conn = sqlite3.connect(DB_PATH, timeout=10, check_same_thread=False)
     conn.row_factory = sqlite3.Row
@@ -242,6 +276,7 @@ with app.app_context():
     add_missing_columns_movements()
     add_new_label_id_column_movements() 
     add_missing_table_ops()  
+    add_missing_table_ops_saldos() 
 
 # ---------------- Regras de Ponto / Roteiro ----------------
 # Definir um mapeamento básico dos pontos para setores.
@@ -659,15 +694,32 @@ def salvar_op(dados):
     conn.commit()
     conn.close()
 
-
 def buscar_ops():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute("SELECT * FROM ops ORDER BY id DESC")
-    resultado = c.fetchall()
+
+    c.execute("""
+        SELECT 
+            o.id AS op_id,
+            o.filial,
+            o.numero_op,
+            o.produto,
+            o.descricao,
+            o.armazem,
+            o.quantidade,
+            o.produzido,
+            s.setor,
+            s.quantidade AS saldo_setor
+        FROM ops o
+        LEFT JOIN ops_saldos s ON o.id = s.id_op
+        ORDER BY o.id DESC, s.setor
+    """)
+
+    res = c.fetchall()
     conn.close()
-    return resultado
+    return res
+
 
 @app.route("/ops/delete/<int:id>", methods=["GET"])
 def delete_op(id):
@@ -685,12 +737,10 @@ def delete_op(id):
     flash("OP removida com sucesso!", "success")
     return redirect(url_for("ops"))
 
-
 @app.route("/ops")
 def ops():
     lista_ops = buscar_ops()
     return render_template("ops.html", ops=lista_ops)
-
 
 @app.route("/ops/add", methods=["POST"])
 def add_op():
@@ -745,7 +795,6 @@ def update_op(id):
 
     flash("OP atualizada com sucesso!", "success")
     return redirect(url_for("ops"))
-
 
 @app.route("/movimentar", methods=["GET", "POST"])
 def movimentar():

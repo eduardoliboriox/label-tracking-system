@@ -63,12 +63,14 @@
                             <td>{{ op.descricao }}</td>
                             <td>{{ op.armazem }}</td>
                             <td>{{ op.quantidade }}</td>
-                            <td>{{ op.produzido }}</td>
+                            <td>{{ op.produzido_setor }}</td>
                             <td>
                                 <span class="badge bg-primary">{{ op.setor }} - {{ op.fase }}</span>
                             </td>
                             <td>
-                                <a href="/ops/delete/{{ op.id }}" onclick="return confirm('Excluir OP?')" class="btn btn-sm btn-danger">
+                                <a href="/ops/delete_saldo/{{ op.saldo_id }}" 
+                                onclick="return confirm('Excluir este setor/fase da OP?')" 
+                                class="btn btn-sm btn-danger">
                                     🗑️ Excluir
                                 </a>
                             </td>
@@ -219,7 +221,7 @@ document.getElementById('searchInput').addEventListener('input', aplicarFiltros)
 </script>
 
 <script>
-let lastOpsId = 0;
+let lastOpsId = Number("{{ max_ops_id or 0 }}");
 
 async function verificarOpsAtualizadas() {
     try {
@@ -228,15 +230,15 @@ async function verificarOpsAtualizadas() {
 
         if (data.ultimo > lastOpsId) {
             lastOpsId = data.ultimo;
-            location.reload(); // recarrega a tabela automaticamente
+            location.reload();
         }
     } catch (e) {
         console.error("Erro ao verificar atualizações:", e);
     }
 }
 
-// Verifica a cada 3 segundos
 setInterval(verificarOpsAtualizadas, 3000);
 </script>
+
 
 {% endblock %}

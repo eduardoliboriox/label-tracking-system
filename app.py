@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, abort
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, abort, jsonify
 from datetime import datetime
 import sqlite3, os, qrcode
 from io import BytesIO
@@ -682,23 +682,24 @@ def salvar_op(dados):
         dados["descricao"],
         dados["armazem"],
         dados["quantidade"],
-        dados["produzido"],
+        dados.get("produzido", 0),
         ",".join(dados["setores"]),
         datetime.now().isoformat()
     ))
 
     id_op = c.lastrowid
 
-    # NOVO: criar entradas por setor × fase
+    # criar entradas por setor × fase — quantidade inicial = 0 (saldo planejado separado da produção)
     for setor in dados["setores"]:
         for fase in dados["fases"]:
             c.execute("""
                 INSERT INTO ops_saldos (id_op, setor, fase, quantidade)
-                VALUES (?, ?, ?, ?)
-            """, (id_op, setor, fase, dados["quantidade"]))
+                VALUES (?, ?, ?, 0)
+            """, (id_op, setor, fase))
 
     conn.commit()
     conn.close()
+
 
 
 def buscar_ops():
@@ -708,48 +709,101 @@ def buscar_ops():
 
     c.execute("""
         SELECT 
-            o.id AS op_id,
+            o.id AS id,
+            s.id AS saldo_id,
             o.filial,
             o.numero_op,
             o.produto,
             o.descricao,
             o.armazem,
             o.quantidade,
-            o.produzido,
+
+            -- total produzido da OP (somando movements marcados como PRODUCAO para este model/op)
+            COALESCE((
+                SELECT SUM(m.quantidade)
+                FROM movements m
+                WHERE m.acao = 'PRODUCAO'
+                  AND m.model_id = (
+                      SELECT id FROM models WHERE op = o.numero_op AND code = o.produto LIMIT 1
+                  )
+            ), 0) AS produzido_total,
+
+            -- setor + fase (linha)
             s.setor,
             s.fase,
-            s.quantidade AS saldo_setor
+
+            -- produzido real por setor + fase (somando movements.to_setor + fase)
+            COALESCE((
+                SELECT SUM(m.quantidade)
+                FROM movements m
+                WHERE m.acao = 'PRODUCAO'
+                  AND m.to_setor = s.setor
+                  AND UPPER(TRIM(m.fase)) = UPPER(TRIM(s.fase))
+                  AND m.model_id = (
+                      SELECT id FROM models WHERE op = o.numero_op AND code = o.produto LIMIT 1
+                  )
+            ), 0) AS produzido_setor,
+
+            -- saldo planejado (ops_saldos) — valor inicial que você cadastrou (aqui mantido separadamente)
+            s.quantidade AS saldo_planejado
+
         FROM ops o
         LEFT JOIN ops_saldos s ON o.id = s.id_op
-        ORDER BY o.id DESC, s.setor, s.fase
+        ORDER BY 
+            o.id DESC,
+            s.setor,
+            s.fase
     """)
-
 
     res = c.fetchall()
     conn.close()
     return res
 
 
-@app.route("/ops/delete/<int:id>", methods=["GET"])
-def delete_op(id):
+@app.route("/ops/delete_saldo/<int:saldo_id>", methods=["GET"])
+def delete_saldo(saldo_id):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # remove saldos dos setores
-    c.execute("DELETE FROM ops_saldos WHERE id_op = ?", (id,))
-    # remove OP
-    c.execute("DELETE FROM ops WHERE id = ?", (id,))
+    # descobrir a qual OP pertence este saldo
+    c.execute("SELECT id_op FROM ops_saldos WHERE id = ?", (saldo_id,))
+    row = c.fetchone()
+
+    if not row:
+        flash("Registro não encontrado!", "danger")
+        return redirect(url_for("ops"))
+
+    id_op = row[0]
+
+    # apagar apenas o saldo selecionado
+    c.execute("DELETE FROM ops_saldos WHERE id = ?", (saldo_id,))
+
+    # verificar se ainda sobrou algum setor/fase para essa OP
+    c.execute("SELECT COUNT(*) FROM ops_saldos WHERE id_op = ?", (id_op,))
+    restantes = c.fetchone()[0]
+
+    # se não sobrou nenhum -> apagar OP inteira
+    if restantes == 0:
+        c.execute("DELETE FROM ops WHERE id = ?", (id_op,))
 
     conn.commit()
     conn.close()
 
-    flash("OP removida com sucesso!", "success")
+    flash("Linha removida com sucesso!", "success")
     return redirect(url_for("ops"))
+
 
 @app.route("/ops")
 def ops():
     lista_ops = buscar_ops()
-    return render_template("ops.html", ops=lista_ops)
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT MAX(id) FROM movements")
+    max_ops_id = c.fetchone()[0] or 0
+    conn.close()
+
+    return render_template("ops.html", ops=lista_ops, max_ops_id=max_ops_id)
 
 @app.route("/ops/add", methods=["POST"])
 def add_op():
@@ -805,6 +859,35 @@ def update_op(id):
 
     flash("OP atualizada com sucesso!", "success")
     return redirect(url_for("ops"))
+
+def atualizar_producao_op(conn, produto, numero_op, setor, fase, quantidade):
+    """
+    Usa a conexão passada (mesma transação). NÃO altera ops_saldos.
+    Atualiza somente o campo ops.produzido (somatório total) — opcional.
+    """
+    c = conn.cursor()
+
+    # Busca OP pelo produto + OP
+    c.execute("""
+        SELECT id FROM ops 
+        WHERE produto=? AND numero_op=?
+    """, (produto, numero_op))
+
+    op = c.fetchone()
+    if not op:
+        return False
+
+    id_op = op[0]
+
+    # Atualiza total produzido da OP (mantém total OP)
+    c.execute("""
+        UPDATE ops 
+        SET produzido = COALESCE(produzido,0) + ?
+        WHERE id = ?
+    """, (quantidade, id_op))
+
+    return True
+
 
 @app.route("/movimentar", methods=["GET", "POST"])
 def movimentar():
@@ -1031,9 +1114,42 @@ def movimentar():
                     "BOTTOM"
                 )
 
+            # ==========================================================
+            #  INSERIR SEU CÓDIGO AQUI
+            # ==========================================================
+
+            # Identifica setor do ponto de marcação
+            setor_map = {
+                "Ponto-01": "PTH",
+                "Ponto-02": "SMT",
+                "Ponto-03": "SMT",
+                "Ponto-04": "IM",
+                "Ponto-05": "IM",
+                "Ponto-06": "IM",
+                "Ponto-07": "ESTOQUE"
+            }
+
+            setor = setor_map.get(ponto, None)
+
+            if acao == "PRODUCAO" and setor:
+                atualizar_producao_op(
+                conn,
+                produto=model["code"],
+                numero_op=model["op"],
+                setor=setor,
+                fase=("TOP" if top_mark == 1 else "BOTTOM"),
+                quantidade=transfer
+            )
+
+
+            # ==========================================================
+            #  FIM DO BLOCO NOVO
+            # ==========================================================
+
             conn.commit()
             flash(f"{acao} registrada ({transfer} un.)", "success")
             return redirect(url_for("movimentar", p=ponto_url))
+
 
         except Exception as e:
             try:
@@ -1315,6 +1431,18 @@ def api_atualizado():
 
     conn.close()
     return {"ultimo": max(mov, his)}
+
+@app.route("/api/ops_atualizado")
+def ops_atualizado():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    # pega o maior ID da tabela de movimentos, pois é o que muda quando bipamos
+    c.execute("SELECT MAX(id) FROM movements")
+    ultimo = c.fetchone()[0] or 0
+
+    conn.close()
+    return jsonify({"ultimo": ultimo})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)

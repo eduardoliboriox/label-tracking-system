@@ -240,7 +240,7 @@ def add_missing_table_ops_saldos():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_op INTEGER,
                 setor TEXT,
-                fase TEXT,                        -- 👈 ADICIONADO AQUI
+                fase TEXT,                        
                 quantidade INTEGER DEFAULT 0,
                 updated_at TEXT,
                 FOREIGN KEY (id_op) REFERENCES ops(id)
@@ -258,7 +258,7 @@ def add_missing_table_ops_saldos():
         c.execute("ALTER TABLE ops_saldos ADD COLUMN setor TEXT;")
 
     if "fase" not in columns:
-        c.execute("ALTER TABLE ops_saldos ADD COLUMN fase TEXT;")   # 👈 ADICIONADO
+        c.execute("ALTER TABLE ops_saldos ADD COLUMN fase TEXT;")   
 
     if "quantidade" not in columns:
         c.execute("ALTER TABLE ops_saldos ADD COLUMN quantidade INTEGER DEFAULT 0;")
@@ -276,7 +276,7 @@ def get_db():
 with app.app_context():
     init_db()
     add_missing_column()           # para models
-    add_missing_table_labels()     # labels
+    add_missing_table_labels()     # para labels
     add_missing_table_movements() 
     add_missing_columns_movements()
     add_new_label_id_column_movements() 
@@ -700,8 +700,6 @@ def salvar_op(dados):
     conn.commit()
     conn.close()
 
-
-
 def buscar_ops():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -765,7 +763,6 @@ def delete_saldo(saldo_id):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # descobrir a qual OP pertence este saldo
     c.execute("SELECT id_op FROM ops_saldos WHERE id = ?", (saldo_id,))
     row = c.fetchone()
 
@@ -775,7 +772,6 @@ def delete_saldo(saldo_id):
 
     id_op = row[0]
 
-    # apagar apenas o saldo selecionado
     c.execute("DELETE FROM ops_saldos WHERE id = ?", (saldo_id,))
 
     # verificar se ainda sobrou algum setor/fase para essa OP
@@ -791,7 +787,6 @@ def delete_saldo(saldo_id):
 
     flash("Linha removida com sucesso!", "success")
     return redirect(url_for("ops"))
-
 
 @app.route("/ops")
 def ops():
@@ -816,7 +811,7 @@ def add_op():
         "quantidade": int(request.form.get("quantidade")),
         "produzido": int(request.form.get("produzido")),
         "setores": request.form.getlist("setores"),
-        "fases": request.form.getlist("fase")   # 👈 NOVO
+        "fases": request.form.getlist("fase")   
     }
     salvar_op(dados)
     flash("OP cadastrada com sucesso!", "success")
@@ -887,7 +882,6 @@ def atualizar_producao_op(conn, produto, numero_op, setor, fase, quantidade):
     """, (quantidade, id_op))
 
     return True
-
 
 @app.route("/movimentar", methods=["GET", "POST"])
 def movimentar():
@@ -1071,7 +1065,6 @@ def movimentar():
             }
             setor_destino = destino_map.get(ponto, setor_origem)
 
-            # Insere nova etiqueta/registro
             conn.execute("""
                 INSERT INTO labels
                 (model_id, lote, producao_total, capacidade_magazine, remaining,
@@ -1114,10 +1107,6 @@ def movimentar():
                     "BOTTOM"
                 )
 
-            # ==========================================================
-            #  INSERIR SEU CÓDIGO AQUI
-            # ==========================================================
-
             # Identifica setor do ponto de marcação
             setor_map = {
                 "Ponto-01": "PTH",
@@ -1141,15 +1130,9 @@ def movimentar():
                 quantidade=transfer
             )
 
-
-            # ==========================================================
-            #  FIM DO BLOCO NOVO
-            # ==========================================================
-
             conn.commit()
             flash(f"{acao} registrada ({transfer} un.)", "success")
             return redirect(url_for("movimentar", p=ponto_url))
-
 
         except Exception as e:
             try:
@@ -1173,7 +1156,6 @@ def movimentar():
         hide_top_menu=True,
         clean_display_code=clean_display_code
     )
-
 
 def extract_real_code(raw):
     if not raw:
@@ -1437,7 +1419,6 @@ def ops_atualizado():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # pega o maior ID da tabela de movimentos, pois é o que muda quando bipamos
     c.execute("SELECT MAX(id) FROM movements")
     ultimo = c.fetchone()[0] or 0
 

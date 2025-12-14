@@ -510,88 +510,71 @@ def edit(id):
 
 @app.route("/view/<int:id>", methods=["GET", "POST"])
 def view_label(id):
-    with get_db() as conn:
-        model = conn.execute("SELECT * FROM models WHERE id=?", (id,)).fetchone()
-    existing_labels = conn.execute("SELECT * FROM labels WHERE model_id=? ORDER BY created_at DESC", (id,)).fetchall()
-    conn.close()
+    conn = get_db()
+
+    model = conn.execute(
+        "SELECT * FROM models WHERE id=?", (id,)
+    ).fetchone()
+
     if not model:
+        conn.close()
         abort(404)
 
+    existing_labels = conn.execute(
+        "SELECT * FROM labels WHERE model_id=? ORDER BY created_at DESC", (id,)
+    ).fetchall()
+
     etiquetas_por_folha = 3
-    producao_total = None
-    capacidade_magazine = None
     lotes = []
 
     if request.method == "POST":
         try:
             producao_total = int(request.form.get("producao_total", 0))
-            capacidade_magazine = request.form.get("capacidade_magazine")
-            capacidade_magazine = int(capacidade_magazine) if capacidade_magazine and capacidade_magazine.isdigit() else 50
-            if capacidade_magazine <= 0:
-                capacidade_magazine = 1
+            capacidade_magazine = int(request.form.get("capacidade_magazine") or 50)
+            capacidade_magazine = max(capacidade_magazine, 1)
 
             total_etiquetas = (producao_total + capacidade_magazine - 1) // capacidade_magazine
-            total_folhas = (total_etiquetas + etiquetas_por_folha - 1) // etiquetas_por_folha
 
             try:
-                parte_num, parte_padrao = [x.strip() for x in model['lote'].split('/')[:2]]
-                lote_inicial = int(parte_num)
-                padrao = parte_padrao
+                parte_num, parte_padrao = model['lote'].split('/')[:2]
+                lote_inicial = int(parte_num.strip())
+                padrao = parte_padrao.strip()
             except:
                 lote_inicial = 1
                 padrao = "900"
 
             lotes = [f"{lote_inicial + i:02d} / {padrao}" for i in range(total_etiquetas)]
 
-            linked_label_id = request.form.get("linked_label_id") or None
-
-            conn = get_db()
-
-            remaining_total = producao_total
+            remaining = producao_total
 
             for lote in lotes:
-                amount = min(capacidade_magazine, remaining_total)
-
-                if amount <= 0:
-                    break
-
-            conn = get_db()
-
-            remaining_total = producao_total
-
-            for lote in lotes:
-                amount = min(capacidade_magazine, remaining_total)
-
+                amount = min(capacidade_magazine, remaining)
                 if amount <= 0:
                     break
 
                 conn.execute("""
-                    INSERT INTO labels 
-                        (model_id, lote, producao_total, capacidade_magazine, remaining, created_at, linked_label_id, setor_atual, fase)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO labels
+                    (model_id, lote, producao_total, capacidade_magazine, remaining,
+                     created_at, setor_atual, fase)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
-                    id,
-                    lote,
-                    amount,                    # ✅ Grava apenas o valor REAL desta etiqueta
-                    capacidade_magazine,
-                    amount,                    # remaining começa igual ao amount
+                    id, lote, amount, capacidade_magazine, amount,
                     datetime.now().isoformat(),
-                    linked_label_id,
-                    model["setor"] if model["setor"] else "PTH",
+                    model["setor"] or "PTH",
                     "AGUARDANDO"
                 ))
 
-                remaining_total -= amount
+                remaining -= amount
 
             conn.commit()
-            conn.close()
-
-            flash(f"Produção: {producao_total} placas → {total_etiquetas} etiquetas → {total_folhas} folhas. Etiquetas salvas no histórico.", "info")
+            flash("Etiquetas geradas com sucesso!", "success")
 
         except ValueError:
-            flash("⚠️ Digite valores válidos para produção e capacidade.", "danger")
+            flash("⚠️ Valores inválidos.", "danger")
 
+    conn.close()
     return render_template("label.html", m=model, lotes=lotes, existing_labels=existing_labels)
+
 
 @app.route("/setores/<int:id>")
 def setores(id):

@@ -35,7 +35,7 @@
     <div class="col-md-2">
       <label>Setor</label>
       <select id="setor_select" name="setor" class="form-control">
-        {% for s in ['SMT', 'PTH', 'IM', 'PA', 'VTT'] %}
+        {% for s in ['PTH', 'SMT', 'IM', 'PA', 'VTT'] %}
           <option value="{{ s }}" {% if model and model['setor'] == s %}selected{% endif %}>{{ s }}</option>
         {% endfor %}
       </select>

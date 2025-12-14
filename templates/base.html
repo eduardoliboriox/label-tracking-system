@@ -107,26 +107,5 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-<script>
-let ultimo = null;
-
-function checarAtualizacao() {
-    fetch("/api/atualizado")
-        .then(r => r.json())
-        .then(data => {
-            if (ultimo === null) {
-                ultimo = data.ultimo;  // primeira leitura
-            } 
-            else if (data.ultimo !== ultimo) {
-                console.log("Atualização detectada! Recarregando...");
-                location.reload();
-            }
-        })
-        .catch(err => console.warn("Erro ao verificar atualização:", err));
-}
-
-setInterval(checarAtualizacao, 2000); // verifica a cada 2 segundos
-</script>
- 
 </body>
 </html>

@@ -425,7 +425,6 @@ def new():
         return redirect(url_for("index"))
     return render_template("form.html", model=None)
 
-
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit(id):
     conn = get_db()
@@ -1424,6 +1423,36 @@ def ops_atualizado():
 
     conn.close()
     return jsonify({"ultimo": ultimo})
+
+@app.get("/api/tabela_models")
+def tabela_models():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, linha, setor, code, model_name, cliente, updated_at
+        FROM models
+        ORDER BY id DESC
+    """)
+    rows = cur.fetchall()
+
+    result = []
+    for r in rows:
+        result.append({
+            "id": r["id"],
+            "linha": r["linha"],
+            "setor": r["setor"],
+            "code": r["code"],
+            "model_name": r["model_name"],
+            "cliente": r["cliente"],
+            "updated_at_formatted": (
+                datetime.fromisoformat(r["updated_at"]).strftime("%d/%m/%Y %H:%M:%S")
+                if r["updated_at"] else "-"
+            )
+        })
+
+    conn.close()
+    return jsonify({"models": result})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)

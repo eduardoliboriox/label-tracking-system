@@ -21,7 +21,7 @@
 
             <form id="searchForm" class="d-inline-flex ms-3">
                 <input type="text" id="searchInput" class="form-control me-2" placeholder="Buscar por...">
-                <button type="submit" class="btn btn-outline-primary">Buscar</button>
+                <!--<button type="submit" class="btn btn-outline-primary">Buscar</button> -->
             </form>
         </div>
     </div>
@@ -243,6 +243,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("submit", function (e) {
         e.preventDefault();
+        currentSearch = normalize(searchInput.value);
+        applyFilters();
+    });
+
+    searchInput.addEventListener("input", function () {
         currentSearch = normalize(searchInput.value);
         applyFilters();
     });

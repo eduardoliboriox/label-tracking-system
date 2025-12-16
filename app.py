@@ -341,6 +341,12 @@ def register_movement(conn, model_id, label_id, new_label_id, ponto, acao, quant
         created_by
     ))
 
+@app.context_processor
+def inject_current_year():
+    return {
+        "current_year": datetime.now().year
+    }
+
 # ---------------- Rotas ----------------
 
 @app.route("/")
@@ -1135,7 +1141,6 @@ def movimentar():
         model=model,
         label=label,
         ponto=ponto_url,
-        hide_top_menu=True,
         clean_display_code=clean_display_code
     )
 
@@ -1250,6 +1255,11 @@ def dashboard():
 
     conn.close()
     return render_template("dashboard.html", data=dashboard_data)
+
+@app.route("/home")
+def home():
+    return render_template("home.html")
+
 
 @app.route("/history/<int:id>")
 def history(id):

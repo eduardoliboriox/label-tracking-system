@@ -15,18 +15,19 @@
         </div>
     {% endif %}
 {% endwith %}
-
+<!--
 {% if hide_top_menu %}
 <div class="text-center mb-3 menu-movimentar-desktop">
-
-    <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-sm mx-1"><strong>Ordens de Produção</strong></a>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm mx-1"><strong>Dashboard</strong></a>
-    <a href="{{ url_for('movimentar') }}" class="btn btn-outline-warning btn-sm mx-1"><strong>Movimentar</strong></a>
-    <a href="{{ url_for('ops') }}" class="btn btn-outline-info btn-sm mx-1">Controle de OPs</a>
-    <a href="#" class="btn btn-outline-success btn-sm mx-1"><strong>Configurações</strong></a>
+    
+    <a href="{{ url_for('home') }}" class="btn btn-outline-danger btn-sm mx-1 fw-bold">Home</a>
+    <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold"><strong>Ordens de Produção</strong></a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm mx-1 fw-bold"><strong>Dashboard</strong></a>
+    <a href="{{ url_for('movimentar') }}" class="btn btn-outline-warning btn-sm mx-1 fw-bold"><strong>Movimentar</strong></a>
+    <a href="{{ url_for('ops') }}" class="btn btn-outline-info btn-sm mx-1 fw-bold">Controle de OPs</a>
+    <a href="#" class="btn btn-outline-success btn-sm mx-1 fw-bold"><strong>Configurações</strong></a>
 </div>
 <hr>
-{% endif %}
+{% endif %} -->
 
 <style>
 .action-btn.active,

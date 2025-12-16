@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Bem-vindo{% endblock %}
+
+{% block content %}
+
+<!-- HERO SIMPLES -->
+<div class="home-hero-wrapper">
+    <img src="{{ url_for('static', filename='home-hero.png') }}"
+         class="home-hero"
+         alt="Venttos Trace">
+</div>
+
+<!-- CONTEÚDO PRINCIPAL -->
+<div class="container mt-4 text-center" style="max-width: 900px;">
+
+    <h1 class="fw-bold mb-3">
+        Bem-vindo ao Sistema <span class="text-primary">Venttos Trace</span>
+    </h1>
+
+    <p class="text-muted fs-5">
+        Plataforma interna de rastreabilidade e controle de produção em tempo real.
+    </p>
+
+    <p class="text-muted fs-5">
+        O <strong>Venttos Trace</strong> controla, monitora e registra toda a
+        movimentação de placas e peças ao longo do fluxo produtivo,
+        utilizando <strong>QR Codes</strong>, etiquetas por lote e pontos de rastreio
+        distribuídos nos setores.
+    </p>
+
+    <p class="text-muted fs-5">
+        O sistema substitui controles manuais como planilhas e papéis,
+        reduz falhas humanas e aumenta a confiabilidade das informações.
+    </p>
+
+    <!-- BOTÕES -->
+    <div class="mt-4 d-flex justify-content-center flex-wrap gap-3">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg fw-bold px-4">
+            📊 Dashboard
+        </a>
+
+        <a href="{{ url_for('movimentar') }}" class="btn btn-warning btn-lg fw-bold px-4">
+            📦 Movimentar OP
+        </a>
+
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg fw-bold px-4">
+            🏭 Ordens de Produção
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

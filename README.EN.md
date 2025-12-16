@@ -1,6 +1,6 @@
-# 🏷️ Label Tracking System — Venttos
+# 🏷️ Venttos Electronics. Venttos Trace
 
-The **Label Tracking System** is an internal platform designed to control, monitor, and register the movement of boards/parts throughout the entire production flow.
+The **Venttos Trace** is an internal platform designed to control, monitor, and register the movement of boards/parts throughout the entire production flow.
 It uses **QR Codes**, individual labels per lot, and tracking points (terminals) installed in each sector to ensure every item is traceable from production to shipment.
 
 This is a **real-time automated system** that replaces manual processes (spreadsheets, notes, paper forms), reduces human error, and increases information reliability.
@@ -12,7 +12,7 @@ You can view the live version through the link at the end of this README.
 ## 📁 Project Structure
 
 ```
-label-tracking-system-venttos
+venttos-trace
 ├─ static/
 │   ├─ logo.png 
 │   └─ style.css  
@@ -24,6 +24,7 @@ label-tracking-system-venttos
 │   ├─ etiqueta_view.html
 │   ├─ form.html
 │   ├─ history.html
+│   ├─ home.html
 │   ├─ index.html
 │   ├─ label.html
 │   └─ movimentar.html
@@ -33,8 +34,8 @@ label-tracking-system-venttos
 ├─ models.db
 ├─ ping.py
 ├─ Profile  
-├─ README.md
 ├─ README.EN.md
+├─ README.md
 ├─ requirements.txt
 ```
 

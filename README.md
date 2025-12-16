@@ -1,7 +1,7 @@
 
-# 🏷️ label-tracking-system-venttos
+# 🏷️ Venttos Electronics. Venttos Trace
 
-O **Label Tracking System** é uma plataforma interna desenvolvida para controlar, monitorar e registrar toda a movimentação de placas/peças dentro do fluxo produtivo. Ele utiliza **QR Codes**, etiquetas individuais por lote e pontos de rastreio (terminais) instalados nos setores para garantir que cada item seja rastreado desde a produção até a expedição.
+O **Venttos Trace** é uma plataforma interna desenvolvida para controlar, monitorar e registrar toda a movimentação de placas/peças dentro do fluxo produtivo. Ele utiliza **QR Codes**, etiquetas individuais por lote e pontos de rastreio (terminais) instalados nos setores para garantir que cada item seja rastreado desde a produção até a expedição.
 
 É um sistema **automatizado em tempo real**, que substitui controles manuais (planilhas, papéis, anotações), reduz falhas humanas e aumenta a confiabilidade da informação.
 
@@ -12,7 +12,7 @@ Visualize a aplicação real através do link no final deste README.md.
 ## 📁 Estrutura do Projeto
 
 ```
-label-tracking-system-venttos
+venttos-trace
 ├─ static/
 │   ├─ logo.png 
 │   └─ style.css  
@@ -24,6 +24,7 @@ label-tracking-system-venttos
 │   ├─ etiqueta_view.html
 │   ├─ form.html
 │   ├─ history.html
+│   ├─ home.html
 │   ├─ index.html
 │   ├─ label.html
 │   └─ movimentar.html
@@ -32,9 +33,9 @@ label-tracking-system-venttos
 ├─ app.py
 ├─ models.db
 ├─ ping.py
-├─ Profile  
-├─ README.md
+├─ Profile
 ├─ README.EN.md
+├─ README.md
 ├─ requirements.txt
 ```
 
@@ -64,13 +65,15 @@ label-tracking-system-venttos
 
 ## 📊 Fluxo de Dados e Pontos de Controle
 
-* **Ponto-01**: PTH — PRODUÇÃO e RECEBIMENTO, controle na porta do setor.
-* **Ponto-02**: SMT — PRODUÇÃO e RECEBIMENTO, controle na porta do setor.
-* **Ponto-03**: SMT — PRODUÇÃO e RECEBIMENTO, posto de qualidade.
-* **Ponto-04**: IM/PA — PRODUÇÃO e RECEBIMENTO, porta do setor.
-* **Ponto-05**: IM/PA — PRODUÇÃO e RECEBIMENTO, posto de qualidade.
-* **Ponto-06**: IM/PA — PRODUÇÃO e RECEBIMENTO, posto de qualidade.
-* **Ponto-07**: Estoque — marca apenas PRODUÇÃO, registra saída para cliente.
+| Ponto        | Setor   | Função                  |
+| ------------ | ------- | ----------------------- |
+| **Ponto-01** | PTH     | Produção e Recebimento  |
+| **Ponto-02** | SMT     | Produção e Recebimento  |
+| **Ponto-03** | SMT     | Inspeção de Qualidade   |
+| **Ponto-04** | IM/PA   | Produção e Recebimento  |
+| **Ponto-05** | IM/PA   | Inspeção de Qualidade   |
+| **Ponto-06** | IM/PA   | Inspeção de Qualidade   |
+| **Ponto-07** | Estoque | Expedição (saída final) |
 
 ---
 

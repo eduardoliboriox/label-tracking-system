@@ -27,6 +27,7 @@ venttos-trace
 │   ├─ home.html
 │   ├─ index.html
 │   ├─ label.html
+│   ├─ live.html
 │   └─ movimentar.html
 │   └─ ops.html
 │   └─ setores.html

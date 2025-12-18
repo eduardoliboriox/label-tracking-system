@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% block title %}Produção Detalhada{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-3 px-4">
+
+    <!-- CABEÇALHO -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <h3 class="fw-bold text-primary mb-1">
+                📊 Produção Detalhada • OP {{ op }}
+            </h3>
+        </div>
+
+        <a href="{{ url_for('live') }}" class="btn btn-outline-secondary btn-sm fw-bold">
+            ⬅ Voltar
+        </a>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="d-flex flex-wrap gap-3 mb-3">
+
+        <!-- FILTRO TURNO -->
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm fw-bold"
+                    onclick="setTurno('TODOS')">
+                Todos Turnos
+            </button>
+
+            <button class="btn btn-outline-primary btn-sm fw-bold"
+                    onclick="setTurno('1º Turno')">
+                1º Turno
+            </button>
+
+            <button class="btn btn-outline-primary btn-sm fw-bold"
+                    onclick="setTurno('2º Turno')">
+                2º Turno
+            </button>
+        </div>
+
+        <!-- FILTRO FASE -->
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm fw-bold"
+                    onclick="setFase('TODOS')">
+                Todas Fases
+            </button>
+
+            <button class="btn btn-outline-info btn-sm fw-bold"
+                    onclick="setFase('TOP')">
+                TOP
+            </button>
+
+            <button class="btn btn-outline-info btn-sm fw-bold"
+                    onclick="setFase('BOTTOM')">
+                BOTTOM
+            </button>
+        </div>
+
+    </div>
+
+    <!-- TOTAL -->
+    <div class="mb-3">
+        <span class="fw-bold fs-5">
+            Total Produzido:
+            <span id="totalProduzido" class="text-success">0</span>
+        </span>
+    </div>
+
+    <!-- PRODUÇÃO POR HORA -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header fw-bold">
+            ⏱ Produção Hora a Hora
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-sm table-bordered text-center align-middle">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Hora</th>
+                        <th>Turno</th>
+                        <th>Produzido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in producao_hora %}
+                    <tr data-turno="{{ h.turno }}" data-qtd="{{ h.quantidade }}">
+                        <td>{{ h.hora }}</td>
+                        <td>{{ h.turno }}</td>
+                        <td class="fw-bold">{{ h.quantidade }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TOTAL FILTRADO -->
+<div class="mb-2">
+    <span class="fw-bold fs-6">
+        Total Produzido (Filtro com fase):
+        <span id="totalFiltrado" class="text-primary">0</span>
+    </span>
+</div>
+
+    <!-- REGISTROS DETALHADOS -->
+    <div class="card shadow-sm">
+        <div class="card-header fw-bold">
+            📋 Registros Detalhados
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-sm table-striped table-bordered align-middle text-nowrap">
+                <thead class="table-secondary text-center">
+                    <tr>
+                        <th>Data / Hora</th>
+                        <th>Hora</th>
+                        <th>Turno</th>
+                        <th>Fase</th>
+                        <th>Setor</th>
+                        <th>Quantidade</th>
+                        <th>Operador</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in registros %}
+                    <tr class="text-center"
+                        data-turno="{{ r.turno }}"
+                        data-fase="{{ r.fase }}">
+                        <td>{{ r.data_hora }}</td>
+                        <td>{{ r.hora }}</td>
+                        <td>{{ r.turno }}</td>
+                        <td>
+                            <span class="badge bg-info text-dark">
+                                {{ r.fase }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                {{ r.setor }}
+                            </span>
+                        </td>
+                        <td class="fw-bold">{{ r.quantidade }}</td>
+                        <td>{{ r.operador }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+let filtroTurnoAtual = 'TODOS';
+let filtroFaseAtual  = 'TODOS';
+
+function aplicarFiltros() {
+
+    let totalHoraHora = 0;
+    let totalFiltrado = 0;
+
+    /* =====================================================
+       REGISTROS DETALHADOS (com fase)
+    ===================================================== */
+    document.querySelectorAll(
+        'table.table-striped tbody tr[data-turno][data-fase]'
+    ).forEach(row => {
+
+        const turno = row.dataset.turno;
+        const fase  = row.dataset.fase;
+        const qtd   = parseInt(
+            row.querySelector('td.fw-bold').innerText || 0
+        );
+
+        const atendeTurno = (filtroTurnoAtual === 'TODOS' || turno === filtroTurnoAtual);
+        const atendeFase  = (filtroFaseAtual  === 'TODOS' || fase === filtroFaseAtual);
+
+        if (atendeTurno && atendeFase) {
+            row.style.display = '';
+            totalFiltrado += qtd;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    /* =====================================================
+       PRODUÇÃO HORA A HORA (SEM fase, MAS FILTRA TURNO)
+    ===================================================== */
+    document.querySelectorAll(
+        'table.table-bordered tbody tr[data-qtd]'
+    ).forEach(row => {
+
+        const qtd   = parseInt(row.dataset.qtd || 0);
+        const turno = row.dataset.turno;
+
+        const atendeTurno = (filtroTurnoAtual === 'TODOS' || turno === filtroTurnoAtual);
+
+        if (atendeTurno) {
+            row.style.display = '';
+            totalHoraHora += qtd;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    document.getElementById('totalProduzido').innerText = totalHoraHora;
+    document.getElementById('totalFiltrado').innerText = totalFiltrado;
+}
+
+function setTurno(turno) {
+    filtroTurnoAtual = turno;
+    aplicarFiltros();
+}
+
+function setFase(fase) {
+    filtroFaseAtual = fase;
+    aplicarFiltros();
+}
+
+document.addEventListener('DOMContentLoaded', aplicarFiltros);
+</script>
+
+
+
+{% endblock %}

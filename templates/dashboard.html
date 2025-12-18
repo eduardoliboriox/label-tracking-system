@@ -2,13 +2,14 @@
 {% block title %}Dashboard de Produção{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4 px-4">
+<div class="container-fluid mt-2 px-4">
 
     <!-- Cabeçalho -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h2 class="fw-bold text-primary mb-0">📊 Dashboard de Produção</h2>
 
-        <div class="d-flex flex-wrap gap-2">
+        <div class="filtros-container mt-2">
+
             <!-- Botões de Setor -->
             <div class="d-flex flex-wrap gap-2">
                 <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
@@ -20,7 +21,7 @@
             </div>
 
             <form id="searchForm" class="d-inline-flex ms-3">
-                <input type="text" id="searchInput" class="form-control me-2" placeholder="Buscar por...">
+                <input type="text" id="searchInput" class="form-control form-control-sm me-2" placeholder="Buscar por...">
                 <!--<button type="submit" class="btn btn-outline-primary">Buscar</button> -->
             </form>
         </div>
@@ -286,5 +287,73 @@ function calcularTotalGeral() {
     document.getElementById("totalGeralBox").innerText = "Total Geral: " + total;
 }
 </script>
+
+<script>
+async function atualizarDashboardAuto() {
+    try {
+        const resp = await fetch("/api/dashboard");
+        const data = await resp.json();
+
+        const tbody = document.querySelector("#dashboardTable tbody");
+        tbody.innerHTML = "";
+
+        data.forEach(item => {
+            item.saldo_setores.forEach(saldo => {
+
+                const fase = (saldo.fase || "").toUpperCase();
+                let status = "AGUARDANDO";
+
+                if (fase === "DISPONIVEL") status = "DISPONIVEL";
+                else if (fase.includes("CQ")) status = "QUALIDADE";
+
+                const tr = document.createElement("tr");
+                tr.className = "text-center";
+
+                tr.dataset.setor = saldo.setor || "SEM SETOR";
+                tr.dataset.status = status;
+                tr.dataset.qc =
+                    fase === "PENDENTE CQ" ? "PENDENTE" :
+                    fase === "CQ APROVOU" ? "LIBERADO" : "OUTRO";
+
+                tr.dataset.topdone = parseInt(saldo.status_top?.match(/\d+/)?.[0] || 0);
+                tr.dataset.bottomdone =
+                    saldo.status_bottom === "N/A"
+                        ? "N/A"
+                        : parseInt(saldo.status_bottom?.match(/\d+/)?.[0] || 0);
+
+                tr.dataset.total = parseInt(saldo.saldo_blank || 0);
+
+                tr.innerHTML = `
+                    <td class="fw-bold">${item.model.cliente}</td>
+                    <td class="fw-bold">${item.model.model_name}</td>
+                    <td class="fw-bold">${item.model.code}</td>
+                    <td class="fw-bold text-primary">${item.model.op}</td>
+                    <td class="fw-bold">${item.model.po || ""}</td>
+
+                    <td><span class="badge bg-info text-dark">${saldo.fase}</span></td>
+
+                    <td class="fw-bold">${item.model.phase_type.replace("_", " ")}</td>
+                    <td class="fw-bold">${saldo.status_top}</td>
+                    <td class="fw-bold">${saldo.status_bottom || "N/A"}</td>
+                    <td class="fw-bold">${saldo.saldo_blank}</td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        });
+
+        // reaplica filtros e total
+        applyFilters();
+
+    } catch (err) {
+        console.error("Erro ao atualizar dashboard:", err);
+    }
+}
+
+// 🔁 atualiza a cada 5 segundos
+setInterval(atualizarDashboardAuto, 5000);
+</script>
+
+
 
 {% endblock %}

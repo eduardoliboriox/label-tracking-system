@@ -12,6 +12,7 @@
 <!-- Cabeçalho -->
 <header class="header-sistema d-flex align-items-center justify-content-between px-3 py-3 position-relative">
 
+
     <!-- BOTÃO HAMBÚRGUER (SÓ NO MOBILE *) -->
     <button id="btnToggleSidebar" class="btn btn-outline-dark d-md-none me-2">
         ☰
@@ -33,12 +34,13 @@
 
         {% if show_header_content|default(true) and not hide_top_menu %}
         <nav class="menu-topo align-items-center">
-            <a href="{{ url_for('home') }}" class="btn btn-outline-danger btn-sm mx-1 fw-bold">Home</a>
+            <a href="{{ url_for('home') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Home</a>
             <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Ordens de Produção</a>
-            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm mx-1 fw-bold">Dashboard</a>
-            <a href="{{ url_for('movimentar') }}" class="btn btn-outline-warning btn-sm mx-1 fw-bold">Movimentar</a>
-            <a href="{{ url_for('ops') }}" class="btn btn-outline-info btn-sm mx-1 fw-bold">Controle de OPs</a>
-            <a href="#" class="btn btn-outline-success btn-sm mx-1 fw-bold">Configurações</a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Dashboard</a>
+            <a href="{{ url_for('movimentar') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Movimentar</a>
+            <a href="{{ url_for('ops') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Controle de OPs</a>
+            <a href="{{ url_for('live') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Ao Vivo</a>
+            <a href="#" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Configurações</a>
         </nav>
         {% endif %}
 
@@ -59,6 +61,7 @@
         <a href="{{ url_for('dashboard') }}">📊 Dashboard</a>
         <a href="{{ url_for('movimentar') }}">📦 Movimentar</a>
         <a href="{{ url_for('ops') }}">📘 Controle de OPs</a>
+        <a href="{{ url_for('live') }}">🔴 Ao Vivo</a>
         <a href="#">⚙️ Configurações</a>
     </div>
 
@@ -66,7 +69,7 @@
 
 <hr class="linha-separadora">
 
-<main class="container mt-3">
+<main class="container mt-0">
     {% block content %}{% endblock %}
 </main>
 

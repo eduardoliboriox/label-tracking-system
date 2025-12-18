@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function atualizarTabela() {
-    fetch("/api/tabela_models")
+    fetch("/api/tabela_models", { cache: "no-store" })
         .then(r => r.json())
         .then(data => {
             const tbody = document.querySelector("tbody");
@@ -114,20 +114,49 @@ function atualizarTabela() {
                     <td>${model.cliente}</td>
                     <td><small>${model.updated_at_formatted}</small></td>
                     <td class="text-center">
-                        <a class="btn btn-sm btn-secondary" href="/view/${model.id}">Etiquetas</a>
-                        <a class="btn btn-sm btn-warning" href="/edit/${model.id}">Editar</a>
-                        <a class="btn btn-sm btn-info" href="/history/${model.id}">Histórico</a>
-                        <a class="btn btn-sm btn-danger" href="/setores/${model.id}">Setores</a>
+                        <a class="btn btn-sm btn-secondary fw-bold" href="/view/${model.id}">Etiquetas</a>
+                        <a class="btn btn-sm btn-warning fw-bold text-white" href="/edit/${model.id}">Editar</a>
+                        <a class="btn btn-sm btn-info fw-bold text-white" href="/history/${model.id}">Histórico</a>
+                        <a class="btn btn-sm btn-danger fw-bold" href="/setores/${model.id}">Setores</a>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            // 🔁 mantém o filtro após atualização
             aplicarFiltro();
         });
 }
+
 </script>
+
+<script>
+let ultimoIdConhecido = 0;
+
+async function verificarAtualizacao() {
+    try {
+        const r = await fetch("/api/atualizado", {
+            cache: "no-store"
+        });
+        const data = await r.json();
+
+        if (data.ultimo > ultimoIdConhecido) {
+            ultimoIdConhecido = data.ultimo;
+            atualizarTabela();
+        }
+    } catch (e) {
+        console.error("Erro ao verificar atualização:", e);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    // primeira carga
+    verificarAtualizacao();
+
+    // 🔁 verifica a cada 3 segundos
+    setInterval(verificarAtualizacao, 3000);
+});
+</script>
+
 
 
 {% endblock %}

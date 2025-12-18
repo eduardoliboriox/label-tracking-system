@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Ao Vivo{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid mt-2 px-4">
+
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h2 class="fw-bold text-primary mb-0">🔴 Produção • Ao Vivo</h2>
+    </div>
+
+    <!-- FILTROS (SEM CARD) -->
+    <div class="d-flex flex-wrap align-items-end gap-4 mb-3">
+
+        <!-- Datas -->
+        <form method="get" class="d-flex flex-wrap align-items-end gap-2">
+
+            <div>
+                <label class="fw-bold mb-0">Data inicial</label>
+                <input type="date" name="data_ini"
+                       class="form-control form-control-sm"
+                       value="{{ data_ini }}">
+            </div>
+
+            <div>
+                <label class="fw-bold mb-0">Data final</label>
+                <input type="date" name="data_fim"
+                       class="form-control form-control-sm"
+                       value="{{ data_fim }}">
+            </div>
+
+            <div>
+                <button class="btn btn-primary btn-sm fw-bold">
+                    🔍 Filtrar
+                </button>
+            </div>
+
+        </form>
+
+        <!-- Setores + Busca -->
+        <div class="filtros-container mt-1">
+
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
+                <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('SMT')">SMT</button>
+                <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('IM')">IM</button>
+                <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PA')">PA</button>
+                <button class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('ESTOQUE')">Estoque</button>
+                <button class="btn btn-outline-secondary btn-sm fw-bold btn-setor" onclick="filterBySetor('TODOS')">Mostrar Todos</button>
+            </div>
+
+            <form id="searchForm">
+                <input type="text" id="searchInput"
+                       class="form-control form-control-sm"
+                       placeholder="Buscar por...">
+            </form>
+
+        </div>
+    </div>
+
+<!-- TABELA  -->
+<div class="container-fluid px-0">
+    <div class="card shadow-sm">
+        <div class="card-body px-2 px-md-1">
+            <div class="table-responsive">
+                <table class="table table-sm table-striped table-bordered align-middle w-100 text-nowrap">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th>Modelo</th>
+                            <th>Cliente</th>
+                            <th>OP</th>
+                            <th>Produzido</th>
+                            <th>Setor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="opsTableBody">
+                        {% for op in ops %}
+                        <tr class="text-center" data-setor="{{ op.setor }}">
+                            <td>{{ op.modelo }}</td>
+                            <td>{{ op.cliente }}</td>
+                            <td>{{ op.op }}</td>
+                            <td class="fw-bold">{{ op.produzido }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ op.setor }}</span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('live_consultar', op=op.op) }}"
+                                class="btn btn-sm btn-outline-primary fw-bold">
+                                    👁️ Consultar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+<!-- Scripts -->
+
+<script>
+function filterBySetor(setor) {
+    document.querySelectorAll('#opsTableBody tr').forEach(row => {
+        if (setor === 'TODOS' || row.dataset.setor === setor) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+
+{% endblock %}

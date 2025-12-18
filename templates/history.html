@@ -5,7 +5,7 @@
 
 <!-- ===== HISTÓRICO DE ALTERAÇÕES ===== -->
 <h5>Últimas alterações</h5>
-<div class="table-responsive">
+<div class="table-responsive table-scroll-x">
 <table class="table table-bordered table-hover align-middle text-center mb-4 bg-white">
 
   <thead class="table-dark text-center">
@@ -51,7 +51,7 @@
       <td>{{ e['capacidade_magazine'] }}</td>
       <td>{{ e['created_at_formatted'] }}</td>
       <td class="text-center">
-        <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+        <div class="d-flex justify-content-center align-items-center gap-2">
           <button class="btn btn-sm btn-primary"
                   onclick="verEtiqueta('{{ model['code'] }}', '{{ e['lote'] }}')">
             Ver

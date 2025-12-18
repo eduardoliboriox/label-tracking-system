@@ -42,11 +42,10 @@
     background: #fff;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-    transform: scale(1); /* impede encolhimento automático */
+    transform: scale(1); 
     transform-origin: top left;
   }
 
-  
   * {
     box-sizing: border-box;
   }
@@ -161,7 +160,7 @@
 
   @media screen {
     body {
-      zoom: 0.6; 
+      zoom: 0.8  /* ERA 6 */
     }
   }
 
@@ -189,6 +188,17 @@
     }
   }
 
+  @media screen {
+  .pagina {
+    transform: scale(0.40); 
+    transform-origin: top left;
+  }
+
+  body {
+    overflow: auto;
+  }
+}
+
   @media print {
     body {
       margin: 0 !important;
@@ -200,7 +210,7 @@
       margin: 0 !important;
       padding: 0 !important;
       padding-top: 13mm !important;
-      padding-left: 10mm !important; 
+      padding-left: 14mm !important; 
       transform: none !important;
       zoom: 1.03; 
     }

@@ -15,19 +15,6 @@
         </div>
     {% endif %}
 {% endwith %}
-<!--
-{% if hide_top_menu %}
-<div class="text-center mb-3 menu-movimentar-desktop">
-    
-    <a href="{{ url_for('home') }}" class="btn btn-outline-danger btn-sm mx-1 fw-bold">Home</a>
-    <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold"><strong>Ordens de Produção</strong></a>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm mx-1 fw-bold"><strong>Dashboard</strong></a>
-    <a href="{{ url_for('movimentar') }}" class="btn btn-outline-warning btn-sm mx-1 fw-bold"><strong>Movimentar</strong></a>
-    <a href="{{ url_for('ops') }}" class="btn btn-outline-info btn-sm mx-1 fw-bold">Controle de OPs</a>
-    <a href="#" class="btn btn-outline-success btn-sm mx-1 fw-bold"><strong>Configurações</strong></a>
-</div>
-<hr>
-{% endif %} -->
 
 <style>
 .action-btn.active,
@@ -35,11 +22,11 @@
     border: 3px solid hwb(0 0% 100%);
     background-color: #07090c !important;  
     color: white !important;
-    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5); 
 }
 </style>
 
-<div class="container mt-4" style="max-width: 760px;">
+<div class="container mt-2" style="max-width: 760px;">
     <h2 class="mb-4 text-center fw-bold text-primary">📦 Terminal de Movimentação</h2>
 
     <form action="{{ url_for('movimentar') }}" method="post" class="card p-4 shadow-sm border-0 rounded-4 bg-light">
@@ -76,35 +63,37 @@
         <div class="mb-3 fw-bold">Selecione a Ação:</div>
         <div class="row g-2">
             <div class="col-4">
-                <button type="button" class="btn btn-primary btn-lg w-100 py-4 action-btn" data-value="producao">✅ Produção</button>
+                <button type="button" class="btn btn-primary btn-lg w-100 py-4 action-btn fw-bold" data-value="producao">✅ Produção</button>
             </div>
             <div class="col-4">
-                <button type="button" class="btn btn-success btn-lg w-100 py-4 action-btn" data-value="recebimento">📥 Recebimento</button>
+                <button type="button" class="btn btn-success btn-lg w-100 py-4 action-btn fw-bold" data-value="recebimento">📥 Recebimento</button>
             </div>
             <div class="col-4">
-                <button type="button" class="btn btn-warning btn-lg w-100 py-4 action-btn" data-value="cq">🧪 CQ / Liberar</button>
+                <button type="button" class="btn btn-warning btn-lg w-100 py-4 action-btn text-white fw-bold" data-value="cq">🧪 CQ / Liberar</button>
             </div>
             <div class="col-6">
-                <button type="button" class="btn btn-secondary btn-lg w-100 py-4 action-btn" data-value="retrabalho">♻ Retrabalho</button>
+                <button type="button" class="btn btn-secondary btn-lg w-100 py-4 action-btn fw-bold" data-value="retrabalho">♻ Retrabalho</button>
             </div>
             <div class="col-6">
-                <button type="button" class="btn btn-danger btn-lg w-100 py-4 action-btn" data-value="rejeicao">🛑 Rejeição</button>
+                <button type="button" class="btn btn-danger btn-lg w-100 py-4 action-btn fw-bold" data-value="rejeicao">🛑 Rejeição</button>
             </div>
         </div>
 
         <!-- GRUPO TOP/BOTTOM -->
         <div class="mt-4 mb-2 fw-bold">Selecione a Fase:</div>
         <div class="row g-2">
+
             <div class="col-6">
                 <button type="button"
-                        class="btn btn-info btn-lg w-100 py-4 phase-btn"
+                        class="btn btn-info btn-lg w-100 py-4 phase-btn fw-bold text-white"
                         data-phase="top">
                     🔝 FASE TOP
                 </button>
             </div>
+            
             <div class="col-6">
                 <button type="button"
-                        class="btn btn-purple btn-lg w-100 py-4 phase-btn"
+                        class="btn btn-purple btn-lg w-100 py-4 phase-btn fw-bold"
                         data-phase="bottom">
                     ⬇️ FASE BOTTOM
                 </button>
@@ -193,6 +182,37 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
+
+<style>
+.action-btn.active,
+.phase-btn.active {
+    border: 3px solid hwb(0 0% 100%);
+    background-color: #07090c !important;  
+    color: white !important;
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5); 
+}
+
+
+@media (max-width: 576px) {
+
+    /* AÇÕES – Produção / Recebimento / CQ */
+    button.action-btn[data-value="producao"],
+    button.action-btn[data-value="recebimento"],
+    button.action-btn[data-value="cq"]
+     {
+        font-size: 11px !important;
+        white-space: nowrap;
+    }
+
+    /* FASE – TOP / BOTTOM */
+    button.phase-btn[data-phase="top"],
+    button.phase-btn[data-phase="bottom"] {
+        font-size: 13px !important; 
+        white-space: nowrap;
+    }
+}
+
+</style>
 
 
 {% endblock %}

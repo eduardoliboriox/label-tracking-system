@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, abort, jsonify
-from datetime import datetime
+from datetime import datetime, date, time
 import sqlite3, os, qrcode
 from io import BytesIO
 import socket
@@ -1180,12 +1180,12 @@ def clean_display_qr(raw):
                .strip())
     return txt
 
-@app.route("/dashboard")
-def dashboard():
+def build_dashboard_data():
     conn = get_db()
-    
-    # Lista todos os modelos
-    models = conn.execute("SELECT * FROM models ORDER BY model_name").fetchall()
+
+    models = conn.execute(
+        "SELECT * FROM models ORDER BY model_name"
+    ).fetchall()
     models = [dict(m) for m in models]
 
     dashboard_data = []
@@ -1197,7 +1197,6 @@ def dashboard():
             FROM labels
             WHERE model_id=? AND remaining > 0
         """, (m["id"],)).fetchall()
-
         labels = [dict(l) for l in labels]
 
         saldo_setores = []
@@ -1211,7 +1210,6 @@ def dashboard():
             top_done = int(lab["top_done"] or 0)
             bottom_done = int(lab["bottom_done"] or 0)
 
-            # STATUS REAL
             if fase == "DISPONIVEL":
                 status = "DISPONIVEL"
             elif fase.startswith("AGUARDANDO"):
@@ -1225,10 +1223,6 @@ def dashboard():
             else:
                 status = "AGUARDANDO"
 
-            # EXIBIÇÃO AMIGÁVEL
-            display_fase = fase
-
-            # STATUS TOP/BOTTOM REAL
             fase_type = (m.get("phase_type") or "").strip().upper()
 
             if fase_type == "TOP ONLY":
@@ -1240,7 +1234,7 @@ def dashboard():
 
             saldo_setores.append({
                 "setor": setor,
-                "fase": display_fase,
+                "fase": fase,
                 "saldo": saldo,
                 "status": status,
                 "status_top": status_top,
@@ -1254,11 +1248,141 @@ def dashboard():
         })
 
     conn.close()
-    return render_template("dashboard.html", data=dashboard_data)
+    return dashboard_data
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template(
+        "dashboard.html",
+        data=build_dashboard_data()
+    )
 
 @app.route("/home")
 def home():
     return render_template("home.html")
+
+
+def format_datetime_br(value):
+    if not value:
+        return ""
+    try:
+        s = str(value).replace("T", " ").split(".")[0]
+        dt = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+        return dt.strftime("%d/%m/%Y %H:%M:%S")
+    except Exception:
+        return str(value)
+
+def get_turno(dt):
+    hora = dt.time()
+
+    if time(7, 0) <= hora < time(16, 48):
+        return "1º Turno"
+    return "2º Turno"
+    
+@app.route("/live")
+def live():
+    data_ini = request.args.get("data_ini")
+    data_fim = request.args.get("data_fim")
+
+    if not data_ini:
+        data_ini = date.today().isoformat()
+    if not data_fim:
+        data_fim = date.today().isoformat()
+
+    conn = get_db()
+    ops = conn.execute("""
+        SELECT
+            m.code             AS modelo,
+            m.cliente          AS cliente,
+            m.op               AS op,
+            SUM(mv.quantidade) AS produzido,
+            mv.from_setor      AS setor,
+            MAX(mv.created_at) AS last_update
+        FROM movements mv
+        JOIN models m ON m.id = mv.model_id
+        WHERE substr(mv.created_at, 1, 10) BETWEEN ? AND ?
+          AND UPPER(mv.acao) = 'PRODUCAO'
+        GROUP BY m.code, m.cliente, m.op, mv.from_setor
+        ORDER BY last_update DESC
+    """, (data_ini, data_fim)).fetchall()
+    conn.close()
+
+    ops = [dict(op) for op in ops]
+    for op in ops:
+        op["last_update_br"] = format_datetime_br(op["last_update"])
+
+    return render_template(
+        "live.html",
+        ops=ops,
+        data_ini=data_ini,
+        data_fim=data_fim
+    )
+@app.route("/live/consultar/<op>")
+def live_consultar(op):
+    conn = get_db()
+
+    rows = conn.execute("""
+        SELECT
+            mv.created_at,
+            mv.quantidade,
+            mv.from_setor,
+            mv.fase,
+            mv.created_by
+        FROM movements mv
+        JOIN models m ON m.id = mv.model_id
+        WHERE m.op = ?
+          AND UPPER(mv.acao) = 'PRODUCAO'
+        ORDER BY mv.created_at
+    """, (op,)).fetchall()
+
+    conn.close()
+
+    registros = []
+    producao_por_hora = {}
+
+    for r in rows:
+        # --- trata datetime ---
+        s = str(r["created_at"]).replace("T", " ").split(".")[0]
+        dt = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+
+        hora_key = dt.strftime("%Y-%m-%d %H:00")
+        turno = get_turno(dt)
+
+        # -------------------------
+        # REGISTRO DETALHADO
+        # -------------------------
+        registros.append({
+            "data_hora": format_datetime_br(r["created_at"]),
+            "hora": dt.strftime("%H:%M"),
+            "quantidade": r["quantidade"],
+            "setor": r["from_setor"],
+            "fase": r["fase"],          
+            "turno": turno,
+            "operador": r["created_by"]
+        })
+
+        # -------------------------
+        # PRODUÇÃO AGRUPADA POR HORA
+        # (mantém exatamente como você queria)
+        # -------------------------
+        if hora_key not in producao_por_hora:
+            producao_por_hora[hora_key] = {
+                "hora": dt.strftime("%d/%m/%Y %H:00"),
+                "turno": turno,
+                "quantidade": 0
+            }
+
+        producao_por_hora[hora_key]["quantidade"] += r["quantidade"]
+
+    producao_hora = list(producao_por_hora.values())
+
+    return render_template(
+        "live_consultar.html",
+        op=op,
+        registros=registros,
+        producao_hora=producao_hora
+    )
+
 
 
 @app.route("/history/<int:id>")
@@ -1392,19 +1516,39 @@ def etiqueta_visualizar(code, lote):
 
     return render_template("label.html", m=model, lotes=[lote_formatado])
 
+@app.after_request
+def add_no_cache_headers(response):
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+@app.get("/api/dashboard")
+def api_dashboard():
+    return jsonify(build_dashboard_data())
+
 @app.get("/api/atualizado")
 def api_atualizado():
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT MAX(id) FROM movements")
-    mov = cur.fetchone()[0] or 0
+    # MODELS → criação/edição de OP
+    cur.execute("SELECT MAX(id) FROM models")
+    model_id = cur.fetchone()[0] or 0
 
+    # MOVEMENTS → produção / movimentações
+    cur.execute("SELECT MAX(id) FROM movements")
+    mov_id = cur.fetchone()[0] or 0
+
+    # HISTORY → logs (se ainda existir uso)
     cur.execute("SELECT MAX(id) FROM history")
-    his = cur.fetchone()[0] or 0
+    his_id = cur.fetchone()[0] or 0
 
     conn.close()
-    return {"ultimo": max(mov, his)}
+
+    return jsonify({
+        "ultimo": max(model_id, mov_id, his_id)
+    })
 
 @app.route("/api/ops_atualizado")
 def ops_atualizado():

@@ -99,7 +99,7 @@ table.table tbody {
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 9999;
+     z-index: 1030; /* acima de tudo */
     background-color: var(--bg-light);
     border-bottom: 2px solid #ddd;
     display: flex;
@@ -123,13 +123,32 @@ table.table tbody {
 .btn-purple {
     background-color: var(--danger-color) !important;
     border-color: var(--danger-color) !important;
-    color: var(--text-light) !important;
+    color: #fff !important;
+    box-shadow: none !important;  
 }
 
-.btn-purple:hover {
-    background-color: var(--danger-color) !important;
-    border-color: #0c040b !important;
+
+.btn-purple:focus,
+.btn-purple:active {
+    box-shadow: 0 0 0 0.25rem rgba(206, 10, 173, 0.5);  
+    border-color: var(--danger-color) !important;
 }
+
+.btn-purple:focus-visible {
+    outline: none;
+}
+
+.phase-btn.active {
+    border: 3px solid #000 !important;
+    background-color: #07090c !important;
+    color: #fff !important;
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+}
+
+.btn-purple {
+    border: none !important;
+}
+
 
 .btn-setor {
     min-width: 80px;
@@ -239,18 +258,56 @@ table.table tbody {
     border-top: 1px solid #ddd;
 }
 
+/* menu fixo */
 html, body {
     height: 100%;
 }
 
 body {
+    margin: 0;
     display: flex;
     flex-direction: column;
 }
 
 main {
     flex: 1;
+    overflow-y: auto;
+    padding-top: 1px;
 }
+
+.footer-sistema {
+    flex-shrink: 0;
+}
+
+/* Scroll elegante no conteúdo principal */
+main {
+    overflow-y: auto;
+}
+
+/* Chrome, Edge, Safari */
+main::-webkit-scrollbar {
+    width: 6px;
+}
+
+main::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+}
+
+main::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+main::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Firefox */
+main {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.25) transparent;
+}
+
 
 /* ============================================================
    MEDIA QUERY — MOBILE / TABLET (até 768px)
@@ -585,6 +642,52 @@ main {
 }
 
 /* ============================================================
+   AJUSTES EXCLUSIVOS PARA IMPRESSÃO DE ETIQUETAS
+   ============================================================ */
+@media print {
+
+    /* Remove header e footer */
+    .header-sistema,
+    .footer-sistema,
+    .sidebar-mobile {
+        display: none !important;
+    }
+
+    /* Remove layout flex global */
+    html, body {
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    body {
+        display: block !important;
+    }
+
+    main {
+        overflow: visible !important;
+        height: auto !important;
+        padding: 0 !important;
+    }
+
+    /* Remove qualquer margem automática */
+    * {
+        box-shadow: none !important;
+    }
+
+    /* Permite tamanho livre da etiqueta */
+    .etiqueta,
+    .etiqueta-container {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Opcional: remove fundos */
+    body {
+        background: #fff !important;
+    }
+}
+
+/* ============================================================
    MEDIA QUERY — DESKTOP ESPECÍFICO
    ============================================================ */
 @media (min-width: 769px) {
@@ -761,3 +864,13 @@ main {
         object-fit: cover;
     }
 }
+
+.page-spacing-bottom {
+    margin-bottom: 40px;
+}
+
+.table-scroll-x {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+

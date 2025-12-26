@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block title %}Movimentar Etiqueta{% endblock %}
+{% set show_header_content = true %}
+
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="container-fluid mt-2 px-2" style="max-width: 760px;">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show fw-bold shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<style>
+.action-btn.active,
+.phase-btn.active {
+    border: 3px solid hwb(0 0% 100%);
+    background-color: #d907ecff !important;  
+    color: white !important;
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5); 
+}
+</style>
+
+<div class="container-fluid mt-2 px-2" style="max-width: 760px;">
+    <h3 class="mb-4 text-center fw-bold page-title mb-0">📦 Terminal de Movimentação</h3>
+
+    <form action="{{ url_for('movimentar') }}" method="post" class="card p-4 shadow-sm border-0 rounded-4 bg-light">
+
+        <input type="hidden" name="ponto_url" value="{{ request.args.get('p') or request.args.get('ponto') }}">
+
+        <div class="mb-4">
+            <label for="qr_code" class="form-label fw-bold">Bipe o QR Code:</label>
+            <input type="text"
+                   name="qr_code"
+                   id="qr_code"
+                   class="form-control form-control-lg text-center"
+                   placeholder="Bipe o QR Code aqui"
+                   value="{{ clean_display_code }}"
+                   required
+                   autofocus>
+        </div>
+
+        <div class="mb-4">
+            <label for="ponto" class="form-label fw-bold">Ponto de Marcação:</label>
+            <select name="ponto" id="ponto" class="form-select form-select-lg" required>
+                <option value="">-- Escolher Ponto --</option>
+                <option value="Ponto-01">Ponto-01 • PTH </option>
+                <option value="Ponto-02">Ponto-02 • SMT </option>
+                <option value="Ponto-03">Ponto-03 • SMT (CQ)</option>
+                <option value="Ponto-04">Ponto-04 • IM/PA </option>
+                <option value="Ponto-05">Ponto-05 • IM/PA (CQ)</option>
+                <option value="Ponto-06">Ponto-06 • IM/PA (CQ)</option>
+                <option value="Ponto-07">Ponto-07 • Estoque</option>
+            </select>
+        </div>
+
+        <!-- GRUPO DAS AÇÕES -->
+        <div class="mb-3 fw-bold">Selecione a Ação:</div>
+        <div class="row g-2">
+            <div class="col-4">
+                <button type="button" class="btn btn-primary btn-lg w-100 py-4 action-btn fw-bold" data-value="producao">✅ Produção</button>
+            </div>
+            <div class="col-4">
+                <button type="button" class="btn btn-success btn-lg w-100 py-4 action-btn fw-bold" data-value="recebimento">📥 Recebimento</button>
+            </div>
+            <div class="col-4">
+                <button type="button" class="btn btn-warning btn-lg w-100 py-4 action-btn text-white fw-bold" data-value="cq">🧪 CQ / Liberar</button>
+            </div>
+            <div class="col-6">
+                <button type="button" class="btn btn-secondary btn-lg w-100 py-4 action-btn fw-bold" data-value="retrabalho">♻ Retrabalho</button>
+            </div>
+            <div class="col-6">
+                <button type="button" class="btn btn-danger btn-lg w-100 py-4 action-btn fw-bold" data-value="rejeicao">🛑 Rejeição</button>
+            </div>
+        </div>
+
+        <!-- GRUPO TOP/BOTTOM -->
+        <div class="mt-4 mb-2 fw-bold">Selecione a Fase:</div>
+        <div class="row g-2">
+
+            <div class="col-6">
+                <button type="button"
+                        class="btn btn-info btn-lg w-100 py-4 phase-btn fw-bold text-white"
+                        data-phase="top">
+                    🔝 FASE TOP
+                </button>
+            </div>
+            
+            <div class="col-6">
+                <button type="button"
+                        class="btn btn-purple btn-lg w-100 py-4 phase-btn fw-bold"
+                        data-phase="bottom">
+                    ⬇️ FASE BOTTOM
+                </button>
+            </div>
+        </div>
+
+        <input type="hidden" name="acao" id="acao">
+        <input type="hidden" name="top_mark" id="top_mark" value="0">
+        <input type="hidden" name="bottom_mark" id="bottom_mark" value="0">
+
+        <div class="mb-3 mt-4">
+            <label for="quantidade" class="form-label fw-bold">Quantidade (opcional):</label>
+            <input type="number" name="quantidade" id="quantidade"
+                   class="form-control form-control-lg text-center" min="1"
+                   placeholder="Vazio = Quantidade da etiqueta">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold py-3 mt-3">
+            Registrar Movimentação
+        </button>
+    </form>
+
+    {% if label %}
+    <div class="card shadow-sm border-0 rounded-4 mt-4">
+        <div class="card-header bg-dark text-white fw-bold rounded-top-4">
+            📄 Informações da Etiqueta
+        </div>
+        <div class="card-body">
+            <p><strong>Modelo:</strong> {{ model['code'] }}</p>
+            <p><strong>Lote:</strong> {{ label['lote'] }}</p>
+            <p><strong>Setor atual:</strong> {{ label['setor_atual'] }}</p>
+            <p><strong>Fase:</strong> {{ label['fase'] }}</p>
+            <p><strong>Qtd disponível:</strong> {{ label['remaining'] }}</p>
+
+            {% if label['top_done'] is not none %}
+            <p><strong>Processamento:</strong>
+                TOP={{ label['top_done'] }} |
+                BOTTOM={{ label['bottom_done'] }}
+            </p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const acaoHidden = document.getElementById("acao");
+    const topHidden = document.getElementById("top_mark");
+    const bottomHidden = document.getElementById("bottom_mark");
+
+    document.querySelectorAll(".action-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".action-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            acaoHidden.value = btn.dataset.value;
+        });
+    });
+
+    document.querySelectorAll(".phase-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const phase = btn.dataset.phase;
+
+            if (phase === "top") {
+                topHidden.value = 1;
+                bottomHidden.value = 0;
+            } else if (phase === "bottom") {
+                topHidden.value = 0;
+                bottomHidden.value = 1;
+            }
+
+            document.querySelectorAll(".phase-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+        });
+    });
+
+    const form = document.querySelector("form");
+    form.addEventListener("submit", () => {
+        if (parseInt(topHidden.value) === 1 && parseInt(bottomHidden.value) === 1) {
+            bottomHidden.value = 0;
+        }
+        if (parseInt(topHidden.value) === 0 && parseInt(bottomHidden.value) === 0) {
+            alert("Escolha uma fase: TOP ou BOTTOM!");
+            event.preventDefault();
+        }
+    });
+});
+</script>
+
+<style>
+.action-btn.active,
+.phase-btn.active {
+    border: 3px solid hwb(0 0% 100%);
+    background-color: #07090c !important;  
+    color: white !important;
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5); 
+}
+
+@media (max-width: 576px) {
+
+    /* AÇÕES – Produção / Recebimento / CQ */
+    button.action-btn[data-value="producao"],
+    button.action-btn[data-value="recebimento"],
+    button.action-btn[data-value="cq"]
+     {
+        font-size: 11px !important;
+        white-space: nowrap;
+    }
+
+    /* FASE – TOP / BOTTOM */
+    button.phase-btn[data-phase="top"],
+    button.phase-btn[data-phase="bottom"] {
+        font-size: 13px !important; 
+        white-space: nowrap;
+    }
+}
+
+</style>
+
+
+{% endblock %}

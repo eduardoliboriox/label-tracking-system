@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+{% block title %}Dashboard de Produção{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-2 px-2">
+
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+            <h3 class="fw-bold page-title mb-0 text-center">
+                <img src="{{ url_for('static', filename='icons/logo-page-dashboard.png') }}"
+                    class="title-inline-icon"
+                    alt="Dashboard de Produção">
+                Dashboard de Produção
+            </h3>
+
+<div class="filtros-container mt-2">
+
+    <div class="linha-filtros-mobile">
+        <button type="button"
+                class="btn btn-primary btn-sm fw-bold btn-filtrar-mobile"
+                onclick="abrirFiltroMobile()">
+                <span class="material-icons me-0">tune</span>
+        </button>
+
+        <div class="filtros-setor-mobile">
+            <select class="form-select form-select-sm fw-bold"
+                    onchange="filterBySetor(this.value)">
+                <option value="PTH">PTH</option>
+                <option value="SMT">SMT</option>
+                <option value="IM">IM</option>
+                <option value="PA">PA</option>
+                <option value="ESTOQUE">ESTOQUE</option>
+                <option value="TODOS">TODOS</option>
+            </select>
+        </div>
+
+        <form id="searchFormMobile" class="busca-mobile">
+            <input type="text"
+                id="searchInputMobile"
+                class="form-control form-control-sm"
+                placeholder="Buscar por...">
+        </form>
+    </div>
+
+    <!-- Botões de Setor -->
+    <div class="d-flex flex-wrap gap-2 filtros-setor-desktop">
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('SMT')">SMT</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('IM')">IM</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PA')">PA</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('ESTOQUE')">Estoque</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-setor" onclick="filterBySetor('TODOS')">Mostrar Todos</button>
+    </div>
+
+    <form id="searchFormDesktop" class="busca-desktop d-inline-flex ms-3">
+        <input type="text"
+            id="searchInputDesktop"
+            class="form-control form-control-sm me-2"
+            placeholder="Buscar por...">
+    </form>
+  </div>      
+</div>
+   
+    <!-- Filtros de status -->
+    <div class="d-flex justify-content-start flex-wrap gap-2 mb-2 align-items-center">
+        <button type="button" class="btn btn-outline-warning btn-sm fw-bold btn-status" onclick="filterByStatus('AGUARDANDO')">🕓 Aguardando</button>
+        <button type="button" class="btn btn-outline-success btn-sm fw-bold btn-status" onclick="filterByStatus('DISPONIVEL')">✅ Disponível</button>
+        <button type="button" class="btn btn-outline-info btn-sm fw-bold btn-status" onclick="filterByStatus('QUALIDADE')">🔍 Qualidade</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-status" onclick="filterByStatus('TODOS')">Mostrar Todos</button>
+
+        <div id="filtroMobileOverlay" class="filtro-mobile-overlay">
+            <div class="filtro-mobile-box">
+                <h5 class="fw-bold mb-3">Filtrar</h5>
+
+                <!-- CLIENTE -->
+                <label class="fw-bold mb-1">Cliente</label>
+                <select id="clienteSelect"
+                        class="form-select form-select-sm fw-bold mb-2"
+                        onchange="filterByCliente(this.value)">
+                    <option value="TODOS">CLIENTES: TODOS</option>
+
+                    {% set clientes_unicos = data | map(attribute='model.cliente') | list | unique %}
+                    {% for cliente in clientes_unicos %}
+                        <option value="{{ cliente|upper }}">{{ cliente }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- TOP -->
+                <label class="fw-bold mb-1">Fase TOP</label>
+                <select id="filterTopSelect"
+                        class="form-select form-select-sm fw-bold mb-2"
+                        onchange="filterTop(this.value)">
+                    <option value="ALL">TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">PRONTO</option>
+                </select>
+
+                <!-- BOTTOM -->
+                <label class="fw-bold mb-1">Fase BOTTOM</label>
+                <select id="filterBottomSelect"
+                        class="form-select form-select-sm fw-bold mb-2"
+                        onchange="filterBottom(this.value)">
+                    <option value="ALL">TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">PRONTO</option>
+                </select>
+
+                <!-- QC -->
+                <label class="fw-bold mb-1">OQC</label>
+                <select id="filterQCSelect"
+                        class="form-select form-select-sm fw-bold mb-3"
+                        onchange="filterQC(this.value)">
+                    <option value="ALL">TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">LIBERADO</option>
+                </select>
+
+                <!-- BOTÕES -->
+                <div class="d-flex justify-content-between mt-3">
+                    <button class="btn btn-outline-secondary btn-sm"
+                            onclick="fecharFiltroMobile()">
+                        Cancelar
+                    </button>
+
+                    <button class="btn btn-success btn-sm fw-bold"
+                            onclick="fecharFiltroMobile()">
+                        Aplicar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="filtros-desktop">
+
+                <!-- SELECT CLIENTES -->
+                <select id="clienteSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
+                        onchange="filterByCliente(this.value)">
+                    <option value="TODOS">CLIENTES: TODOS</option>
+
+                    {% set clientes_unicos = data | map(attribute='model.cliente') | list | unique %}
+                    {% for cliente in clientes_unicos %}
+                        <option value="{{ cliente|upper }}">{{ cliente }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- SELECTS TOP/BOTTOM -->
+                <select id="filterTopSelectDesktop" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
+                        onchange="filterTop(this.value)">
+                    <option value="ALL">FASE TOP: TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">PRONTO</option>
+                </select>
+
+                <select id="filterBottomSelectDesktop" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
+                        onchange="filterBottom(this.value)">
+                    <option value="ALL">FASE BOTTOM: TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">PRONTO</option>
+                </select>
+
+                <!-- NOVO SELECT QC -->
+                <select id="filterQCSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
+                        onchange="filterQC(this.value)">
+                    <option value="ALL">OQC: TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">LIBERADO</option>
+                </select>
+
+            </div>
+
+        </div>
+
+    <div id="totalGeralBox" style="background-color: #cce5ff; color: #004085; font-weight: bold; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+        Total Geral: 0
+    </div>
+
+<!-- Tabela -->
+<div class="table-responsive shadow-sm rounded-4 bg-light p-3">
+    <table class="table table-hover table-bordered align-middle" id="dashboardTable">
+        <thead class="table-primary text-center">
+        <tr>
+            <th>Cliente</th>
+            <th>Modelo</th>
+            <th>Código</th>
+            <th>OP</th>
+            <th>Lote</th>
+            <th>Status</th>
+            <th>Tipo de Fase</th>
+            <th>Top</th>
+            <th>Bottom</th>
+            <th>Saldo/Etiqueta</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+                {% for saldo in item.saldo_setores %}
+                <tr class="text-center"
+                    data-setor="{{ saldo.setor }}"
+                    data-status="
+                    {% if saldo.fase in ['PENDENTE CQ', 'CQ APROVOU'] %}QUALIDADE
+                    {% else %}{{ saldo.status }}{% endif %}"
+                    data-qc="{% if saldo.fase == 'PENDENTE CQ' %}PENDENTE{% elif saldo.fase == 'CQ APROVOU' %}LIBERADO{% else %}OUTRO{% endif %}"
+                    data-topdone="{{ saldo.status_top.split('/')[0].replace(' (','') }}"
+                    data-bottomdone="{% if item.model.phase_type.strip().upper() == 'TOP_ONLY' %}N/A{% else %}{{ saldo.status_bottom.split('/')[0].replace(' (','') }}{% endif %}"
+                    data-total="{{ (saldo.status_top.split('/')[1] if '/' in saldo.status_top else saldo.saldo_blank) | replace(')','') }}">
+
+                    <td class="fw-bold">{{ item.model.cliente }}</td>
+                    <td class="fw-bold">{{ item.model.model_name }}</td>
+                    <td class="fw-bold">{{ item.model.code }}</td>
+                    <td class="fw-bold text-primary">{{ item.model.op }}</td>
+                    <td class="fw-bold">{{ item.model.po }}</td>
+
+                    <td>
+                        {% if saldo.status == "AGUARDANDO" %}
+                            <span class="badge status-badge status-aguardando">{{ saldo.fase }}</span>
+                        {% elif saldo.status == "DISPONIVEL" %}
+                            <span class="badge status-badge status-disponivel">{{ saldo.fase }}</span>
+                        {% elif saldo.status == "QUALIDADE" %}
+                            <span class="badge status-badge status-qualidade">{{ saldo.fase }}</span>
+                        {% else %}
+                            <span class="badge bg-info text-dark">{{ saldo.fase }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="fw-bold">{{ item.model.phase_type.replace('_', ' ') }}</td>
+
+                    <td class="fw-bold text-center">{{ saldo.status_top }}</td>
+
+                    <td class="fw-bold text-center">
+                        {% if item.model.phase_type.strip().upper() == "TOP_ONLY" %}
+                            <span class="text-muted">N/A</span>
+                        {% else %}
+                            {{ saldo.status_bottom }}
+                        {% endif %}
+                    </td>
+
+                    <td class="fw-bold text-center">{{ saldo.saldo_blank }}</td>
+
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+
+<script>
+let currentSetor = 'PTH';
+let currentStatus = 'DISPONIVEL';
+let currentSearch = '';
+let currentCliente = 'TODOS';
+
+let currentTopFilter = "ALL";
+let currentBottomFilter = "ALL";
+let currentQCFilter = "ALL";
+
+function normalize(value) {
+    return (value || "").toString().trim().toUpperCase();
+}
+
+function getRows() {
+    return Array.from(document.querySelectorAll('#dashboardTable tbody tr'));
+}
+
+function applyFilters() {
+    const rows = getRows();
+
+    const topSelectVal = (document.getElementById('filterTopSelect') || {}).value || 'ALL';
+    const bottomSelectVal = (document.getElementById('filterBottomSelect') || {}).value || 'ALL';
+
+    rows.forEach(row => {
+        const rowSetor = normalize(row.dataset.setor);
+        const rowStatus = normalize(row.dataset.status);
+        const rowQC = normalize(row.dataset.qc);
+        const rowText = normalize(row.innerText);
+        const rowCliente = normalize(row.querySelector('td:nth-child(1)').innerText);
+
+        const okSetor = currentSetor === "TODOS" || rowSetor === currentSetor;
+        const okStatus = currentStatus === "TODOS" || rowStatus === currentStatus;
+        const okCliente = currentCliente === "TODOS" || rowCliente === currentCliente;
+        const okSearch = currentSearch === "" || rowText.includes(currentSearch);
+
+        const rowTopDone = parseInt(row.dataset.topdone) || 0;
+        const rowBottomDone = row.dataset.bottomdone === "N/A" ? "N/A" : (parseInt(row.dataset.bottomdone) || 0);
+        const total = parseInt(row.dataset.total) || 0;
+
+        let okTop = true;
+        if (topSelectVal === "ZERO") okTop = (rowTopDone === 0);
+        if (topSelectVal === "COMPLETE") okTop = (total > 0 && rowTopDone === total);
+
+        let okBottom = true;
+        if (rowBottomDone !== "N/A") {
+            if (bottomSelectVal === "ZERO") okBottom = (rowBottomDone === 0);
+            if (bottomSelectVal === "COMPLETE") okBottom = (total > 0 && rowBottomDone === total);
+        }
+
+        // FILTRO QC
+        let okQC = true;
+        if (currentQCFilter === "ZERO") okQC = (rowQC === "PENDENTE");
+        if (currentQCFilter === "COMPLETE") okQC = (rowQC === "LIBERADO");
+
+        row.style.display =
+            (okSetor && okStatus && okCliente && okSearch && okTop && okBottom && okQC)
+            ? '' : 'none';
+    });
+
+    calcularTotalGeral();
+}
+
+function filterBySetor(setor) {
+    currentSetor = normalize(setor);
+    setActiveSetorBtn(setor);
+    applyFilters();
+}
+
+function filterByStatus(status) {
+    currentStatus = normalize(status);
+    setActiveStatusBtn(status);
+    applyFilters();
+}
+
+function filterTop(option) {
+    currentTopFilter = option;
+    applyFilters();
+}
+
+function filterBottom(option) {
+    currentBottomFilter = option;
+    applyFilters();
+}
+
+function filterQC(option) {
+    currentQCFilter = option;
+    applyFilters();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const form = document.getElementById("searchFormMobile");
+    const searchInput = document.getElementById("searchInputMobile");
+
+    document.getElementById("clienteSelect").value = "TODOS";
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        currentSearch = normalize(searchInput.value);
+        applyFilters();
+    });
+
+    searchInput.addEventListener("input", function () {
+        currentSearch = normalize(searchInput.value);
+        applyFilters();
+    });
+
+    setActiveSetorBtn('PTH');
+    setActiveStatusBtn('DISPONIVEL');
+
+    applyFilters();
+});
+
+function setActiveSetorBtn(setor) {
+    document.querySelectorAll('.btn-setor').forEach(btn => btn.classList.remove('active'));
+    const btn = document.querySelector(`[onclick="filterBySetor('${setor}')"]`);
+    if (btn) btn.classList.add('active');
+}
+
+function setActiveStatusBtn(status) {
+    document.querySelectorAll('.btn-status').forEach(btn => btn.classList.remove('active'));
+    const btn = document.querySelector(`[onclick="filterByStatus('${status}')"]`);
+    if (btn) btn.classList.add('active');
+}
+
+function filterByCliente(cliente) {
+    currentCliente = normalize(cliente);
+    applyFilters();
+}
+
+function calcularTotalGeral() {
+    let total = 0;
+    getRows().forEach(row => {
+        if (row.style.display !== 'none') {
+            const saldo = parseInt(row.querySelector('td:nth-child(10)').innerText) || 0;
+            total += saldo;
+        }
+    });
+    document.getElementById("totalGeralBox").innerText = "Total Geral: " + total;
+}
+</script>
+
+<script>
+function abrirFiltroMobile() {
+    document.getElementById("filtroMobileOverlay").style.display = "flex";
+}
+
+function fecharFiltroMobile() {
+    document.getElementById("filtroMobileOverlay").style.display = "none";
+}
+
+function getStatusClass(fase) {
+    return fase
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "-");
+}
+</script>
+
+
+<script>
+async function atualizarDashboardAuto() {
+    try {
+        const resp = await fetch("/api/dashboard");
+        const data = await resp.json();
+
+        const tbody = document.querySelector("#dashboardTable tbody");
+        tbody.innerHTML = "";
+
+        data.forEach(item => {
+            item.saldo_setores.forEach(saldo => {
+
+                const fase = (saldo.fase || "").toUpperCase();
+                let status = "AGUARDANDO";
+
+                if (fase === "DISPONIVEL") status = "DISPONIVEL";
+                else if (fase.includes("CQ")) status = "QUALIDADE";
+
+                const tr = document.createElement("tr");
+                tr.className = "text-center";
+
+                tr.dataset.setor = saldo.setor || "SEM SETOR";
+                tr.dataset.status = status;
+                tr.dataset.qc =
+                    fase === "PENDENTE CQ" ? "PENDENTE" :
+                    fase === "CQ APROVOU" ? "LIBERADO" : "OUTRO";
+
+                tr.dataset.topdone = parseInt(saldo.status_top?.match(/\d+/)?.[0] || 0);
+                tr.dataset.bottomdone =
+                    saldo.status_bottom === "N/A"
+                        ? "N/A"
+                        : parseInt(saldo.status_bottom?.match(/\d+/)?.[0] || 0);
+
+                tr.dataset.total = parseInt(saldo.saldo_blank || 0);
+
+                tr.innerHTML = `
+                    <td class="fw-bold">${item.model.cliente}</td>
+                    <td class="fw-bold">${item.model.model_name}</td>
+                    <td class="fw-bold">${item.model.code}</td>
+                    <td class="fw-bold text-primary">${item.model.op}</td>
+                    <td class="fw-bold">${item.model.po || ""}</td>
+
+                    <td class="text-center">
+    <span class="badge status-badge status-${getStatusClass(saldo.fase)}">
+        ${saldo.fase}
+    </span>
+</td> 
+
+                    <td class="fw-bold">${item.model.phase_type.replace("_", " ")}</td>
+                    <td class="fw-bold">${saldo.status_top}</td>
+                    <td class="fw-bold">${saldo.status_bottom || "N/A"}</td>
+                    <td class="fw-bold">${saldo.saldo_blank}</td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        });
+
+        // reaplica filtros e total
+        applyFilters();
+
+    } catch (err) {
+        console.error("Erro ao atualizar dashboard:", err);
+    }
+}
+
+// 🔁 atualiza a cada 5 segundos
+setInterval(atualizarDashboardAuto, 5000);
+</script>
+
+{% endblock %}

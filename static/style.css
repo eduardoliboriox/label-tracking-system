@@ -1,0 +1,1636 @@
+/* ============================================================
+   VARIÁVEIS GLOBAIS
+   ============================================================ */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #0d6efd;
+    --danger-color: #c71dc7;
+    --bg-light: #f8f9fa;
+    --bg-dark: #000;
+    --text-light: #fff;
+    --text-dark: #000;
+    --border-radius: 12px;
+}
+
+:root {
+    --bs-primary: #0d6efd;
+}
+
+/* ============================================================
+   RESET / NORMALIZAÇÃO
+   ============================================================ */
+
+/* ============================================================
+   ESTILOS BASE DO SISTEMA
+   ============================================================ */
+
+/* ============================================================
+   LAYOUT ESTRUTURAL (HTML / BODY / MAIN)
+   ============================================================ */
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 80px;
+
+}
+
+/* ============================================================
+   HEADER / TOPO
+   ============================================================ */
+.header-sistema {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1030; /* acima de tudo */
+    background-color: var(--bg-light);
+    border-bottom: 2px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    box-sizing: border-box;
+}
+
+/* Logo e título */
+.logo {
+    height: 60px;
+    margin-left: -10px;
+}
+
+.titulo-sistema {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+/* Separador */
+.linha-separadora {
+    border: 0;
+    height: 4px;
+    background-color: #0d3b66;
+    margin: 0 0 20px 0;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer-sistema {
+    background-color: #f8f9fa;
+    color: #555;
+    font-size: 0.85rem;
+    padding: 10px 0;
+    border-top: 1px solid #ddd;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   BOTÕES
+   ============================================================ */
+.menu-topo .btn {
+    font-weight: 500;
+    border-radius: 20px;
+    transition: 0.2s;
+}
+
+.menu-topo .btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-purple {
+    background-color: var(--danger-color) !important;
+    border-color: var(--danger-color) !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.btn-purple:focus,
+.btn-purple:active {
+    box-shadow: 0 0 0 0.25rem rgba(206, 10, 173, 0.5);
+    border-color: var(--danger-color) !important;
+}
+
+.btn-purple:focus-visible {
+    outline: none;
+}
+
+.phase-btn.active {
+    border: 3px solid rgb(10, 5, 10) !important;
+    background-color: rgb(13, 7, 14) !important;
+    color: #d907ecff !important;
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+}
+
+.btn-setor {
+    min-width: 80px;
+    text-align: center;
+}
+
+/* ============================================================
+   FILTROS
+   ============================================================ */
+.filtros-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap !important;
+}
+
+#searchForm {
+    width: auto !important;
+    order: 0 !important;
+    margin: 0 !important;
+    display: flex;
+    gap: 5px;
+}
+
+/* ============================================================
+   TABELAS
+   ============================================================ */
+table.table thead {
+    background-color: var(--bg-dark) !important;
+    color: var(--text-light) !important;
+}
+
+table.table thead th {
+    background-color: var(--secondary-color) !important;
+    color: var(--text-light) !important;
+    border: 1px solid #222;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+table.table tbody {
+    background-color: var(--bg-light);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa;
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: #ffffff;
+}
+
+.table tbody tr {
+    background-color: #ffffff !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1 !important;
+}
+
+/* ============================================================
+   MENU
+   ============================================================ */
+
+/* ===========================
+   BOTTOM NAV MOBILE
+=========================== */
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    height: 64px;
+    background: #ffffff;
+    border-top: 1px solid #ddd;
+
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+
+    z-index: 1050;
+}
+
+/* Cada botão */
+.bottom-item {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+    color: #444;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+/* Ícone */
+.bottom-item span {
+    display: block;
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+/* Hover / ativo */
+.bottom-item:hover {
+    color: #0d6efd;
+}
+
+/* Botão MAIS */
+.bottom-more span {
+    font-size: 22px;
+}
+
+
+/* BOTTOM NAV */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: #323c41;
+    border-top: 1px solid #222;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1050;
+}
+
+/* ITEM — ÍCONE EM CIMA / TEXTO EMBAIXO */
+.bottom-item {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+
+    display: flex;
+    flex-direction: column;      
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+
+    color: #9b9b9b;
+    font-weight: 500;
+}
+
+/* ÍCONE (imagem) */
+.bottom-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+
+    opacity: 0.45;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+/* TEXTO */
+.bottom-item small {
+    font-size: 11px;
+    color: #9b9b9b;
+    transition: color 0.15s ease;
+}
+
+/* ATIVO — estilo Spotify */
+.bottom-item.active .bottom-icon {
+    opacity: 1;
+    transform: scale(1.08);
+}
+
+.bottom-item.active small {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* ===========================
+   MENU "MAIS" — GRID DE BOTÕES
+=========================== */
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+/* Botão quadrado */
+.menu-card {
+    aspect-ratio: 1 / 1;
+    background: #323c41;
+    border-radius: 16px;
+    text-decoration: none;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Ícone */
+.menu-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    opacity: 0.85;
+}
+
+/* Texto */
+.menu-card span {
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Toque */
+.menu-card:active {
+    transform: scale(0.97);
+}
+
+/* Hover (desktop) */
+@media (hover: hover) {
+    .menu-card:hover {
+        box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    }
+}
+
+
+/* HEADER MOBILE */
+.header-mobile {
+    height: 60px;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* LADO ESQUERDO */
+.header-mobile-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* AVATAR */
+.avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #dcdcdc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #333;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+.avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* NOME */
+.user-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: #222;
+}
+
+/* LADO DIREITO */
+.header-mobile-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-search {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* BUSCA */
+.mobile-search {
+    display: none;
+    padding: 8px 12px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+}
+
+.btn-notification {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0;
+}
+
+.btn-notification i {
+    font-size: 22px;
+    color: #2b2525;
+}
+
+.mobile-search input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.btn-search i {
+    font-size: 22px;
+    color: #2b2525; 
+}
+
+html, body {
+    font-family: 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+}
+
+.page-title {
+    color: #3a3a3a;   /* cinza escuro elegante */
+}
+
+.page-header-mobile .page-title {
+    font-size: 18px !important;
+    line-height: 1.2;
+    margin-bottom: 0;
+
+}
+
+.menu-topo {
+    transition: all 0.25s ease;
+}
+
+.menu-topo.collapse {
+    display: none;
+}
+
+.menu-topo.collapse.show {
+    display: flex;
+}
+
+
+/* ===== MENU LATERAL DESKTOP ===== */
+.desktop-menu {
+    position: absolute;
+    top: 96px;
+    left: 0;
+    width: 240px;
+    background: #fff;
+    border-right: 1px solid #ddd;
+    padding: 20px 12px;
+    z-index: 1000;
+
+    display: none; /* começa oculto */
+}
+
+/* aberto */
+.desktop-menu.open {
+    display: block;
+}
+
+@media (max-width: 767px) {
+    .desktop-menu {
+        display: none !important;
+    }
+}
+
+.desktop-menu a {
+    display: block;
+    padding: 8px 10px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #333;
+}
+
+.desktop-menu a:hover {
+    background: #f1f1f1;
+}
+
+/* ============================================================
+   COMPONENTES DO SISTEMA
+   ============================================================ */
+.etiqueta-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.etiqueta-container .etiqueta {
+    flex: 0 0 calc(50% - 10px);
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   HERO HOME
+   ============================================================ */
+
+.home-hero {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
+@media (max-width: 767px) {
+    .home-hero {
+        max-width: 100%;
+        max-height: 320px;
+        object-fit: cover;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+    .home-hero {
+        max-width: 100%;
+        max-height: 260px;
+        object-fit: cover;
+    }
+}
+
+@media (min-width: 1200px) {
+    .home-hero {
+        max-width: 800px;   
+        max-height: 200px;
+        object-fit: cover;
+    }
+}
+
+.page-spacing-bottom {
+    margin-bottom: 40px;
+}
+
+.table-scroll-x {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================
+   SCROLL PERSONALIZADO (MAIN)
+   ============================================================ */
+/* Chrome, Edge, Safari */
+main::-webkit-scrollbar {
+    width: 6px;
+}
+
+main::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+}
+
+main::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+main::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Firefox */
+main {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.25) transparent;
+}
+
+/* ============================================================
+   IMPRESSÃO
+   ============================================================ */
+@media print {
+
+    .header-sistema,
+    .footer-sistema {
+        display: none !important;
+    }
+
+    html,
+    body {
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    body {
+        display: block !important;
+        background: #fff !important;
+    }
+
+    main {
+        overflow: visible !important;
+        height: auto !important;
+        padding: 0 !important;
+    }
+
+    * {
+        box-shadow: none !important;
+    }
+
+    .etiqueta,
+    .etiqueta-container {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+}
+
+/* ============================================================
+   AJUSTES TEMPORÁRIOS / DEBUG
+   ============================================================ */
+
+/* ============================================================
+   RESPONSIVIDADE: MOBILE / TABLET (até 768px)
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .header-sistema {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 9999;
+    }
+
+    .header-sistema .logo {
+        display: none !important;
+    }
+
+    .titulo-sistema {
+        font-size: 0.86rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--primary-color);
+        text-align: center;
+        margin: 0;
+        position: static !important;
+        transform: none !important;
+        width: 100%;
+        white-space: normal !important;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .menu-topo {
+        display: none !important;
+    }
+
+    .etiqueta-container .etiqueta {
+        flex: 0 0 100% !important;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table.table th,
+    table.table td {
+        font-size: 12px;
+        padding: 8px;
+        white-space: nowrap;
+    }
+
+    table.table thead th,
+    table.table tbody td {
+        font-size: 12px;
+    }
+
+    .page-header-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .page-header-mobile h2.page-title {
+        font-size: 16px;
+        margin-bottom: 0;
+    }
+
+    .page-header-mobile .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .page-header-mobile .actions form {
+        flex: 1;
+        margin: 0;
+        display: flex;
+        gap: 5px;
+    }
+
+    .page-header-mobile .actions form input.form-control {
+        width: 100%;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .page-header-mobile .actions form button.btn {
+        flex: 0 0 auto;
+        font-size: 12px;
+        padding: 4px 8px;
+        margin-left: 5px;
+    }
+
+    .page-header-mobile .actions a.btn {
+        flex: 0 0 auto;
+        padding: 9px 8px;
+        font-size: 12px;
+        min-width: 95px;
+        white-space: nowrap;
+    }
+
+    .page-header-desktop {
+        display: none !important;
+    }
+
+/* ============================================================
+   RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
+   Página Especifica: Dashboard
+   ============================================================ */
+
+    h2.fw-bold.text-primary.mb-0 {
+        font-size: 18px !important;
+        text-align: left !important;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .d-flex.justify-content-between.align-items-center.mb-4.flex-wrap.gap-2 {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .d-flex.flex-wrap.gap-2 {
+        display: flex !important;
+        flex-wrap: wrap !important;
+    }
+
+    .btn-setor,
+    .btn-status {
+        font-size: 11px !important;
+        padding: 4px 6px !important;
+        text-align: center;
+    }
+
+    .btn-setor {
+        flex: 1 1 calc(33.33% - 6px);
+    }
+
+    .btn-status {
+        flex: 1 1 calc(50% - 6px);
+    }
+
+    #searchForm {
+        order: 10 !important;
+        width: 100% !important;
+        justify-content: center;
+        margin: 10px 0 0 0 !important;
+        display: flex;
+        gap: 5px;
+    }
+
+    #searchForm input {
+        width: 90% !important;
+        font-size: 13px;
+    }
+
+    #searchForm button {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+    #clienteSelect,
+    #filterTopSelect,
+    #filterBottomSelect {
+        width: 100% !important;
+        max-width: 100%;
+        margin-top: 5px;
+    }
+
+    
+/* ===============================
+   STATUS BADGE — FIX DEFINITIVO dashboard
+================================ */
+
+.status-badge {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+    font-size: 0.75rem;
+    padding: 0.35em 0.55em;
+    border-radius: 0.375rem;
+    white-space: nowrap;
+}
+
+.status-aguardando {
+    background-color: #ffc107;
+    color: #000000 !important;
+}
+
+.status-disponivel {
+    background-color: #198754;
+    color: #fff;
+}
+
+.status-qualidade {
+    background-color: #0dcaf0;  
+    color: #212529;
+}
+
+
+    /* Botão Total Geral */
+    #totalGeralBox {
+        font-size: 20px;
+        min-height: 36px;
+        padding: 6px 12px;
+    }
+
+    #totalGeralBox {
+        text-align: center;
+        font-size: 20px;
+        background-color: #0d6efd !important;
+        color: #ffffff !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px !important;     
+        padding: 6px 12px !important;
+    }
+
+    .dashboard-card,
+    .chart-container {
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
+
+    .btn {
+        font-size: 12px;
+        padding: 4px 8px;
+
+    }
+
+/* MOBILE — GRID ESTÁVEL (FILTRAR | SETOR | BUSCAR) */
+
+    /* LINHA MOBILE */
+    .linha-filtros-mobile {
+        display: grid;
+        grid-template-columns: 36px 120px 1fr;
+        gap: 6px;
+        margin-bottom: 6px;
+        align-items: center;
+    }
+
+    /* NORMALIZA TUDO */
+    .linha-filtros-mobile button,
+    .linha-filtros-mobile select,
+    .linha-filtros-mobile input {
+        height: 36px;
+        padding: 0 8px;
+        box-sizing: border-box;
+        font-size: 0.8rem;
+        margin: 0;
+    }
+
+    /* 🔍 */
+    .btn-filtrar-mobile {
+ 
+        padding: 0 12px;
+        font-size: 15px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: left;
+
+    }
+
+    /* SETOR */
+    .filtros-setor-mobile select {
+        width: 100%;
+    }
+
+    /* BUSCA */
+    .busca-mobile {
+        height: 36px;
+    }
+
+    .busca-mobile input {
+        width: 100%;
+    }
+
+/* MOBILE — LINHA SUPERIOR (LUPA | SETOR | BUSCAR) */
+@media (max-width: 768px) {
+
+    /* MOSTRA MOBILE */
+    .linha-filtros-mobile {
+        display: grid;
+        grid-template-columns: auto 1.5fr 1.8fr;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 0px;
+    }
+
+    .linha-filtros-mobile button,
+    .linha-filtros-mobile select,
+    .linha-filtros-mobile input {
+        height: 36px;
+        padding: 0 8px;
+        box-sizing: border-box;
+        margin: 0;
+        font-size: 0.8rem;
+    }
+
+    .btn-filtrar-mobile .material-icons {
+        padding: 0 12px;
+        font-size: 20px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: left;
+
+    }
+
+    .filtros-setor-mobile select,
+    .busca-mobile input {
+        width: 100%;
+    }
+}    
+
+/* MOBILE — OCULTAR FILTROS ANTIGOS (SEM AFETAR DESKTOP) */
+@media (max-width: 767px) {
+
+    body .filtros-setor-desktop {
+        display: none !important;
+    }
+
+    body .busca-desktop {
+        display: none !important;
+    }
+
+/* MELHORIA VISUAL – MINI MODAL DE FILTROS */
+
+    /* Caixa do modal */
+    .filtro-mobile-box {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 16px;
+        border-top: 6px solid #0d6efd; /* azul destaque */
+    }
+
+    /* Título */
+    .filtro-mobile-box h5 {
+        text-align: center;
+        color: #0d6efd;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+
+    /* Cada bloco de filtro */
+    .filtro-mobile-box label {
+        font-size: 0.85rem;
+        color: #495057;
+        margin-top: 8px;
+    }
+
+    /* Selects */
+    .filtro-mobile-box select {
+        background-color: #f8f9fa;
+        border: 2px solid #ced4da;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    /* Select em foco */
+    .filtro-mobile-box select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+        background-color: #ffffff;
+    }
+
+    /* Área dos botões */
+    .filtro-mobile-box .d-flex {
+        border-top: 1px solid #dee2e6;
+        padding-top: 12px;
+        margin-top: 12px;
+    }
+
+    /* Botão cancelar */
+    .filtro-mobile-box .btn-outline-secondary {
+        border-radius: 20px;
+        padding: 6px 14px;
+    }
+
+    /* Botão aplicar */
+    .filtro-mobile-box .btn-success {
+        border-radius: 20px;
+        padding: 6px 18px;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
+    }
+
+/* MOBILE — OCULTAR SETORES ANTIGOS (BOOTSTRAP PROOF) */
+
+    div.d-flex.flex-wrap.gap-2.filtros-setor-desktop {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+}
+
+/* ================================
+   FILTRO MOBILE - PAINEL FLUTUANTE
+================================ */
+@media (max-width: 767px) {
+
+    .btn-filtrar-mobile {
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    .filtro-mobile-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .filtro-mobile-box {
+        background: #ffffff;
+        width: 90%;
+        max-width: 400px;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+}
+
+/* Desktop continua igual */
+@media (min-width: 768px) {
+    .btn-filtrar-mobile {
+        display: none;
+    }
+
+    .filtro-mobile-overlay {
+        display: none !important;
+    }
+}
+
+
+
+/* ============================================================
+   RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
+   Página Especifica: Movimentar
+   ============================================================ */
+
+    h2.text-primary.text-center {
+        font-size: 20px !important;
+        margin-bottom: 15px !important;
+    }
+
+    form.card {
+        padding: 20px !important;
+    }
+
+    #qr_code,
+    #quantidade,
+    #ponto {
+        font-size: 16px !important;
+        padding: 10px !important;
+    }
+
+    label.form-label {
+        font-size: 14px !important;
+    }
+
+    .action-btn {
+        font-size: 12px !important;
+        padding: 16px 4px !important;
+        border-radius: 12px;
+        line-height: 1.2;
+        white-space: normal !important;
+        height: 78px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .row.g-2 .col-4 {
+        flex: 0 0 33.33% !important;
+        max-width: 33.33% !important;
+        padding: 0 4px !important;
+    }
+
+    .row.g-2 .col-6 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+
+    button.btn-primary.w-100 {
+        font-size: 16px !important;
+        padding: 14px !important;
+        border-radius: 14px;
+    }
+
+    .card.shadow-sm {
+        margin-top: 20px !important;
+    }
+
+    .card-body p {
+        font-size: 14px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .menu-movimentar-desktop {
+        display: none !important;
+    }
+
+/* ============================================================
+   RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
+   Página Especifica: OPs
+   ============================================================ */
+
+   .ops-header {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        width: 100% !important;
+        margin-bottom: 15px !important;
+    }
+
+    .ops-header h2 {
+        font-size: 18px !important;
+        text-align: center !important;
+        margin: 0 !important;
+    }
+
+    .ops-header button {
+        width: 100% !important;
+        font-size: 14px !important;
+        padding: 10px !important;
+    }
+
+    #modalAddOP .modal-dialog {
+        max-width: 95% !important;
+        margin: 0 auto !important;
+    }
+
+    #modalAddOP .row > [class*="col-md"] {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+
+    #modalAddOP label {
+        font-size: 13px !important;
+    }
+
+    #modalAddOP input,
+    #modalAddOP select {
+        font-size: 14px !important;
+        padding: 10px !important;
+    }
+
+    #modalAddOP .d-flex.flex-wrap.gap-3 {
+        gap: 10px !important;
+        font-size: 14px;
+    }
+
+    h3 {
+        font-size: 18px !important;
+        text-align: center !important;
+        margin-bottom: 15px !important;
+    }
+
+    a.btn.btn-secondary {
+        font-size: 12px !important;
+        padding: 6px 10px !important;
+    }
+
+    h5 {
+        font-size: 15px !important;
+        margin-top: 20px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .filtros-container {
+        flex-wrap: wrap !important;
+    }
+
+    .filtros-container button[data-bs-target="#modalAddOP"] {
+        width: 100% !important;
+        order: 20 !important;
+        margin-top: 10px;
+    }
+}
+
+/* ============================================================
+   RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
+   Página Especifica: Live
+   ============================================================ */
+/* LIVE.HTML — LINHA MOBILE DE FILTROS */
+/* ============================================================
+   LIVE.HTML — CONFIGURAÇÃO PADRÃO (DESKTOP)
+   ============================================================ */
+
+/* MOBILE NUNCA APARECE NO DESKTOP */
+.live-mobile-filtros {
+    display: none;
+}
+
+/* ÍCONE DO TÍTULO */
+.title-inline-icon {
+    width: 29px;
+    height: 29px;
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+
+/* ============================================================
+   LIVE.HTML — MOBILE (até 768px)
+   ============================================================ */
+@media (max-width: 768px) {
+
+    /* ===============================
+       CONTAINER MOBILE
+    =============================== */
+    .live-mobile-filtros {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    /* ===============================
+       DATAS (GRID)
+    =============================== */
+    .live-mobile-datas {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .live-mobile-datas label {
+        display: block;
+        text-align: center;
+        font-size: 0.75rem;
+        margin-bottom: 2px;
+    }
+
+    .live-mobile-datas input[type="date"] {
+        text-align: center;
+        font-size: 0.75rem;
+        height: 32px;
+        padding-right: 34px;
+    }
+
+    .live-mobile-datas input[type="date"]::-webkit-calendar-picker-indicator {
+        opacity: 0.6;
+        cursor: pointer;
+        margin-right: 4px;
+    }
+
+    .live-mobile-datas input[type="date"]::-webkit-inner-spin-button {
+        display: none;
+    }
+
+    /* ===============================
+       LINHA: FILTRAR | SETOR | BUSCA
+    =============================== */
+    .linha-filtros-mobile-live {
+        display: grid;
+        grid-template-columns: auto 1.2fr 2fr;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .linha-filtros-mobile-live button,
+    .linha-filtros-mobile-live select,
+    .linha-filtros-mobile-live input {
+        height: 36px;
+        font-size: 0.8rem;
+        padding: 0 8px;
+    }
+
+    /* ===============================
+       ESCONDE DESKTOP NO MOBILE
+    =============================== */
+    .page-live > .d-flex.flex-wrap.align-items-end.gap-2.mb-2 {
+        display: none !important;
+    }
+}
+
+
+/* ============================================================
+   LIVE.HTML — DESKTOP (FORÇA LAYOUT NORMAL)
+   ============================================================ */
+@media (min-width: 769px) {
+
+    /* GARANTE que mobile não vaze */
+    .live-mobile-filtros {
+        display: none !important;
+    }
+
+    /* RESTAURA layout desktop original */
+    .page-live > .d-flex.flex-wrap.align-items-end.gap-2.mb-2 {
+        display: flex !important;
+        align-items: flex-end;
+        gap: 8px;
+    }
+}
+
+/* REGRA GERAL - AJUSTE NA IMAGEM PARA TITULO DE PÁGINA */
+.title-inline-icon {
+    width: 29px;            
+    height: 29px;
+    vertical-align: middle; /* alinha com o texto */
+    margin-right: 2px;      /* espaço entre imagem e texto */
+}
+
+
+/* ============================================================
+   RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
+   Página Especifica: OPs
+   ============================================================ */
+
+/* DESKTOP */
+@media (min-width: 769px) {
+
+    .page-ops .ops-mobile-filtros {
+        display: none !important;
+    }
+
+    .page-ops .filtros-container {
+        display: block;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+
+    /* mostra só mobile */
+    .page-ops .ops-mobile-filtros {
+        display: grid;
+        grid-template-columns: auto 120px 1fr;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+
+    /* esconde desktop */
+    .page-ops .filtros-container {
+        display: none !important;
+    }
+
+    /* normalização */
+    .page-ops .ops-mobile-filtros button,
+    .page-ops .ops-mobile-filtros select,
+    .page-ops .ops-mobile-filtros input {
+        height: 36px;
+        font-size: 0.8rem;
+        padding: 0 8px;
+        margin: 0;
+    }
+
+    .page-ops .ops-mobile-filtros input {
+        min-width: 0;
+    }
+}
+
+/* ============================
+   OPS — LAYOUT DESKTOP (FIX)
+============================ */
+@media (min-width: 769px) {
+
+    .page-ops {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* container que segura titulo + filtros */
+    .page-ops > .ops-title,
+    .page-ops > .filtros-container {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* cria a linha única */
+    .page-ops {
+        gap: 0;
+    }
+
+    .page-ops {
+        position: relative;
+    }
+
+    /* wrapper virtual de linha */
+    .page-ops::before {
+        content: "";
+        display: block;
+    }
+
+    /* linha horizontal real */
+    .page-ops {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+    }
+
+    /* garante alinhamento */
+    .page-ops .ops-title h3 {
+        margin-bottom: 0;
+        text-align: left;
+    }
+
+    .page-ops .filtros-container {
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+}
+
+
+
+/* ============================================================
+     RESPONSIVIDADE: MEDIA QUERY — DESKTOP ESPECÍFICO
+   ============================================================ */
+@media (min-width: 769px) {
+    .page-header-mobile {
+        display: none !important;
+    }
+}
+
+/* ================================
+   CONTROLE FILTROS MOBILE x DESKTOP
+================================ */
+
+/* MOBILE */
+@media (max-width: 767px) {
+
+    /* ESCONDE FILTROS NORMAIS */
+    .filtros-desktop {
+        display: none !important;
+    }
+
+    /* MOSTRA BOTÃO FILTRAR */
+    .btn-filtrar-mobile {
+        display: inline-block;
+    }
+}
+
+/* DESKTOP */
+@media (min-width: 768px) {
+
+    /* MOSTRA FILTROS NORMAIS */
+    .filtros-desktop {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    /* ESCONDE BOTÃO FILTRAR */
+    .btn-filtrar-mobile {
+        display: none !important;
+    }
+
+    /* GARANTE QUE PAINEL MOBILE NUNCA APAREÇA */
+    .filtro-mobile-overlay {
+        display: none !important;
+    }
+}
+
+
+    .page-title-wrapper {
+    width: 100%;
+    }
+
+    /* ícone do título */
+    .page-title-icon {
+        width: 26px;
+        height: auto;
+    }
+
+/* ============================================================
+     RESPONSIVIDADE: MEDIA QUERY — MOBILE LANDSCAPE
+   ============================================================ */
+@media (max-width: 768px) and (orientation: landscape) {
+
+}
+
+/* ============================================================
+     RESPONSIVIDADE: MEDIA QUERY — TABLET LANDSCAPE
+   ============================================================ */
+@media (max-width: 1024px) and (orientation: landscape) {
+    table.table {
+        min-width: 900px !important;
+    }
+
+    .menu-topo,
+    .page-header-desktop,
+    .header-sistema .logo {
+        display: none !important;
+    }
+
+    table.table {
+        min-width: 600px;
+    }
+
+    table.table th,
+    table.table td {
+        font-size: 12px;
+        white-space: nowrap;
+    }
+}
+
+/* =========================
+   TÍTULO DA PÁGINA — MOBILE
+========================= */
+@media (max-width: 768px) {
+
+    .page-title {
+        text-align: center !important;
+        width: 100%;
+        padding-bottom: 3px;
+    }
+
+    /* garante alinhamento à esquerda no fle */
+    .page-title {
+        margin-left: 0;
+    }
+}
+
+/* 🔒 REGRA FINAL — GARANTE DESKTOP LIMPO */
+@media (min-width: 768px) {
+    body .linha-filtros-mobile,
+    body .filtros-setor-mobile,
+    body .busca-mobile,
+    body .btn-filtrar-mobile {
+        display: none !important;
+    }
+}
+
+/* =========================================
+   DASHBOARD — STATUS FIXO (JS + JINJA)
+   ========================================= */
+
+.status-badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 0.4rem;
+    line-height: 1;
+    white-space: nowrap;
+
+    /* BLINDAGEM TOTAL */
+    background-color: transparent;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* ===== STATUS POR TIPO ===== */
+
+.status-aguardando {
+    background-color: #ffc107 !important;
+    color: #000000 !important;
+}
+
+.status-disponivel {
+    background-color: #198754 !important;
+    color: #ffffff !important;
+}
+
+.status-qualidade {
+    background-color: #0dcaf0 !important;
+    color: #000000 !important;
+}
+
+/* fallback */
+.status-outro {
+    background-color: #6c757d !important;
+    color: #ffffff !important;
+}

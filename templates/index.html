@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- HEADER MOBILE PARA CELULAR NORMAL -->
+ <div class="container-fluid mt-2 px-2">
+<div class="page-header-mobile single mb-2 d-md-none d-lg-none">
+            <h3 class="fw-bold page-title mb-0 text-center">
+                <img src="{{ url_for('static', filename='icons/logo-page-ordens.png') }}"
+                    class="title-inline-icon"
+                    alt="Ordens de Produção">
+                Ordens de Produção
+            </h3>
+    <div class="actions">
+        <form class="d-flex" method="get" action="{{ url_for('index') }}">
+            <input type="text" class="searchInput form-control me-2" placeholder="Pesquisar...">
+            <!--<button type="submit" class="btn btn-outline-primary">Buscar</button> -->
+        </form>
+        <a href="{{ url_for('new') }}" class="btn btn-primary fw-bold">Nova Ordem</a>
+    </div>
+</div>
+</div>
+
+<!-- HEADER MOBILE PARA LANDSCAPE -->
+<div class="page-header-mobile landscape mb-2 d-none">
+    <h2 class="page-title fw-bold page-title mb-0">Ordens de Produção</h2>
+    <div class="actions">
+        <form class="d-flex" method="get" action="{{ url_for('index') }}">
+            <input type="text" class="searchInput form-control me-2" placeholder="Pesquisar...">
+            <!--<button type="submit" class="btn btn-outline-primary">Buscar</button> -->
+        </form>
+        <a href="{{ url_for('new') }}" class="btn btn-primary fw-bold">Nova Ordem</a>
+    </div>
+</div>
+
+<!-- HEADER DESKTOP -->
+ <div class="container-fluid mt-2 px-2"></div>
+<div class="page-header-desktop d-none d-md-flex justify-content-between align-items-center mb-3">
+            <h3 class="fw-bold page-title mb-0 text-center">
+                <img src="{{ url_for('static', filename='icons/logo-page-ordens.png') }}"
+                    class="title-inline-icon"
+                    alt="Ordens de Produção">
+                Ordens de Produção
+            </h3>
+    <div>
+        <form class="d-inline-flex" method="get" action="{{ url_for('index') }}">
+            <input type="text" class="searchInput form-control me-2" placeholder="Pesquisar...">
+            <!--<button type="submit" class="btn btn-outline-primary">Buscar</button> -->
+        </form>
+        <a href="{{ url_for('new') }}" class="btn btn-primary ms-2 fw-bold">Nova Ordem</a>
+    </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-bordered table-hover align-middle text-center bg-white">
+   <thead>
+      <tr class="text-center">
+        <th>ID</th>
+        <th>Linha</th>
+        <th>Setor</th>
+        <th>Código</th>
+        <th>Modelo</th>
+        <th>Cliente</th>
+        <th>Atualizado</th>
+        <th>Ações</th>
+      </tr>
+   </thead>
+   <tbody>
+      {% for m in models %}
+      <tr class="text-center">
+        <td>{{ m['id'] }}</td>
+        <td>{{ m['linha'] or '-' }}</td>
+        <td>{{ m['setor'] or '-' }}</td>
+        <td>{{ m['code'] }}</td>
+        <td>{{ m['model_name'] }}</td>
+        <td>{{ m['cliente'] }}</td>
+        <td><small>{{ m['updated_at_formatted'] }}</small></td>
+        <td class="text-center">
+          <a class="btn btn-sm btn-secondary fw-bold" href="{{ url_for('view_label', id=m['id']) }}">Etiquetas</a>
+          <a class="btn btn-sm btn-warning fw-bold text-white" href="{{ url_for('edit', id=m['id']) }}">Editar</a>
+          <a class="btn btn-sm btn-info fw-bold text-white" href="{{ url_for('history', id=m['id']) }}">Histórico</a>
+          <a class="btn btn-sm btn-danger fw-bold" href="{{ url_for('setores', id=m['id']) }}">Setores</a>
+        </td>
+      </tr>
+      {% endfor %}
+   </tbody>
+  </table>
+</div>
+
+
+<script>
+let termoAtual = "";
+
+function aplicarFiltro() {
+    const rows = document.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+        const textoLinha = row.innerText.toLowerCase();
+        row.style.display = textoLinha.includes(termoAtual) ? "" : "none";
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const inputs = document.querySelectorAll(".searchInput");
+
+    inputs.forEach(input => {
+        input.addEventListener("input", () => {
+            termoAtual = input.value.toLowerCase();
+            aplicarFiltro();
+        });
+    });
+});
+
+function atualizarTabela() {
+    fetch("/api/tabela_models", { cache: "no-store" })
+        .then(r => r.json())
+        .then(data => {
+            const tbody = document.querySelector("tbody");
+            tbody.innerHTML = "";
+
+            data.models.forEach(model => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${model.id}</td>
+                    <td>${model.linha || "-"}</td>
+                    <td>${model.setor || "-"}</td>
+                    <td>${model.code}</td>
+                    <td>${model.model_name}</td>
+                    <td>${model.cliente}</td>
+                    <td><small>${model.updated_at_formatted}</small></td>
+                    <td class="text-center">
+                        <a class="btn btn-sm btn-secondary fw-bold" href="/view/${model.id}">Etiquetas</a>
+                        <a class="btn btn-sm btn-warning fw-bold text-white" href="/edit/${model.id}">Editar</a>
+                        <a class="btn btn-sm btn-info fw-bold text-white" href="/history/${model.id}">Histórico</a>
+                        <a class="btn btn-sm btn-danger fw-bold" href="/setores/${model.id}">Setores</a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            aplicarFiltro();
+        });
+}
+
+</script>
+
+<script>
+let ultimoIdConhecido = 0;
+
+async function verificarAtualizacao() {
+    try {
+        const r = await fetch("/api/atualizado", {
+            cache: "no-store"
+        });
+        const data = await r.json();
+
+        if (data.ultimo > ultimoIdConhecido) {
+            ultimoIdConhecido = data.ultimo;
+            atualizarTabela();
+        }
+    } catch (e) {
+        console.error("Erro ao verificar atualização:", e);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    // primeira carga
+    verificarAtualizacao();
+
+    // 🔁 verifica a cada 3 segundos
+    setInterval(verificarAtualizacao, 3000);
+});
+</script>
+
+{% endblock %}

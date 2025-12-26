@@ -1,7 +1,7 @@
 import time
 import requests
 
-URL = "https://label-tracking-system-venttos.onrender.com"
+URL = "https://label-tracking-system.onrender.com"
 
 while True:
     try:

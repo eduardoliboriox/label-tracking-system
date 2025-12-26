@@ -12,7 +12,7 @@ Visualize a aplicação real através do link no final deste README.md.
 ## 📁 Estrutura do Projeto
 
 ```
-label-tracking-system-venttos/venttos-trace
+label-tracking-system/venttos-trace
 ├─ static/
 │     ├─ icons/ 
 │     ├─ logos/
@@ -296,7 +296,7 @@ python app.py
 O sistema está disponível online pelo Render:
 Uso contramedidas até na versão free para a página não fechar por inatividade, caso feche, aguarde 50 segundos.
 
-➡️ **https://label-tracking-system-venttos.onrender.com**
+➡️ **https://label-tracking-system.onrender.com**
 
 ---
 

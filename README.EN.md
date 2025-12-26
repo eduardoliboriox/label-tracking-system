@@ -13,7 +13,7 @@ You can view the live application through the link at the end of this README.md.
 ## 📁 Project Structure
 
 ```
-label-tracking-system-venttos/venttos-trace
+label-tracking-system/venttos-trace
 ├─ static/
 │     ├─ icons/ 
 │     ├─ logos/
@@ -302,7 +302,7 @@ python app.py
 The system is available online via Render:
 Countermeasures are used even on the free tier to prevent the page from sleeping due to inactivity. If it does go down, please wait about 50 seconds.
 
-➡️ **[https://label-tracking-system-venttos.onrender.com](https://label-tracking-system-venttos.onrender.com)**
+➡️ **[https://label-tracking-system.onrender.com](https://label-tracking-system-venttos.onrender.com)**
 
 ---
 

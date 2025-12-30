@@ -2,23 +2,24 @@
 {% block title %}Produção Detalhada{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-3 px-4">
+     <a href="{{ url_for('live') }}" class="btn btn-outline-secondary btn-sm fw-bold">
+            ⬅ 
+     </a>
+
+<div class="container-fluid mt-2 px-0">
 
     <!-- CABEÇALHO -->
     <div class="d-flex justify-content-between align-items-center mb-2">
         <div>
-            <h3 class="fw-bold text-primary mb-1">
+            <h3 class="fw-bold page-title mb-0 text-start">
                 📊 Produção Detalhada • OP {{ op }}
             </h3>
         </div>
 
-        <a href="{{ url_for('live') }}" class="btn btn-outline-secondary btn-sm fw-bold">
-            ⬅ Voltar
-        </a>
     </div>
 
     <!-- FILTROS -->
-    <div class="d-flex flex-wrap gap-3 mb-3">
+    <div class="d-flex flex-wrap gap-2 mb-2">
 
         <!-- FILTRO TURNO -->
         <div class="d-flex gap-2">

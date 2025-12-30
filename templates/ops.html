@@ -3,14 +3,47 @@
 {% block title %}Controle de OPs{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-2 px-4">
+<div class="container-fluid mt-2 px-0">
 
-    <!-- Cabeçalho --> 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    
+<div class="page-ops">
 
-        <h2 class="fw-bold text-primary mb-0">📘 Controle de OPs</h2>
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+        <h3 class="fw-bold page-title mb-0 text-center">
+            <img src="{{ url_for('static', filename='icons/logo-page-ops.png') }}"
+                 class="title-inline-icon">
+            Controle de OPs
+        </h3>
+    </div>
 
-        <div class="filtros-container mt-2">
+    <!-- FILTROS MOBILE -->
+    <div class="ops-mobile-filtros">
+        <button class="btn btn-primary btn-sm fw-bold"
+                data-bs-toggle="modal"
+                data-bs-target="#modalAddOP">
+            ➕ OP
+        </button>
+
+        <select class="form-select form-select-sm fw-bold"
+                onchange="filterBySetor(this.value)">
+            <option value="TODOS">SETORES</option>
+            <option value="PTH">PTH</option>
+            <option value="SMT">SMT</option>
+            <option value="IM">IM</option>
+            <option value="PA">PA</option>
+            <option value="ESTOQUE">ESTOQUE</option>
+        </select>
+
+        <input type="text"
+               id="searchInputMobile"
+               class="form-control form-control-sm"
+               placeholder="Buscar por...">
+    </div>
+
+ 
+
+        <div class="filtros-container mt-2 px-0">
 
             <div class="d-flex flex-wrap gap-2">
                 <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
@@ -25,7 +58,7 @@
                 <input type="text" id="searchInput" class="form-control form-control-sm me-2" placeholder="Buscar por...">
                <!-- <button type="submit" class="btn btn-outline-primary btn-sm">Buscar</button>-->
             </form>
-           
+
             <!-- Botão Nova OP -->
             <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalAddOP">
                 ➕ Adicionar OP
@@ -138,7 +171,7 @@
 
           <div class="col-md-12">
             <label class="form-label">Setores</label>
-            <div class="d-flex flex-wrap gap-3 mt-2">
+            <div class="d-flex flex-wrap gap-2 mt-2 px-0">
               <label><input type="checkbox" name="setores" value="PTH"> PTH</label>
               <label><input type="checkbox" name="setores" value="SMT"> SMT</label>
               <label><input type="checkbox" name="setores" value="IM"> IM</label>
@@ -148,7 +181,7 @@
           </div>
          <div class="col-md-12 mt-3">
             <label class="form-label">Fase da Placa</label>
-            <div class="d-flex flex-wrap gap-3 mt-2">
+            <div class="d-flex flex-wrap gap-2 mt-2 px-0">
                 <label><input type="checkbox" name="fase" value="TOP"> TOP</label>
                 <label><input type="checkbox" name="fase" value="BOTTOM"> BOTTOM</label>
            </div>
@@ -176,6 +209,13 @@
 <!-- =======================
      JAVASCRIPT DAS FUNÇÕES
 ========================== -->
+<script>
+document.getElementById("searchInputMobile")?.addEventListener("input", function () {
+    document.getElementById("searchInput").value = this.value;
+    aplicarFiltros();
+});
+</script>
+
 <script>
 let filtroAtual = "TODOS";
 
@@ -224,7 +264,9 @@ let lastOpsId = Number("{{ max_ops_id or 0 }}");
 
 async function verificarOpsAtualizadas() {
     try {
-        const response = await fetch("/api/ops_atualizado");
+        const response = await fetch("/api/ops_atualizado", {
+            cache: "no-store"
+        });
         const data = await response.json();
 
         if (data.ultimo > lastOpsId) {
@@ -236,6 +278,7 @@ async function verificarOpsAtualizadas() {
     }
 }
 
+// mesma lógica do index
 setInterval(verificarOpsAtualizadas, 3000);
 </script>
 

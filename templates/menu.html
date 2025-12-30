@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Menu{% endblock %}
+
+{% block content %}
+<div class="container mt-2 px-0">
+
+    <div class="menu-grid">
+
+        <a href="{{ url_for('movimentar') }}" class="menu-card">
+            <img src="{{ url_for('static', filename='icons/movimentar.jpeg') }}" class="menu-icon">
+            <span>Movimentar</span>
+        </a>
+
+        <a href="{{ url_for('ops') }}" class="menu-card">
+            <img src="{{ url_for('static', filename='icons/ops.jpeg') }}" class="menu-icon">
+            <span>Controle de OPs</span>
+        </a>
+
+        <a href="#" class="menu-card">
+            <img src="{{ url_for('static', filename='icons/config.jpeg') }}" class="menu-icon">
+            <span>Configurações</span>
+        </a>
+
+    </div>
+
+</div>
+{% endblock %}

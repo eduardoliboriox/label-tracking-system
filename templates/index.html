@@ -2,8 +2,14 @@
 {% block content %}
 
 <!-- HEADER MOBILE PARA CELULAR NORMAL -->
-<div class="page-header-mobile single mb-3 d-md-none d-lg-none">
-    <h2 class="page-title fw-bold text-primary mb-0">🏭 Ordens de Produção</h2>
+ <div class="container-fluid mt-2 px-0">
+<div class="page-header-mobile single mb-2 d-md-none d-lg-none">
+            <h3 class="fw-bold page-title mb-0 text-center">
+                <img src="{{ url_for('static', filename='icons/logo-page-ordens.png') }}"
+                    class="title-inline-icon"
+                    alt="Ordens de Produção">
+                Ordens de Produção
+            </h3>
     <div class="actions">
         <form class="d-flex" method="get" action="{{ url_for('index') }}">
             <input type="text" class="searchInput form-control me-2" placeholder="Pesquisar...">
@@ -12,10 +18,11 @@
         <a href="{{ url_for('new') }}" class="btn btn-primary fw-bold">Nova Ordem</a>
     </div>
 </div>
+</div>
 
 <!-- HEADER MOBILE PARA LANDSCAPE -->
-<div class="page-header-mobile landscape mb-3 d-none">
-    <h2 class="page-title fw-bold text-primary mb-0">Ordens de Produção</h2>
+<div class="page-header-mobile landscape mb-2 d-none">
+    <h2 class="page-title fw-bold page-title mb-0">Ordens de Produção</h2>
     <div class="actions">
         <form class="d-flex" method="get" action="{{ url_for('index') }}">
             <input type="text" class="searchInput form-control me-2" placeholder="Pesquisar...">
@@ -26,8 +33,14 @@
 </div>
 
 <!-- HEADER DESKTOP -->
+ <div class="container-fluid mt-2 px-0"></div>
 <div class="page-header-desktop d-none d-md-flex justify-content-between align-items-center mb-3">
-    <h2 class="fw-bold text-primary mb-0">Ordens de Produção</h2>
+            <h3 class="fw-bold page-title mb-0 text-center">
+                <img src="{{ url_for('static', filename='icons/logo-page-ordens.png') }}"
+                    class="title-inline-icon"
+                    alt="Ordens de Produção">
+                Ordens de Produção
+            </h3>
     <div>
         <form class="d-inline-flex" method="get" action="{{ url_for('index') }}">
             <input type="text" class="searchInput form-control me-2" placeholder="Pesquisar...">
@@ -156,7 +169,5 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(verificarAtualizacao, 3000);
 });
 </script>
-
-
 
 {% endblock %}

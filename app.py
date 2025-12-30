@@ -1383,6 +1383,9 @@ def live_consultar(op):
         producao_hora=producao_hora
     )
 
+@app.route("/menu")
+def menu():
+    return render_template("menu.html")
 
 
 @app.route("/history/<int:id>")

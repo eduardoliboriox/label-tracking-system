@@ -2,31 +2,65 @@
 {% block title %}Dashboard de Produção{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-2 px-4">
+<div class="container-fluid mt-2 px-0">
 
     <!-- Cabeçalho -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h2 class="fw-bold text-primary mb-0">📊 Dashboard de Produção</h2>
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+            <h3 class="fw-bold page-title mb-0 text-center">
+                <img src="{{ url_for('static', filename='icons/logo-page-dashboard.png') }}"
+                    class="title-inline-icon"
+                    alt="Dashboard de Produção">
+                Dashboard de Produção
+            </h3>
 
-        <div class="filtros-container mt-2">
+<div class="filtros-container mt-2 px-0">
 
-            <!-- Botões de Setor -->
-            <div class="d-flex flex-wrap gap-2">
-                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
-                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('SMT')">SMT</button>
-                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('IM')">IM</button>
-                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PA')">PA</button>
-                <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('ESTOQUE')">Estoque</button>
-                <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-setor" onclick="filterBySetor('TODOS')">Mostrar Todos</button>
-            </div>
+    <div class="linha-filtros-mobile">
+        <button type="button"
+                class="btn btn-primary btn-sm fw-bold btn-filtrar-mobile"
+                onclick="abrirFiltroMobile()">
+                <span class="material-icons me-0">tune</span>
+        </button>
 
-            <form id="searchForm" class="d-inline-flex ms-3">
-                <input type="text" id="searchInput" class="form-control form-control-sm me-2" placeholder="Buscar por...">
-                <!--<button type="submit" class="btn btn-outline-primary">Buscar</button> -->
-            </form>
+        <div class="filtros-setor-mobile">
+            <select class="form-select form-select-sm fw-bold"
+                    onchange="filterBySetor(this.value)">
+                <option value="PTH">PTH</option>
+                <option value="SMT">SMT</option>
+                <option value="IM">IM</option>
+                <option value="PA">PA</option>
+                <option value="ESTOQUE">ESTOQUE</option>
+                <option value="TODOS">TODOS</option>
+            </select>
         </div>
+
+        <form id="searchFormMobile" class="busca-mobile">
+            <input type="text"
+                id="searchInputMobile"
+                class="form-control form-control-sm"
+                placeholder="Buscar por...">
+        </form>
     </div>
 
+    <!-- Botões de Setor -->
+    <div class="d-flex flex-wrap gap-2 filtros-setor-desktop">
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PTH')">PTH</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('SMT')">SMT</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('IM')">IM</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('PA')">PA</button>
+        <button type="button" class="btn btn-outline-dark btn-sm fw-bold btn-setor" onclick="filterBySetor('ESTOQUE')">Estoque</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-setor" onclick="filterBySetor('TODOS')">Mostrar Todos</button>
+    </div>
+
+    <form id="searchFormDesktop" class="busca-desktop d-inline-flex ms-3">
+        <input type="text"
+            id="searchInputDesktop"
+            class="form-control form-control-sm me-2"
+            placeholder="Buscar por...">
+    </form>
+  </div>      
+</div>
+   
     <!-- Filtros de status -->
     <div class="d-flex justify-content-start flex-wrap gap-2 mb-2 align-items-center">
         <button type="button" class="btn btn-outline-warning btn-sm fw-bold btn-status" onclick="filterByStatus('AGUARDANDO')">🕓 Aguardando</button>
@@ -34,41 +68,107 @@
         <button type="button" class="btn btn-outline-info btn-sm fw-bold btn-status" onclick="filterByStatus('QUALIDADE')">🔍 Qualidade</button>
         <button type="button" class="btn btn-outline-secondary btn-sm fw-bold btn-status" onclick="filterByStatus('TODOS')">Mostrar Todos</button>
 
-        <!-- SELECT CLIENTES -->
-        <select id="clienteSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
-                onchange="filterByCliente(this.value)">
-            <option value="TODOS">CLIENTES: TODOS</option>
+        <div id="filtroMobileOverlay" class="filtro-mobile-overlay">
+            <div class="filtro-mobile-box">
+                <h5 class="fw-bold mb-3">Filtrar</h5>
 
-            {% set clientes_unicos = data | map(attribute='model.cliente') | list | unique %}
-            {% for cliente in clientes_unicos %}
-                <option value="{{ cliente|upper }}">{{ cliente }}</option>
-            {% endfor %}
-        </select>
+                <!-- CLIENTE -->
+                <label class="fw-bold mb-1">Cliente</label>
+                <select id="clienteSelect"
+                        class="form-select form-select-sm fw-bold mb-2"
+                        onchange="filterByCliente(this.value)">
+                    <option value="TODOS">CLIENTES: TODOS</option>
 
-        <!-- SELECTS TOP/BOTTOM -->
-        <select id="filterTopSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
-                onchange="filterTop(this.value)">
-            <option value="ALL">FASE TOP: TODOS</option>
-            <option value="ZERO">PRODUÇÃO PENDENTE</option>
-            <option value="COMPLETE">TOP PRONTO</option>
-        </select>
+                    {% set clientes_unicos = data | map(attribute='model.cliente') | list | unique %}
+                    {% for cliente in clientes_unicos %}
+                        <option value="{{ cliente|upper }}">{{ cliente }}</option>
+                    {% endfor %}
+                </select>
 
-        <select id="filterBottomSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
-                onchange="filterBottom(this.value)">
-            <option value="ALL">FASE BOTTOM: TODOS</option>
-            <option value="ZERO">PRODUÇÃO PENDENTE</option>
-            <option value="COMPLETE">BOTTOM PRONTO</option>
-        </select>
+                <!-- TOP -->
+                <label class="fw-bold mb-1">Fase TOP</label>
+                <select id="filterTopSelect"
+                        class="form-select form-select-sm fw-bold mb-2"
+                        onchange="filterTop(this.value)">
+                    <option value="ALL">TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">PRONTO</option>
+                </select>
 
-        <!-- NOVO SELECT QC -->
-        <select id="filterQCSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
-                onchange="filterQC(this.value)">
-            <option value="ALL">OQC: TODOS</option>
-            <option value="ZERO">PENDENTE</option>
-            <option value="COMPLETE">LIBERADO</option>
-        </select>
+                <!-- BOTTOM -->
+                <label class="fw-bold mb-1">Fase BOTTOM</label>
+                <select id="filterBottomSelect"
+                        class="form-select form-select-sm fw-bold mb-2"
+                        onchange="filterBottom(this.value)">
+                    <option value="ALL">TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">PRONTO</option>
+                </select>
 
-    </div>
+                <!-- QC -->
+                <label class="fw-bold mb-1">OQC</label>
+                <select id="filterQCSelect"
+                        class="form-select form-select-sm fw-bold mb-3"
+                        onchange="filterQC(this.value)">
+                    <option value="ALL">TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">LIBERADO</option>
+                </select>
+
+                <!-- BOTÕES -->
+                <div class="d-flex justify-content-between mt-3">
+                    <button class="btn btn-outline-secondary btn-sm"
+                            onclick="fecharFiltroMobile()">
+                        Cancelar
+                    </button>
+
+                    <button class="btn btn-success btn-sm fw-bold"
+                            onclick="fecharFiltroMobile()">
+                        Aplicar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="filtros-desktop">
+
+                <!-- SELECT CLIENTES -->
+                <select id="clienteSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
+                        onchange="filterByCliente(this.value)">
+                    <option value="TODOS">CLIENTES: TODOS</option>
+
+                    {% set clientes_unicos = data | map(attribute='model.cliente') | list | unique %}
+                    {% for cliente in clientes_unicos %}
+                        <option value="{{ cliente|upper }}">{{ cliente }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- SELECTS TOP/BOTTOM -->
+                <select id="filterTopSelectDesktop" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
+                        onchange="filterTop(this.value)">
+                    <option value="ALL">FASE TOP: TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">PRONTO</option>
+                </select>
+
+                <select id="filterBottomSelectDesktop" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
+                        onchange="filterBottom(this.value)">
+                    <option value="ALL">FASE BOTTOM: TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">PRONTO</option>
+                </select>
+
+                <!-- NOVO SELECT QC -->
+                <select id="filterQCSelect" class="form-select form-select-sm fw-bold ms-2" style="width: 200px;"
+                        onchange="filterQC(this.value)">
+                    <option value="ALL">OQC: TODOS</option>
+                    <option value="ZERO">PENDENTE</option>
+                    <option value="COMPLETE">LIBERADO</option>
+                </select>
+
+            </div>
+
+        </div>
 
     <div id="totalGeralBox" style="background-color: #cce5ff; color: #004085; font-weight: bold; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
         Total Geral: 0
@@ -112,11 +212,11 @@
 
                     <td>
                         {% if saldo.status == "AGUARDANDO" %}
-                            <span class="badge bg-warning text-dark">{{ saldo.fase }}</span>
+                            <span class="badge status-badge status-aguardando">{{ saldo.fase }}</span>
                         {% elif saldo.status == "DISPONIVEL" %}
-                            <span class="badge bg-success">{{ saldo.fase }}</span>
+                            <span class="badge status-badge status-disponivel">{{ saldo.fase }}</span>
                         {% elif saldo.status == "QUALIDADE" %}
-                            <span class="badge bg-info text-dark">{{ saldo.fase }}</span>
+                            <span class="badge status-badge status-qualidade">{{ saldo.fase }}</span>
                         {% else %}
                             <span class="badge bg-info text-dark">{{ saldo.fase }}</span>
                         {% endif %}
@@ -140,10 +240,8 @@
                 {% endfor %}
             {% endfor %}
         </tbody>
-
     </table>
 </div>
-
 </div>
 
 <script>
@@ -167,9 +265,9 @@ function getRows() {
 function applyFilters() {
     const rows = getRows();
 
-    const topSelectVal = (document.getElementById('filterTopSelect') || {}).value || 'ALL';
-    const bottomSelectVal = (document.getElementById('filterBottomSelect') || {}).value || 'ALL';
-
+        const topSelectVal = currentTopFilter;
+        const bottomSelectVal = currentBottomFilter;
+        
     rows.forEach(row => {
         const rowSetor = normalize(row.dataset.setor);
         const rowStatus = normalize(row.dataset.status);
@@ -238,8 +336,9 @@ function filterQC(option) {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const form = document.getElementById("searchForm");
-    const searchInput = document.getElementById("searchInput");
+    const form = document.getElementById("searchFormMobile");
+    const searchInput = document.getElementById("searchInputMobile");
+
     document.getElementById("clienteSelect").value = "TODOS";
 
     form.addEventListener("submit", function (e) {
@@ -289,6 +388,25 @@ function calcularTotalGeral() {
 </script>
 
 <script>
+function abrirFiltroMobile() {
+    document.getElementById("filtroMobileOverlay").style.display = "flex";
+}
+
+function fecharFiltroMobile() {
+    document.getElementById("filtroMobileOverlay").style.display = "none";
+}
+
+function getStatusClass(fase) {
+    return fase
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "-");
+}
+</script>
+
+
+<script>
 async function atualizarDashboardAuto() {
     try {
         const resp = await fetch("/api/dashboard");
@@ -330,7 +448,11 @@ async function atualizarDashboardAuto() {
                     <td class="fw-bold text-primary">${item.model.op}</td>
                     <td class="fw-bold">${item.model.po || ""}</td>
 
-                    <td><span class="badge bg-info text-dark">${saldo.fase}</span></td>
+                    <td class="text-center">
+    <span class="badge status-badge status-${getStatusClass(saldo.fase)}">
+        ${saldo.fase}
+    </span>
+</td> 
 
                     <td class="fw-bold">${item.model.phase_type.replace("_", " ")}</td>
                     <td class="fw-bold">${saldo.status_top}</td>
@@ -353,7 +475,5 @@ async function atualizarDashboardAuto() {
 // 🔁 atualiza a cada 5 segundos
 setInterval(atualizarDashboardAuto, 5000);
 </script>
-
-
 
 {% endblock %}

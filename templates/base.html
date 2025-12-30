@@ -6,70 +6,63 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
 
-<!-- Cabeçalho -->
-<header class="header-sistema d-flex align-items-center justify-content-between px-3 py-3 position-relative">
-
-
-    <!-- BOTÃO HAMBÚRGUER (SÓ NO MOBILE *) -->
-    <button id="btnToggleSidebar" class="btn btn-outline-dark d-md-none me-2">
-        ☰
-    </button>
-
-    <!-- LOGO CENTRAL (MOBILE / TABLET) -->
-    <div class="logo-centro-mobile">
-        <img src="{{ url_for('static', filename='logo.jpeg') }}"
-            class="logo-centro-img"
-            alt="Venttos Trace">
+<header class="header-mobile d-md-none">
+    <div class="header-mobile-left">
+        <div class="avatar-circle">
+            <img src="{{ url_for('static', filename='users/eduardo.jpeg') }}" alt="Avatar">
+        </div>
+        <div class="user-name">Eduardo</div> 
     </div>
 
-    <!-- LOGO + MENU (DESKTOP) -->
-    <div class="header-left d-flex align-items-center">
+    <!-- LADO DIREITO -->
+    <div class="header-mobile-right">
+        <button class="btn-search" id="btnSearch">
+            <i class="bi bi-search"></i>
+        </button>
 
-        <img src="{{ url_for('static', filename='logo-name.jpeg') }}"
-            class="logo logo-desktop"
-            alt="Venttos Trace">
-
-        {% if show_header_content|default(true) and not hide_top_menu %}
-        <nav class="menu-topo align-items-center">
-            <a href="{{ url_for('home') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Home</a>
-            <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Ordens de Produção</a>
-            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Dashboard</a>
-            <a href="{{ url_for('movimentar') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Movimentar</a>
-            <a href="{{ url_for('ops') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Controle de OPs</a>
-            <a href="{{ url_for('live') }}" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Ao Vivo</a>
-            <a href="#" class="btn btn-outline-primary btn-sm mx-1 fw-bold">Configurações</a>
-        </nav>
-        {% endif %}
-
+        <button class="btn-notification" id="btnNotification">
+            <i class="bi bi-bell"></i>
+        </button>
     </div>
-
-
 </header>
 
-<nav id="sidebarMobile" class="sidebar-mobile d-md-none">
-
-    <div class="sidebar-header text-center mb-3 fw-bold">
-        <img src="{{ url_for('static', filename='logo-name.jpeg') }}" class="logo-sidebar" alt="Logo">
+    <!-- BUSCA MOBILE (fica escondida) -->
+    <div class="mobile-search d-md-none" id="mobileSearch">
+        <input type="text" placeholder="Buscar na tela..." id="searchInput">
     </div>
 
-    <div class="sidebar-links fw-bold text-dark">
-        <a href="{{ url_for('home') }}">📌 Home</a>
-        <a href="{{ url_for('index') }}">🏭 Ordens de Produção</a>
-        <a href="{{ url_for('dashboard') }}">📊 Dashboard</a>
-        <a href="{{ url_for('movimentar') }}">📦 Movimentar</a>
-        <a href="{{ url_for('ops') }}">📘 Controle de OPs</a>
-        <a href="{{ url_for('live') }}">🔴 Ao Vivo</a>
-        <a href="#">⚙️ Configurações</a>
+<!-- HEADER DESKTOP (inalterado) -->
+<header class="header-sistema d-none d-md-flex align-items-center justify-content-between px-3 py-3 position-relative">
+    <button id="btnDesktopMenu"
+            class="btn btn-outline-secondary btn-sm me-3 d-none d-md-inline-flex">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <div class="header-left d-flex align-items-center">
+        <img src="{{ url_for('static', filename='logos/logo-name.jpeg') }}" class="logo logo-desktop" alt="Venttos Trace">
+    </div>
+</header>
+
+    <div id="desktopMenu" class="desktop-menu">
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('index') }}">Ordens de Produção</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('movimentar') }}">Movimentar</a>
+        <a href="{{ url_for('ops') }}">Controle de OPs</a>
+        <a href="{{ url_for('live') }}">Ao Vivo</a>        
     </div>
 
-</nav>
+    <hr class="linha-separadora">
 
-<hr class="linha-separadora">
-
-<main class="container mt-0">
+<main class="container mt-1">
     {% block content %}{% endblock %}
 </main>
 
@@ -118,6 +111,53 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("btnDesktopMenu");
+    const menu = document.getElementById("desktopMenu");
+    const main = document.querySelector("main");
+
+    if (!btn || !menu || !main) return;
+
+    function isTablet() {
+        return window.innerWidth >= 768 && window.innerWidth <= 1024;
+    }
+
+    // Fecha o menu ao tocar fora (APENAS TABLET)
+    document.addEventListener("click", (e) => {
+        if (!isTablet()) return;
+
+        const clicouNoBotao = btn.contains(e.target);
+        const clicouNoMenu = menu.contains(e.target);
+
+        if (!clicouNoBotao && !clicouNoMenu && menu.classList.contains("open")) {
+            menu.classList.remove("open");
+            localStorage.setItem("desktopMenuOpen", "false");
+        }
+    });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("btnDesktopMenu");
+    const menu = document.getElementById("desktopMenu");
+
+    if (!btn || !menu) return;
+
+    // restaura estado
+    if (localStorage.getItem("desktopMenuOpen") === "true") {
+        menu.classList.add("open");
+    }
+
+    btn.addEventListener("click", () => {
+        const aberto = menu.classList.toggle("open");
+        localStorage.setItem("desktopMenuOpen", aberto);
+    });
+});
+</script>
+
+<!--
 <footer class="footer-sistema">
     <div class="container text-center">
         <div>
@@ -126,7 +166,102 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div>Todos os direitos reservados.</div>
     </div>
-</footer>
+</footer>-->
+
+<!-- BOTTOM MENU MOBILE nav -->
+<nav class="bottom-nav d-md-none">
+    <a href="{{ url_for('home') }}"
+       class="bottom-item {% if request.endpoint == 'home' %}active{% endif %}">
+        <img src="{{ url_for('static', filename='icons/home.jpeg') }}" class="bottom-icon">
+        <small>Home</small>
+    </a>
+
+    <a href="{{ url_for('index') }}"
+       class="bottom-item {% if request.endpoint == 'index' %}active{% endif %}">
+        <img src="{{ url_for('static', filename='icons/ordens.jpeg') }}" class="bottom-icon">
+        <small>Ordens</small>
+    </a>
+
+    <a href="{{ url_for('dashboard') }}"
+       class="bottom-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <img src="{{ url_for('static', filename='icons/dashboard.jpeg') }}" class="bottom-icon">
+        <small>Dashboard</small>
+    </a>
+
+    <a href="{{ url_for('live') }}"
+       class="bottom-item {% if request.endpoint == 'live' %}active{% endif %}">
+        <img src="{{ url_for('static', filename='icons/live.jpeg') }}" class="bottom-icon">
+        <small>Ao Vivo</small>
+    </a>
+
+    <a href="{{ url_for('menu') }}"
+       class="bottom-item bottom-more {% if request.endpoint == 'menu' %}active{% endif %}">
+        <img src="{{ url_for('static', filename='icons/menu.jpeg') }}" class="bottom-icon">
+        <small>Mais</small>
+    </a>
+</nav>
 
 </body>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const btnSearch = document.getElementById("btnSearch");
+    const mobileSearch = document.getElementById("mobileSearch");
+    const input = document.getElementById("searchInput");
+    const headerMobile = document.querySelector(".header-mobile");
+
+    /* ABRIR / FECHAR AO CLICAR NA LUPA */
+    btnSearch.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        const aberto = mobileSearch.classList.contains("show");
+
+        if (aberto) {
+            fecharBusca();
+        } else {
+            mobileSearch.classList.add("show");
+            mobileSearch.style.display = "block";
+            setTimeout(() => input.focus(), 100);
+        }
+    });
+
+    /* FECHAR AO CLICAR FORA */
+    document.addEventListener("click", (e) => {
+        if (
+            mobileSearch.classList.contains("show") &&
+            !mobileSearch.contains(e.target) &&
+            !headerMobile.contains(e.target)
+        ) {
+            fecharBusca();
+        }
+    });
+
+    /* BUSCA EM TEMPO REAL */
+    input.addEventListener("input", () => {
+        filtrarPagina(input.value);
+    });
+
+    function fecharBusca() {
+        mobileSearch.classList.remove("show");
+        mobileSearch.style.display = "none";
+        input.value = "";
+        filtrarPagina("");
+    }
+
+    function filtrarPagina(valor) {
+        const texto = valor.toLowerCase();
+        const elementos = document.querySelectorAll("main *");
+
+        elementos.forEach(el => {
+            if (el.children.length === 0) {
+                el.style.display = el.innerText.toLowerCase().includes(texto)
+                    ? ""
+                    : "none";
+            }
+        });
+    }
+
+});
+</script>
+
 </html>

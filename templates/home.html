@@ -5,15 +5,15 @@
 
 <!-- HERO SIMPLES -->
 <div class="home-hero-wrapper">
-    <img src="{{ url_for('static', filename='home-hero.png') }}"
+    <img src="{{ url_for('static', filename='icons/home-hero.png') }}"
          class="home-hero"
          alt="Venttos Trace">
 </div>
 
 <!-- CONTEÚDO PRINCIPAL -->
-<div class="container mt-4 text-center" style="max-width: 900px;">
+<div class="container mt-4 text-left" style="max-width: 900px; text-align: justify;">
 
-    <h1 class="fw-bold mb-3">
+    <h1 class="text-center fw-bold mb-3">
         Bem-vindo ao Sistema <span class="text-primary">Venttos Trace</span>
     </h1>
 
@@ -32,22 +32,6 @@
         O sistema substitui controles manuais como planilhas e papéis,
         reduz falhas humanas e aumenta a confiabilidade das informações.
     </p>
-
-    <!-- BOTÕES -->
-    <div class="mt-4 d-flex justify-content-center flex-wrap gap-3">
-        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg fw-bold px-4">
-            📊 Dashboard
-        </a>
-
-        <a href="{{ url_for('movimentar') }}" class="btn btn-warning btn-lg fw-bold px-4">
-            📦 Movimentar OP
-        </a>
-
-        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg fw-bold px-4">
-            🏭 Ordens de Produção
-        </a>
-
-    </div>
 
 </div>
 

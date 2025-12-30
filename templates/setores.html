@@ -3,7 +3,7 @@
 
 <h3>Selecionar Setor para a OP {{ model['code'] }} - {{ model['model_name'] }}</h3>
 
-<div class="list-group mt-4">
+<div class="list-group mt-2 px-0">
   {% for s in setores %}
     <a class="list-group-item list-group-item-action" 
        href="{{ url_for('setor_form', id=model['id'], setor=s) }}">

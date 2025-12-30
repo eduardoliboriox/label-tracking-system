@@ -5,7 +5,7 @@
 {% block content %}
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-        <div class="container mb-3" style="max-width: 760px;">
+        <div class="container-fluid mt-2 px-0" style="max-width: 760px;">
             {% for category, message in messages %}
                 <div class="alert alert-{{ category }} alert-dismissible fade show fw-bold shadow-sm" role="alert">
                     {{ message }}
@@ -20,14 +20,14 @@
 .action-btn.active,
 .phase-btn.active {
     border: 3px solid hwb(0 0% 100%);
-    background-color: #07090c !important;  
+    background-color: #d907ecff !important;  
     color: white !important;
     box-shadow: 0 0 10px rgba(13, 110, 253, 0.5); 
 }
 </style>
 
-<div class="container mt-2" style="max-width: 760px;">
-    <h2 class="mb-4 text-center fw-bold text-primary">📦 Terminal de Movimentação</h2>
+<div class="container-fluid mt-2 px-0" style="max-width: 760px;">
+    <h3 class="mb-4 text-center fw-bold page-title mb-0">📦 Terminal de Movimentação</h3>
 
     <form action="{{ url_for('movimentar') }}" method="post" class="card p-4 shadow-sm border-0 rounded-4 bg-light">
 
@@ -191,7 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
     color: white !important;
     box-shadow: 0 0 10px rgba(13, 110, 253, 0.5); 
 }
-
 
 @media (max-width: 576px) {
 

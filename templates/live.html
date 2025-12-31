@@ -17,43 +17,41 @@
 
 <div class="live-mobile-filtros">
 
-    <!-- Datas -->
-    <form method="get" class="live-mobile-datas">
+<form method="get" class="live-mobile-datas">
 
-        <div>
-            <label class="fw-bold">Data Inicial</label>
-            <input type="date" name="data_ini"
-                   class="form-control form-control-sm"
-                   value="{{ data_ini }}">
-        </div>
+    <div>
+        <label class="fw-bold">Data Inicial</label>
+        <input type="date" name="data_ini"
+               class="form-control form-control-sm"
+               value="{{ data_ini }}">
+    </div>
 
-        <div>
-            <label class="fw-bold">Data Final</label>
-            <input type="date" name="data_fim"
-                   class="form-control form-control-sm"
-                   value="{{ data_fim }}">
-        </div>
-
-    </form>
+    <div>
+        <label class="fw-bold">Data Final</label>
+        <input type="date" name="data_fim"
+               class="form-control form-control-sm"
+               value="{{ data_fim }}">
+    </div>
 
     <!-- LINHA MOBILE (FILTRAR | SETOR | BUSCA) -->
     <div class="linha-filtros-mobile-live">
 
         <!-- Botão Filtrar -->
-        <button class="btn btn-primary btn-sm fw-bold">
-            Filtrar
+        <button type="submit" class="btn btn-primary btn-sm fw-bold">
+      <i class="bi bi-sliders" style="font-size:18px;"></i>
+    Filtrar
         </button>
 
         <!-- Setor -->
         <select class="form-select form-select-sm fw-bold"
                 onchange="filterBySetor(this.value)">
-                <option value="">SETORES</option>
-                <option value="PTH">PTH</option>
-                <option value="SMT">SMT</option>
-                <option value="IM">IM</option>
-                <option value="PA">PA</option>
-                <option value="ESTOQUE">ESTOQUE</option>
-                <option value="TODOS">TODOS</option>
+            <option value="">SETORES</option>
+            <option value="PTH">PTH</option>
+            <option value="SMT">SMT</option>
+            <option value="IM">IM</option>
+            <option value="PA">PA</option>
+            <option value="ESTOQUE">ESTOQUE</option>
+            <option value="TODOS">TODOS</option>
         </select>
 
         <!-- Busca -->
@@ -61,8 +59,9 @@
                id="searchInputMobile"
                class="form-control form-control-sm"
                placeholder="Buscar por...">
-
     </div>
+
+</form>
 
 </div>
 
@@ -121,8 +120,8 @@
 
 <!-- TABELA  -->
 <div class="container-fluid px-0">
-    <div class="card shadow-sm">
-        <div class="card-body px-2 px-md-1">
+    <!--<div class="card shadow-sm"> -->
+        <div class="card-body px-0 px-md-1">
             <div class="table-responsive">
                 <table class="table table-sm table-striped table-bordered align-middle w-100 text-nowrap">
                     <thead class="table-primary text-center">
@@ -146,7 +145,7 @@
                                 <span class="badge bg-secondary">{{ op.setor }}</span>
                             </td>
                             <td>
-                                <a href="{{ url_for('live_consultar', op=op.op) }}"
+                                <a href="{{ url_for('live_consultar', op=op.op, data_ini=data_ini, data_fim=data_fim) }}"
                                 class="btn btn-sm btn-outline-primary fw-bold">
                                     👁️ Consultar
                                 </a>

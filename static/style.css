@@ -10,6 +10,9 @@
     --text-light: #fff;
     --text-dark: #000;
     --border-radius: 12px;
+    --mobile-icon-bg: #e7ecfc;      /* fundo do quadrado "lupa, sino" */
+    --mobile-icon-color: #474747;   /* cor do ícone "lupa, sino" */
+
 }
 
 :root {
@@ -81,7 +84,7 @@ main {
 .linha-separadora {
     border: 0;
     height: 4px;
-    background-color: #0d3b66;
+    background-color: #aab4d4;
     margin: 0 0 20px 0;
 }
 
@@ -428,20 +431,31 @@ table.table tbody {
 .mobile-search {
     display: none;
     padding: 8px 12px;
-    background: #f5f5f5;
+    background: #e7ecfc;
     border-bottom: 1px solid #ddd;
 }
 
+ /* Lupa e Sino - Mobile */
+.btn-search,
 .btn-notification {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0;
-}
+    width: 36px;
+    height: 36px;
 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--mobile-icon-bg); /* Fundo */
+    border-radius: 8px;                /* quadrado suave */
+    border: none;
+
+    padding: 0;
+ }
+
+.btn-search i,
 .btn-notification i {
-    font-size: 22px;
-    color: #2b2525;
+    font-size: 20px;
+    color: var(--mobile-icon-color);
 }
 
 .mobile-search input {
@@ -452,10 +466,6 @@ table.table tbody {
     outline: none;
 }
 
-.btn-search i {
-    font-size: 22px;
-    color: #2b2525; 
-}
 
 html, body {
     font-family: 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
@@ -941,7 +951,7 @@ main {
     /* MOSTRA MOBILE */
     .linha-filtros-mobile {
         display: grid;
-        grid-template-columns: auto 1.5fr 1.8fr;
+        grid-template-columns: auto 1.5fr 1.60fr;
         gap: 8px;
         align-items: center;
         margin-bottom: 0px;
@@ -1249,10 +1259,6 @@ main {
    RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
    Página Especifica: Live
    ============================================================ */
-/* LIVE.HTML — LINHA MOBILE DE FILTROS */
-/* ============================================================
-   LIVE.HTML — CONFIGURAÇÃO PADRÃO (DESKTOP)
-   ============================================================ */
 
 /* MOBILE NUNCA APARECE NO DESKTOP */
 .live-mobile-filtros {
@@ -1322,10 +1328,11 @@ main {
     =============================== */
     .linha-filtros-mobile-live {
         display: grid;
-        grid-template-columns: auto 1.2fr 2fr;
+        grid-template-columns: 44px 1.5fr 2.5fr;
         gap: 8px;
         align-items: center;
     }
+
 
     .linha-filtros-mobile-live button,
     .linha-filtros-mobile-live select,
@@ -1341,8 +1348,36 @@ main {
     .page-live > .d-flex.flex-wrap.align-items-end.gap-2.mb-2 {
         display: none !important;
     }
-}
 
+    .linha-filtros-mobile-live {
+        display: grid;
+        grid-template-columns: auto 1fr 2.5fr; 
+        gap: 10px;
+        align-items: center;
+        width: 100%;
+        grid-column: 1 / -1;
+    }
+
+    /* BOTÃO FILTRAR */
+    .linha-filtros-mobile-live button {
+        min-width: 70px;           
+        padding: 0 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    /* SELECT SETORES */
+    .linha-filtros-mobile-live select {
+        min-width: 120px;          
+        width: 100%;
+    }
+
+    /* BUSCA */
+    .linha-filtros-mobile-live input {
+        min-width: 0;              /* evita overflow */
+        width: 100%;
+    }
+}
 
 /* ============================================================
    LIVE.HTML — DESKTOP (FORÇA LAYOUT NORMAL)
@@ -1473,8 +1508,6 @@ main {
     }
 }
 
-
-
 /* ============================================================
      RESPONSIVIDADE: MEDIA QUERY — DESKTOP ESPECÍFICO
    ============================================================ */
@@ -1483,8 +1516,6 @@ main {
         display: none !important;
     }
 }
-
-
 
 /* ================================
    CONTROLE FILTROS MOBILE x DESKTOP
@@ -1524,7 +1555,6 @@ main {
         display: none !important;
     }
 }
-
 
     .page-title-wrapper {
     width: 100%;
@@ -1583,9 +1613,65 @@ main {
         font-size: 0.90rem;         /* ícone do menu (bi-list) */
     }
 
+    /* OPS — ESPAÇO ENTRE FILTROS E TABELA (DESKTOP) */
+
+    .page-ops .filtros-container {
+        margin-bottom: 10px; 
+    }
+
+        /* linha inteira: status + filtros */
+    .dashboard-status-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+
+    /* grupo de selects */
+    .filtros-desktop {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-wrap: nowrap;
+    }
+
+    /* selects compactos */
+    .filtros-desktop select {
+        width: auto !important;
+        min-width: 150px;
+        max-width: 180px;
+    }
+
+    /* botões de status mais compactos */
+    .btn-status {
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+
 }
 
+/* =========================
+   OPS — DESKTOP ORIGINAL
+========================= */
+@media (min-width: 769px) {
 
+    .page-ops {
+        display: block;
+    }
+
+    .page-ops .ops-title {
+        margin-bottom: 10px;
+    }
+
+    .page-ops .filtros-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+}
 
 /* ============================================================
      RESPONSIVIDADE: MEDIA QUERY — MOBILE LANDSCAPE

@@ -13,13 +13,15 @@
                 Dashboard de Produção
             </h3>
 
+
 <div class="filtros-container mt-2 px-0">
 
     <div class="linha-filtros-mobile">
         <button type="button"
                 class="btn btn-primary btn-sm fw-bold btn-filtrar-mobile"
                 onclick="abrirFiltroMobile()">
-                <span class="material-icons me-0">tune</span>
+                    <i class="bi bi-sliders" style="font-size:18px;"></i>
+    Filtrar
         </button>
 
         <div class="filtros-setor-mobile">
@@ -62,7 +64,7 @@
 </div>
    
     <!-- Filtros de status -->
-    <div class="d-flex justify-content-start flex-wrap gap-2 mb-2 align-items-center">
+    <div class="dashboard-status-row mb-2">
         <button type="button" class="btn btn-outline-warning btn-sm fw-bold btn-status" onclick="filterByStatus('AGUARDANDO')">🕓 Aguardando</button>
         <button type="button" class="btn btn-outline-success btn-sm fw-bold btn-status" onclick="filterByStatus('DISPONIVEL')">✅ Disponível</button>
         <button type="button" class="btn btn-outline-info btn-sm fw-bold btn-status" onclick="filterByStatus('QUALIDADE')">🔍 Qualidade</button>
@@ -175,7 +177,7 @@
     </div>
 
 <!-- Tabela -->
-<div class="table-responsive shadow-sm rounded-4 bg-light p-3">
+<div class="table-responsive">
     <table class="table table-hover table-bordered align-middle" id="dashboardTable">
         <thead class="table-primary text-center">
         <tr>

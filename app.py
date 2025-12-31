@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, abort, jsonify
 from datetime import datetime, date, time
+from zoneinfo import ZoneInfo
+from pywebpush import webpush, WebPushException
+import json
 import sqlite3, os, qrcode
 from io import BytesIO
 import socket
@@ -9,6 +12,15 @@ import re
 app = Flask(__name__)
 app.secret_key = "chave_super_secreta_trocar"
 DB_PATH = "models.db"
+
+# 🔐 VAPID KEYS (PUSH NOTIFICATION)
+VAPID_PUBLIC_KEY = "BNWB4EBcE40JvPdSR4IgbKrTmJenyjC3wwa8HgClMIJ2os4kkz7pd8v0dYSZKnZPdkq7MF32XVewXsPYW90LHdU"
+VAPID_PRIVATE_KEY = "7G6u2XFhFm5oOT-oc9Qpmjrf4W23G5KaMb3hseA88vU"
+
+@app.context_processor
+def inject_vapid_key():
+    return dict(VAPID_PUBLIC_KEY=VAPID_PUBLIC_KEY)
+
 
 # ---------------- Banco de Dados ----------------
 def init_db():
@@ -266,6 +278,43 @@ def add_missing_table_ops_saldos():
     conn.commit()
     conn.close()
 
+def add_missing_table_op_alerts():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS op_alerts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id_op INTEGER,
+            setor TEXT,
+            fase TEXT,
+            meta INTEGER,
+            ativo INTEGER DEFAULT 1,
+            disparado INTEGER DEFAULT 0,
+            created_at TEXT,
+            FOREIGN KEY (id_op) REFERENCES ops(id)
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+def add_missing_table_push_subscriptions():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS push_subscriptions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            endpoint TEXT NOT NULL,
+            p256dh TEXT NOT NULL,
+            auth TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.commit()
+    conn.close()
 
 def get_db():
     conn = sqlite3.connect(DB_PATH, timeout=10, check_same_thread=False)
@@ -282,6 +331,10 @@ with app.app_context():
     add_new_label_id_column_movements() 
     add_missing_table_ops()  
     add_missing_table_ops_saldos() 
+    add_missing_table_op_alerts()
+    add_missing_table_push_subscriptions()
+
+
 
 # ---------------- Regras de Ponto / Roteiro ----------------
 # Definir um mapeamento básico dos pontos para setores.
@@ -321,7 +374,7 @@ def find_label(conn, model_id, lote_formatado):
     return None
 
 def register_movement(conn, model_id, label_id, new_label_id, ponto, acao, quantidade, from_setor, to_setor, fase, created_by="terminal_movimentacao"):
-    now = datetime.now().isoformat()
+    now = now_utc().isoformat()
 
     conn.execute("""
         INSERT INTO movements 
@@ -344,7 +397,7 @@ def register_movement(conn, model_id, label_id, new_label_id, ponto, acao, quant
 @app.context_processor
 def inject_current_year():
     return {
-        "current_year": datetime.now().year
+        "current_year": now_utc().year
     }
 
 # ---------------- Rotas ----------------
@@ -370,8 +423,9 @@ def index():
         try:
             s = str(value).replace("T", " ")
             s_short = s.split(".")[0].split("+")[0].split("Z")[0].strip()
-            dt = datetime.strptime(s_short, "%Y-%m-%d %H:%M:%S")
-            return dt.strftime("%d/%m/%Y às %H:%M:%S")
+            dt_local = parse_utc(value).astimezone(ZoneInfo("America/Manaus"))
+            return dt_local.strftime("%d/%m/%Y às %H:%M:%S")
+
         except:
             try:
                 dt2 = datetime.fromisoformat(str(value))
@@ -405,7 +459,7 @@ def new():
                     f.get("fase", ""),  
                     f.get("phase_type", "TOP_ONLY"), 
                     f.get("turno", ""),
-                    f.get("data") or datetime.now().strftime("%d/%m/%Y"),
+                    f.get("data") or now_utc().strftime("%d/%m/%Y"),
                     f"{f.get('lote_num', '').strip()} / {f.get('lote_padrao', '').strip()}",
                     f.get("quantidade", ""),
                     f.get("revisora", ""),
@@ -416,8 +470,9 @@ def new():
                     ",".join(request.form.getlist("status_cq")),
                     ",".join(request.form.getlist("processo")),
                     f.get("obs", ""),
-                    datetime.now().isoformat(),
-                    datetime.now().isoformat()
+                    now_utc().isoformat(),
+                    now_utc().isoformat()
+
                 )
             )
             conn.commit()
@@ -476,7 +531,7 @@ def edit(id):
                     ",".join(request.form.getlist("status_cq")),
                     ",".join(request.form.getlist("processo")),
                     f["obs"],
-                    datetime.now().isoformat(),
+                    now_utc().isoformat(),
                     id
                 ))
             except sqlite3.IntegrityError:
@@ -486,7 +541,7 @@ def edit(id):
             # REGISTRAR HISTÓRICO
             conn.execute(
                 "INSERT INTO history (model_id, changed_at, changed_by, change_text) VALUES (?, ?, ?, ?)",
-                (id, datetime.now().isoformat(), "web_user", "Edição de modelo")
+                (id, now_utc().isoformat(), "web_user", "Edição de modelo")
             )
 
             conn.commit()
@@ -565,7 +620,7 @@ def view_label(id):
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     id, lote, amount, capacidade_magazine, amount,
-                    datetime.now().isoformat(),
+                    now_utc().isoformat(),
                     model["setor"] or "PTH",
                     "AGUARDANDO"
                 ))
@@ -612,7 +667,7 @@ def setor_form(id, setor):
         data["setor"] = setor  
 
         data["code"] = f"{data['code']}_{setor}"
-        data["updated_at"] = datetime.now().isoformat()
+        data["updated_at"] = now_utc().isoformat()
 
         conn.execute("""
             INSERT INTO models 
@@ -672,7 +727,8 @@ def salvar_op(dados):
         dados["quantidade"],
         dados.get("produzido", 0),
         ",".join(dados["setores"]),
-        datetime.now().isoformat()
+        now_utc().isoformat()
+
     ))
 
     id_op = c.lastrowid
@@ -1040,7 +1096,7 @@ def movimentar():
             # Atualiza remaining da etiqueta original
             novo_remaining = remaining - transfer
             conn.execute("UPDATE labels SET remaining=?, updated_at=? WHERE id=?",
-                         (novo_remaining, datetime.now().isoformat(), label["id"]))
+                         (novo_remaining, now_utc().isoformat(), label["id"]))
 
             destino_map = {
                 "Ponto-01": "PTH",
@@ -1061,7 +1117,7 @@ def movimentar():
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 model["id"], label["lote"], transfer, transfer, transfer,
-                datetime.now().isoformat(), label["id"],
+                now_utc().isoformat(), label["id"],
                 setor_destino, fase_nova,
                 top_done_new, bottom_done_new
             ))
@@ -1095,7 +1151,6 @@ def movimentar():
                     "BOTTOM"
                 )
 
-            # Identifica setor do ponto de marcação
             setor_map = {
                 "Ponto-01": "PTH",
                 "Ponto-02": "SMT",
@@ -1106,17 +1161,48 @@ def movimentar():
                 "Ponto-07": "ESTOQUE"
             }
 
-            setor = setor_map.get(ponto, None)
+            setor = setor_map.get(ponto)
+            fase_registro = "TOP" if top_mark == 1 else "BOTTOM"
 
             if acao == "PRODUCAO" and setor:
                 atualizar_producao_op(
-                conn,
-                produto=model["code"],
-                numero_op=model["op"],
-                setor=setor,
-                fase=("TOP" if top_mark == 1 else "BOTTOM"),
-                quantidade=transfer
-            )
+                    conn,
+                    produto=model["code"],
+                    numero_op=model["op"],
+                    setor=setor,
+                    fase=fase_registro,
+                    quantidade=transfer
+                )
+
+                # buscar id_op
+                cur = conn.execute("""
+                    SELECT id FROM ops
+                    WHERE numero_op = ? AND produto = ?
+                """, (model["op"], model["code"])).fetchone()
+
+                if cur:
+                    id_op = cur["id"]
+
+                    produzido_atual = conn.execute("""
+                        SELECT COALESCE(SUM(quantidade),0)
+                        FROM movements
+                        WHERE acao = 'PRODUCAO'
+                        AND to_setor = ?
+                        AND UPPER(TRIM(fase)) = ?
+                        AND model_id = ?
+                    """, (
+                        setor,
+                        fase_registro,
+                        model["id"]
+                    )).fetchone()[0]
+
+                    verificar_alertas_op(
+                        conn,
+                        id_op,
+                        setor,
+                        fase_registro,
+                        produzido_atual
+                    )
 
             conn.commit()
             flash(f"{acao} registrada ({transfer} un.)", "success")
@@ -1261,16 +1347,64 @@ def dashboard():
 def home():
     return render_template("home.html")
 
+@app.post("/api/push/subscribe")
+def push_subscribe():
+    data = request.get_json()
+
+    endpoint = data.get("endpoint")
+    keys = data.get("keys", {})
+    p256dh = keys.get("p256dh")
+    auth = keys.get("auth")
+
+    if not endpoint or not p256dh or not auth:
+        return jsonify({"error": "Dados inválidos"}), 400
+
+    with get_db() as conn:
+        conn.execute("""
+            INSERT INTO push_subscriptions (endpoint, p256dh, auth)
+            VALUES (?, ?, ?)
+        """, (endpoint, p256dh, auth))
+
+    return jsonify({"success": True})
+
+
+def enviar_alerta(subscription):
+    payload = json.dumps({
+        "title": "🚨 Alerta de Produção",
+        "body": "A OP atingiu a meta definida."
+    })
+
+    try:
+        webpush(
+            subscription_info=subscription,
+            data=payload,
+            vapid_private_key=VAPID_PRIVATE_KEY,
+            vapid_claims={
+                "sub": "mailto:seuemail@empresa.com"
+            }
+        )
+    except WebPushException as ex:
+        print("Erro no push:", ex)
+
 
 def format_datetime_br(value):
     if not value:
         return ""
+
     try:
         s = str(value).replace("T", " ").split(".")[0]
-        dt = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
-        return dt.strftime("%d/%m/%Y %H:%M:%S")
+
+        dt_utc = parse_utc(value)
+        dt_local = dt_utc.astimezone(ZoneInfo("America/Manaus"))
+        return dt_local.strftime("%d/%m/%Y %H:%M:%S")
+
+
     except Exception:
         return str(value)
+
+def now_utc():
+    """Sempre retorna datetime em UTC"""
+    return datetime.now(ZoneInfo("UTC"))
 
 def get_turno(dt):
     hora = dt.time()
@@ -1281,6 +1415,7 @@ def get_turno(dt):
     
 @app.route("/live")
 def live():
+
     data_ini = request.args.get("data_ini")
     data_fim = request.args.get("data_fim")
 
@@ -1288,6 +1423,10 @@ def live():
         data_ini = date.today().isoformat()
     if not data_fim:
         data_fim = date.today().isoformat()
+
+    data_ini_utc = f"{data_ini}T00:00:00"
+    data_fim_utc = f"{data_fim}T23:59:59"
+
 
     conn = get_db()
     ops = conn.execute("""
@@ -1300,11 +1439,11 @@ def live():
             MAX(mv.created_at) AS last_update
         FROM movements mv
         JOIN models m ON m.id = mv.model_id
-        WHERE substr(mv.created_at, 1, 10) BETWEEN ? AND ?
+        WHERE mv.created_at BETWEEN ? AND ?
           AND UPPER(mv.acao) = 'PRODUCAO'
         GROUP BY m.code, m.cliente, m.op, mv.from_setor
         ORDER BY last_update DESC
-    """, (data_ini, data_fim)).fetchall()
+    """, (data_ini_utc, data_fim_utc)).fetchall()
     conn.close()
 
     ops = [dict(op) for op in ops]
@@ -1317,8 +1456,46 @@ def live():
         data_ini=data_ini,
         data_fim=data_fim
     )
+
+@app.route("/test-push")
+def test_push():
+    with get_db() as conn:
+        subs = conn.execute("SELECT * FROM push_subscriptions").fetchall()
+
+    for s in subs:
+        enviar_alerta({
+            "endpoint": s["endpoint"],
+            "keys": {
+                "p256dh": s["p256dh"],
+                "auth": s["auth"]
+            }
+        })
+
+    return "Push enviado"
+
+def parse_utc(dt_str):
+    if not dt_str:
+        return None
+
+    s = dt_str.replace("Z", "").split(".")[0]
+
+    dt = datetime.strptime(s, "%Y-%m-%dT%H:%M:%S")
+    return dt.replace(tzinfo=ZoneInfo("UTC"))
+
 @app.route("/live/consultar/<op>")
 def live_consultar(op):
+
+    data_ini = request.args.get("data_ini")
+    data_fim = request.args.get("data_fim")
+
+    if not data_ini:
+        data_ini = date.today().isoformat()
+    if not data_fim:
+        data_fim = date.today().isoformat()
+
+    data_ini_utc = f"{data_ini}T00:00:00"
+    data_fim_utc = f"{data_fim}T23:59:59"
+
     conn = get_db()
 
     rows = conn.execute("""
@@ -1331,9 +1508,10 @@ def live_consultar(op):
         FROM movements mv
         JOIN models m ON m.id = mv.model_id
         WHERE m.op = ?
+          AND mv.created_at BETWEEN ? AND ?
           AND UPPER(mv.acao) = 'PRODUCAO'
         ORDER BY mv.created_at
-    """, (op,)).fetchall()
+    """, (op, data_ini_utc, data_fim_utc)).fetchall()
 
     conn.close()
 
@@ -1341,30 +1519,22 @@ def live_consultar(op):
     producao_por_hora = {}
 
     for r in rows:
-        # --- trata datetime ---
-        s = str(r["created_at"]).replace("T", " ").split(".")[0]
-        dt = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+        dt_utc = parse_utc(r["created_at"])
+        dt = dt_utc.astimezone(ZoneInfo("America/Manaus"))
 
         hora_key = dt.strftime("%Y-%m-%d %H:00")
         turno = get_turno(dt)
 
-        # -------------------------
-        # REGISTRO DETALHADO
-        # -------------------------
         registros.append({
-            "data_hora": format_datetime_br(r["created_at"]),
+            "data_hora": dt.strftime("%d/%m/%Y %H:%M:%S"),
             "hora": dt.strftime("%H:%M"),
             "quantidade": r["quantidade"],
             "setor": r["from_setor"],
-            "fase": r["fase"],          
+            "fase": r["fase"],
             "turno": turno,
             "operador": r["created_by"]
         })
 
-        # -------------------------
-        # PRODUÇÃO AGRUPADA POR HORA
-        # (mantém exatamente como você queria)
-        # -------------------------
         if hora_key not in producao_por_hora:
             producao_por_hora[hora_key] = {
                 "hora": dt.strftime("%d/%m/%Y %H:00"),
@@ -1380,38 +1550,162 @@ def live_consultar(op):
         "live_consultar.html",
         op=op,
         registros=registros,
-        producao_hora=producao_hora
+        producao_hora=producao_hora,
+        data_ini=data_ini,
+        data_fim=data_fim
     )
 
 @app.route("/menu")
 def menu():
     return render_template("menu.html")
 
+@app.route("/api/alertas", methods=["POST"])
+def salvar_alerta():
+    data = request.get_json()
+
+    saldo_id = data.get("op_id")
+    meta = data.get("meta")
+
+    if not saldo_id or not meta:
+        return jsonify({"error": "Dados inválidos"}), 400
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    # Buscar informações do saldo (OP / setor / fase)
+    saldo = cur.execute("""
+        SELECT 
+            os.id_op,
+            os.setor,
+            os.fase
+        FROM ops_saldos os
+        WHERE os.id = ?
+    """, (saldo_id,)).fetchone()
+
+    if not saldo:
+        conn.close()
+        return jsonify({"error": "Saldo não encontrado"}), 404
+
+    id_op = saldo["id_op"]
+    setor = saldo["setor"]
+    fase = saldo["fase"]
+
+    # Verifica se já existe alerta ativo
+    existe = cur.execute("""
+        SELECT id FROM op_alerts
+        WHERE id_op = ?
+          AND setor = ?
+          AND fase = ?
+          AND ativo = 1
+    """, (id_op, setor, fase)).fetchone()
+
+    if existe:
+        conn.close()
+        return jsonify({"error": "Já existe um alerta ativo para este setor/fase"}), 409
+
+    # Salva o alerta
+    cur.execute("""
+        INSERT INTO op_alerts (
+            id_op,
+            setor,
+            fase,
+            meta,
+            ativo,
+            disparado,
+            created_at
+        ) VALUES (?, ?, ?, ?, 1, 0, ?)
+    """, (
+        id_op,
+        setor,
+        fase,
+        int(meta),
+        datetime.now(ZoneInfo("America/Sao_Paulo")).isoformat()
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True})
+
+
+def verificar_alertas_op(conn, id_op, setor, fase, produzido_atual):
+    alertas = conn.execute("""
+        SELECT * FROM op_alerts
+        WHERE id_op = ?
+          AND setor = ?
+          AND fase = ?
+          AND ativo = 1
+          AND disparado = 0
+          AND meta <= ?
+    """, (id_op, setor, fase, produzido_atual)).fetchall()
+
+    for alerta in alertas:
+        # Marca alerta como disparado
+        conn.execute(
+            "UPDATE op_alerts SET disparado = 1 WHERE id = ?",
+            (alerta["id"],)
+        )
+
+        # Busca dispositivos cadastrados
+        subs = conn.execute(
+            "SELECT * FROM push_subscriptions"
+        ).fetchall()
+
+        # Envia notificação para cada dispositivo
+        for s in subs:
+            enviar_alerta({
+                "endpoint": s["endpoint"],
+                "keys": {
+                    "p256dh": s["p256dh"],
+                    "auth": s["auth"]
+                }
+            })
+
+        # 🔔 FUTURO:
+        # aqui entra push / whatsapp / email
+
 
 @app.route("/history/<int:id>")
 def history(id):
-    with get_db() as conn:
-        model = conn.execute("SELECT * FROM models WHERE id=?", (id,)).fetchone()
-    hist = conn.execute(
-        "SELECT * FROM history WHERE model_id=? ORDER BY changed_at DESC LIMIT 10",
-        (id,)
-    ).fetchall()
+    conn = get_db()
 
-    etiquetas = conn.execute("SELECT * FROM labels WHERE model_id=? ORDER BY created_at DESC", (id,)).fetchall()
-    movements = conn.execute("SELECT * FROM movements WHERE model_id=? ORDER BY created_at DESC LIMIT 50", (id,)).fetchall()
-    conn.close()
+    try:
+        model = conn.execute(
+            "SELECT * FROM models WHERE id=?",
+            (id,)
+        ).fetchone()
 
-    if not model:
-        abort(404)
+        if not model:
+            abort(404)
+
+        hist = conn.execute(
+            "SELECT * FROM history WHERE model_id=? ORDER BY changed_at DESC LIMIT 10",
+            (id,)
+        ).fetchall()
+
+        etiquetas = conn.execute(
+            "SELECT * FROM labels WHERE model_id=? ORDER BY created_at DESC",
+            (id,)
+        ).fetchall()
+
+        movements = conn.execute(
+            "SELECT * FROM movements WHERE model_id=? ORDER BY created_at DESC LIMIT 50",
+            (id,)
+        ).fetchall()
+
+    finally:
+        conn.close()
 
     # 🔹 Função para formatar data no padrão brasileiro
     def format_datetime(value):
         if not value:
             return ""
         try:
-            s = str(value).replace("T", " ").split(".")[0]
-            dt = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
-            return dt.strftime("%d/%m/%Y às %H:%M:%S")
+            dt_utc = parse_utc(value)
+            dt_local = dt_utc.astimezone(
+                ZoneInfo("America/Manaus")
+            )
+            return dt_local.strftime("%d/%m/%Y às %H:%M:%S")
         except Exception:
             return str(value)
 
@@ -1427,8 +1721,13 @@ def history(id):
     for mv in movements:
         mv["created_at_formatted"] = format_datetime(mv["created_at"])
 
-    return render_template("history.html", model=model, history=hist, etiquetas=etiquetas, movements=movements)
-
+    return render_template(
+        "history.html",
+        model=model,
+        history=hist,
+        etiquetas=etiquetas,
+        movements=movements
+    )
 @app.route("/etiqueta/<string:code>")
 def etiqueta(code):
     conn = get_db()
@@ -1459,8 +1758,9 @@ def etiqueta(code):
         try:
             s = str(value).replace("T", " ")
             s_short = s.split(".")[0].split("+")[0].split("Z")[0].strip()
-            dt = datetime.strptime(s_short, "%Y-%m-%d %H:%M:%S")
-            return dt.strftime("%d/%m/%Y às %H:%M:%S")
+            dt_local = parse_utc(value).astimezone(ZoneInfo("America/Manaus"))
+            return dt_local.strftime("%d/%m/%Y às %H:%M:%S")
+
         except Exception:
             try:
                 dt2 = datetime.fromisoformat(str(value))
@@ -1563,7 +1863,6 @@ def ops_atualizado():
 
     conn.close()
     return jsonify({"ultimo": ultimo})
-
 @app.get("/api/tabela_models")
 def tabela_models():
     conn = get_db()
@@ -1577,7 +1876,20 @@ def tabela_models():
     rows = cur.fetchall()
 
     result = []
+
     for r in rows:
+        if r["updated_at"]:
+            dt_utc = parse_utc(r["updated_at"])
+            
+            dt_local = dt_utc.astimezone(
+                ZoneInfo("America/Manaus")
+            )
+            updated_at_formatted = dt_local.strftime(
+                "%d/%m/%Y %H:%M:%S"
+            )
+        else:
+            updated_at_formatted = "-"
+
         result.append({
             "id": r["id"],
             "linha": r["linha"],
@@ -1585,10 +1897,7 @@ def tabela_models():
             "code": r["code"],
             "model_name": r["model_name"],
             "cliente": r["cliente"],
-            "updated_at_formatted": (
-                datetime.fromisoformat(r["updated_at"]).strftime("%d/%m/%Y %H:%M:%S")
-                if r["updated_at"] else "-"
-            )
+            "updated_at_formatted": updated_at_formatted
         })
 
     conn.close()

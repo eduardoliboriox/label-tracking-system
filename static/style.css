@@ -1,36 +1,23 @@
-/* ============================================================
-   VARIÁVEIS GLOBAIS
-   ============================================================ */
+/* VARIÁVEIS GLOBAIS */
 :root {
     --primary-color: #0d6efd;
     --secondary-color: #0d6efd;
     --danger-color: #c71dc7;
     --bg-light: #f8f9fa;
     --bg-dark: #000;
-    --text-light: #fff;
+    --bs-primary: #0d6efd;
+    --text-light: rgb(255, 254, 254);
     --text-dark: #000;
     --border-radius: 12px;
     --mobile-icon-bg: #e7ecfc;      /* fundo do quadrado "lupa, sino" */
     --mobile-icon-color: #474747;   /* cor do ícone "lupa, sino" */
-
 }
 
-:root {
-    --bs-primary: #0d6efd;
-}
+/* RESET / NORMALIZAÇÃO */
 
-/* ============================================================
-   RESET / NORMALIZAÇÃO
-   ============================================================ */
+/* ESTILOS BASE DO SISTEMA */
 
-/* ============================================================
-   ESTILOS BASE DO SISTEMA
-   ============================================================ */
-
-/* ============================================================
-   LAYOUT ESTRUTURAL (HTML / BODY / MAIN)
-   ============================================================ */
-
+/* LAYOUT ESTRUTURAL (HTML / BODY / MAIN) */
 html,
 body {
     height: 100%;
@@ -46,18 +33,17 @@ main {
     flex: 1;
     overflow-y: auto;
     padding-bottom: 80px;
+    margin-top: 1px;
 
 }
 
-/* ============================================================
-   HEADER / TOPO
-   ============================================================ */
+/* HEADER / TOPO */
 .header-sistema {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 1030; /* acima de tudo */
+    z-index: 1030; 
     background-color: var(--bg-light);
     border-bottom: 2px solid #ddd;
     display: flex;
@@ -67,7 +53,6 @@ main {
     box-sizing: border-box;
 }
 
-/* Logo e título */
 .logo {
     height: 60px;
     margin-left: -10px;
@@ -80,7 +65,6 @@ main {
     color: var(--primary-color);
 }
 
-/* Separador */
 .linha-separadora {
     border: 0;
     height: 4px;
@@ -88,9 +72,7 @@ main {
     margin: 0 0 20px 0;
 }
 
-/* ============================================================
-   FOOTER
-   ============================================================ */
+/* FOOTER (RODAPÉ) */
 .footer-sistema {
     background-color: #f8f9fa;
     color: #555;
@@ -100,9 +82,7 @@ main {
     flex-shrink: 0;
 }
 
-/* ============================================================
-   BOTÕES
-   ============================================================ */
+/* BOTÕES DO SISTEMA */
 .menu-topo .btn {
     font-weight: 500;
     border-radius: 20px;
@@ -143,9 +123,7 @@ main {
     text-align: center;
 }
 
-/* ============================================================
-   FILTROS
-   ============================================================ */
+/* FILTROS DO SISTEMA */
 .filtros-container {
     display: flex;
     align-items: center;
@@ -161,12 +139,10 @@ main {
     gap: 5px;
 }
 
-/* ============================================================
-   TABELAS
-   ============================================================ */
+/* TABELAS DO SISTEMA */
 table.table thead {
-    background-color: var(--bg-dark) !important;
-    color: var(--text-light) !important;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
 }
 
 table.table thead th {
@@ -198,14 +174,9 @@ table.table tbody {
     background-color: #f1f1f1 !important;
 }
 
-/* ============================================================
-   MENU
-   ============================================================ */
+/* MENUS DO SISTEMA */
 
-/* ===========================
-   BOTTOM NAV MOBILE
-=========================== */
-
+/* Botões Inferiores - Navigtion Mobile */
 .bottom-nav {
     position: fixed;
     bottom: 0;
@@ -223,7 +194,7 @@ table.table tbody {
     z-index: 1050;
 }
 
-/* Cada botão */
+/* Padrão dos botões inferiores */
 .bottom-item {
     flex: 1;
     text-align: center;
@@ -233,25 +204,24 @@ table.table tbody {
     font-size: 12px;
 }
 
-/* Ícone */
+/* Padrão para Icones dos botões inferiores*/
 .bottom-item span {
     display: block;
     font-size: 20px;
     line-height: 1.2;
 }
 
-/* Hover / ativo */
+/* Estado do botões - Ativo */
 .bottom-item:hover {
     color: #0d6efd;
 }
 
-/* Botão MAIS */
+/* Tamanho do texto dentro do botão mais */
 .bottom-more span {
     font-size: 22px;
 }
 
-
-/* BOTTOM NAV */
+/* Menu - Botões Navigtion Mobile */
 .bottom-nav {
     position: fixed;
     bottom: 0;
@@ -266,7 +236,7 @@ table.table tbody {
     z-index: 1050;
 }
 
-/* ITEM — ÍCONE EM CIMA / TEXTO EMBAIXO */
+/* Padrão dentro dos botões inferiores - Icone acima e texto abaixo */
 .bottom-item {
     flex: 1;
     text-align: center;
@@ -282,7 +252,7 @@ table.table tbody {
     font-weight: 500;
 }
 
-/* ÍCONE (imagem) */
+/* Icone (imagem) dos botões inferiores */
 .bottom-icon {
     width: 22px;
     height: 22px;
@@ -292,14 +262,14 @@ table.table tbody {
     transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-/* TEXTO */
+/* Texto dos botões inferiores */
 .bottom-item small {
     font-size: 11px;
     color: #9b9b9b;
     transition: color 0.15s ease;
 }
 
-/* ATIVO — estilo Spotify */
+/* Efeito Spotify - Botão selecionado */
 .bottom-item.active .bottom-icon {
     opacity: 1;
     transform: scale(1.08);
@@ -310,9 +280,7 @@ table.table tbody {
     font-weight: 600;
 }
 
-/* ===========================
-   MENU "MAIS" — GRID DE BOTÕES
-=========================== */
+/* MENU DENTRO DO BOTÃO "MAIS" — GRID DE BOTÕES */
 
 .menu-grid {
     display: grid;
@@ -320,7 +288,7 @@ table.table tbody {
     gap: 16px;
 }
 
-/* Botão quadrado */
+/* Formato dos botões: Quadrado */
 .menu-card {
     aspect-ratio: 1 / 1;
     background: #323c41;
@@ -366,26 +334,26 @@ table.table tbody {
     }
 }
 
-
-/* HEADER MOBILE */
+/* CONFIGURAÇÃO HEADER MOBILE */
 .header-mobile {
-    height: 60px;
+    height: 50px;
     background: #f5f5f5;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 14px;
+    padding: 0 10px;
     border-bottom: 1px solid #ddd;
+    margin-bottom: 1px !important;
 }
 
-/* LADO ESQUERDO */
+/* Lado Esquerdo */
 .header-mobile-left {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* AVATAR */
+/* Formato Avatar do Usuário */
 .avatar-circle {
     width: 38px;
     height: 38px;
@@ -406,18 +374,18 @@ table.table tbody {
     object-fit: cover;
 }
 
-/* NOME */
+/* Nome do Usuário */
 .user-name {
     font-weight: 600;
     font-size: 15px;
     color: #222;
 }
 
-/* LADO DIREITO */
+/* lado direito */
 .header-mobile-right {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .btn-search {
@@ -427,7 +395,6 @@ table.table tbody {
     cursor: pointer;
 }
 
-/* BUSCA */
 .mobile-search {
     display: none;
     padding: 8px 12px;
@@ -435,7 +402,7 @@ table.table tbody {
     border-bottom: 1px solid #ddd;
 }
 
- /* Lupa e Sino - Mobile */
+ /* Icones de Lupa e Sino - Padrão Mobile */
 .btn-search,
 .btn-notification {
     width: 36px;
@@ -466,9 +433,9 @@ table.table tbody {
     outline: none;
 }
 
-
+/* CONFIGURAÇÃO GERAL DO HTML E BODY */
 html, body {
-    font-family: 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+    font-family: 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif ;
 }
 
 .page-title {
@@ -478,7 +445,8 @@ html, body {
 .page-header-mobile .page-title {
     font-size: 18px !important;
     line-height: 1.2;
-    margin-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0 !important;
 
 }
 
@@ -494,8 +462,7 @@ html, body {
     display: flex;
 }
 
-
-/* ===== MENU LATERAL DESKTOP ===== */
+/* MENU LATERAL DESKTOP */
 .desktop-menu {
     position: absolute;
     top: 96px;
@@ -532,9 +499,7 @@ html, body {
     background: #f1f1f1;
 }
 
-/* ============================================================
-   COMPONENTES DO SISTEMA
-   ============================================================ */
+/* COMPONENTES DO SISTEMA */
 .etiqueta-container {
     display: flex;
     flex-wrap: wrap;
@@ -546,11 +511,7 @@ html, body {
     box-sizing: border-box;
 }
 
-
-/* ============================================================
-   HERO HOME
-   ============================================================ */
-
+/* Configurar imagem da tela home */
 .home-hero {
     display: block;
     width: 100%;
@@ -591,9 +552,7 @@ html, body {
     -webkit-overflow-scrolling: touch;
 }
 
-/* ============================================================
-   SCROLL PERSONALIZADO (MAIN)
-   ============================================================ */
+/* SCROLL PERSONALIZADO (MAIN) */
 /* Chrome, Edge, Safari */
 main::-webkit-scrollbar {
     width: 6px;
@@ -618,9 +577,7 @@ main {
     scrollbar-color: rgba(0,0,0,0.25) transparent;
 }
 
-/* ============================================================
-   IMPRESSÃO
-   ============================================================ */
+/* IMPRESSÃO */
 @media print {
 
     .header-sistema,
@@ -656,15 +613,11 @@ main {
     }
 }
 
-/* ============================================================
-   AJUSTES TEMPORÁRIOS / DEBUG
-   ============================================================ */
+/* AJUSTES TEMPORÁRIOS / DEBUBS */
 
-/* ============================================================
-   RESPONSIVIDADE: MOBILE / TABLET (até 768px)
-   ============================================================ */
+/* RESPONSIVIDADE: MOBILE */
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .header-sistema {
         flex-direction: row;
         justify-content: space-between;
@@ -729,6 +682,7 @@ main {
 
     .page-header-mobile h2.page-title {
         font-size: 16px;
+        margin-top: 0;
         margin-bottom: 0;
     }
 
@@ -771,10 +725,8 @@ main {
         display: none !important;
     }
 
-/* ============================================================
-   RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
-   Página Especifica: Dashboard
-   ============================================================ */
+/* RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
+   Página Especifica: Dashboard */
 
     h2.fw-bold.text-primary.mb-0 {
         font-size: 18px !important;
@@ -835,39 +787,34 @@ main {
         max-width: 100%;
         margin-top: 5px;
     }
-
     
-/* ===============================
-   STATUS BADGE — FIX DEFINITIVO dashboard
-================================ */
+/* STATUS BADGE — FIX DEFINITIVO dashboard */
+    .status-badge {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 1;
+        font-size: 0.75rem;
+        padding: 0.35em 0.55em;
+        border-radius: 0.375rem;
+        white-space: nowrap;
+    }
 
-.status-badge {
-    display: inline-block;
-    vertical-align: middle;
-    line-height: 1;
-    font-size: 0.75rem;
-    padding: 0.35em 0.55em;
-    border-radius: 0.375rem;
-    white-space: nowrap;
-}
+    .status-aguardando {
+        background-color: #ffc107;
+        color: #000000 !important;
+    }
 
-.status-aguardando {
-    background-color: #ffc107;
-    color: #000000 !important;
-}
+    .status-disponivel {
+        background-color: #198754;
+        color: #fff;
+    }
 
-.status-disponivel {
-    background-color: #198754;
-    color: #fff;
-}
+    .status-qualidade {
+        background-color: #0dcaf0;  
+        color: #212529;
+    }
 
-.status-qualidade {
-    background-color: #0dcaf0;  
-    color: #212529;
-}
-
-
-    /* Botão Total Geral */
+    /* Botão Total Geral 
     #totalGeralBox {
         font-size: 20px;
         min-height: 36px;
@@ -884,7 +831,7 @@ main {
         justify-content: center;
         min-height: 36px !important;     
         padding: 6px 12px !important;
-    }
+    }*/
 
     .dashboard-card,
     .chart-container {
@@ -898,18 +845,62 @@ main {
 
     }
 
-/* MOBILE — GRID ESTÁVEL (FILTRAR | SETOR | BUSCAR) */
+/* TOTAL GERAL — MOBILE */
+    #totalGeralBox {
+        background-color: #0d6efd;
+        color: #ffffff;
 
-    /* LINHA MOBILE */
+        padding: 16px 18px;
+        border-radius: 14px;
+
+        margin-bottom: 8px;
+
+        text-align: left;
+
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    #totalGeralBox .total-label {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    #totalGeralBox .total-valor {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+    }
+
+    #totalGeralBox .total-numero {
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    #totalGeralBox .total-unidade {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+/* MOBILE — GRID ESTÁVEL */
+
+    /* Padrão da Linha Mobile: Filtro, Setor, Buscar */
     .linha-filtros-mobile {
         display: grid;
         grid-template-columns: 36px 120px 1fr;
         gap: 6px;
         margin-bottom: 6px;
         align-items: center;
+        border-radius: 999px;
+    }
+   
+   .btn-filtrar-mobile .bx {
+    line-height: 1;
     }
 
-    /* NORMALIZA TUDO */
+    /* Padronizando altura da Linha Mobile: Filtro, Setor, Buscar */
     .linha-filtros-mobile button,
     .linha-filtros-mobile select,
     .linha-filtros-mobile input {
@@ -920,7 +911,7 @@ main {
         margin: 0;
     }
 
-    /* 🔍 */
+    /* Botão filtro */
     .btn-filtrar-mobile {
  
         padding: 0 12px;
@@ -928,15 +919,14 @@ main {
         line-height: 1;
         display: inline-flex;
         align-items: left;
-
     }
 
-    /* SETOR */
+    /* Botão Setores */
     .filtros-setor-mobile select {
         width: 100%;
     }
 
-    /* BUSCA */
+    /* Botão Buscar por */
     .busca-mobile {
         height: 36px;
     }
@@ -944,10 +934,8 @@ main {
     .busca-mobile input {
         width: 100%;
     }
-
+   
 /* MOBILE — LINHA SUPERIOR (LUPA | SETOR | BUSCAR) */
-@media (max-width: 768px) {
-
     /* MOSTRA MOBILE */
     .linha-filtros-mobile {
         display: grid;
@@ -975,16 +963,13 @@ main {
         align-items: left;
 
     }
-
+   
     .filtros-setor-mobile select,
     .busca-mobile input {
         width: 100%;
     }
-}    
 
-/* MOBILE — OCULTAR FILTROS ANTIGOS (SEM AFETAR DESKTOP) */
-@media (max-width: 767px) {
-
+    /* OCULTA DESKTOP */
     body .filtros-setor-desktop {
         display: none !important;
     }
@@ -1056,20 +1041,14 @@ main {
     }
 
 /* MOBILE — OCULTAR SETORES ANTIGOS (BOOTSTRAP PROOF) */
-
     div.d-flex.flex-wrap.gap-2.filtros-setor-desktop {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
         overflow: hidden !important;
     }
-}
 
-/* ================================
-   FILTRO MOBILE - PAINEL FLUTUANTE
-================================ */
-@media (max-width: 767px) {
-
+/* FILTRO MOBILE - PAINEL FLUTUANTE */
     .btn-filtrar-mobile {
         display: inline-block;
         margin-bottom: 10px;
@@ -1093,25 +1072,9 @@ main {
         border-radius: 12px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
-}
 
-/* Desktop continua igual */
-@media (min-width: 768px) {
-    .btn-filtrar-mobile {
-        display: none;
-    }
-
-    .filtro-mobile-overlay {
-        display: none !important;
-    }
-}
-
-
-
-/* ============================================================
-   RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
-   Página Especifica: Movimentar
-   ============================================================ */
+/* RESPONSIVIDADE: MOBILE  
+   Página Especifica: Movimentar */
 
     h2.text-primary.text-center {
         font-size: 20px !important;
@@ -1176,10 +1139,8 @@ main {
         display: none !important;
     }
 
-/* ============================================================
-   RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
-   Página Especifica: OPs
-   ============================================================ */
+/* RESPONSIVIDADE: MOBILE
+   Página Especifica: OPs */
 
    .ops-header {
         display: flex !important;
@@ -1253,12 +1214,9 @@ main {
         order: 20 !important;
         margin-top: 10px;
     }
-}
 
-/* ============================================================
-   RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
-   Página Especifica: Live
-   ============================================================ */
+/* RESPONSIVIDADE: MOBILE
+   Página Especifica: Live */
 
 /* MOBILE NUNCA APARECE NO DESKTOP */
 .live-mobile-filtros {
@@ -1273,15 +1231,9 @@ main {
     margin-right: 2px;
 }
 
+/* LIVE.HTML — MOBILE */
 
-/* ============================================================
-   LIVE.HTML — MOBILE (até 768px)
-   ============================================================ */
-@media (max-width: 768px) {
-
-    /* ===============================
-       CONTAINER MOBILE
-    =============================== */
+/* Container Mobile */
     .live-mobile-filtros {
         display: flex;
         flex-direction: column;
@@ -1290,9 +1242,7 @@ main {
         margin-bottom: 8px;
     }
 
-    /* ===============================
-       DATAS (GRID)
-    =============================== */
+/* Datas (GRID) */
     .live-mobile-datas {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -1323,16 +1273,13 @@ main {
         display: none;
     }
 
-    /* ===============================
-       LINHA: FILTRAR | SETOR | BUSCA
-    =============================== */
+/* LINHA: FILTRAR | SETOR | BUSCA */
     .linha-filtros-mobile-live {
         display: grid;
         grid-template-columns: 44px 1.5fr 2.5fr;
         gap: 8px;
         align-items: center;
     }
-
 
     .linha-filtros-mobile-live button,
     .linha-filtros-mobile-live select,
@@ -1342,9 +1289,7 @@ main {
         padding: 0 8px;
     }
 
-    /* ===============================
-       ESCONDE DESKTOP NO MOBILE
-    =============================== */
+/* ESCONDE DESKTOP NO MOBILE */
     .page-live > .d-flex.flex-wrap.align-items-end.gap-2.mb-2 {
         display: none !important;
     }
@@ -1358,7 +1303,7 @@ main {
         grid-column: 1 / -1;
     }
 
-    /* BOTÃO FILTRAR */
+    /* Botão Filtro */
     .linha-filtros-mobile-live button {
         min-width: 70px;           
         padding: 0 12px;
@@ -1366,65 +1311,28 @@ main {
         white-space: nowrap;
     }
 
-    /* SELECT SETORES */
+    /* Botão Setores Selecionavel */
     .linha-filtros-mobile-live select {
         min-width: 120px;          
         width: 100%;
     }
 
-    /* BUSCA */
+    /* Botão Buscar Por */
     .linha-filtros-mobile-live input {
         min-width: 0;              /* evita overflow */
         width: 100%;
     }
-}
 
-/* ============================================================
-   LIVE.HTML — DESKTOP (FORÇA LAYOUT NORMAL)
-   ============================================================ */
-@media (min-width: 769px) {
-
-    /* GARANTE que mobile não vaze */
-    .live-mobile-filtros {
-        display: none !important;
+    /* REGRA GERAL - AJUSTE NA IMAGEM PARA TITULO DE PÁGINA */
+    .title-inline-icon {
+        width: 29px;            
+        height: 29px;
+        vertical-align: middle; /* alinha com o texto */
+        margin-right: 2px;      /* espaço entre imagem e texto */
     }
 
-    /* RESTAURA layout desktop original */
-    .page-live > .d-flex.flex-wrap.align-items-end.gap-2.mb-2 {
-        display: flex !important;
-        align-items: flex-end;
-        gap: 8px;
-    }
-}
-
-/* REGRA GERAL - AJUSTE NA IMAGEM PARA TITULO DE PÁGINA */
-.title-inline-icon {
-    width: 29px;            
-    height: 29px;
-    vertical-align: middle; /* alinha com o texto */
-    margin-right: 2px;      /* espaço entre imagem e texto */
-}
-
-
-/* ============================================================
-   RESPONSIVIDADE: MOBILE / TABLET (até 768px) 
-   Página Especifica: OPs
-   ============================================================ */
-
-/* DESKTOP */
-@media (min-width: 769px) {
-
-    .page-ops .ops-mobile-filtros {
-        display: none !important;
-    }
-
-    .page-ops .filtros-container {
-        display: block;
-    }
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
+/* RESPONSIVIDADE: MOBILE 
+   Página Especifica: OPs */
 
     /* mostra só mobile */
     .page-ops .ops-mobile-filtros {
@@ -1454,13 +1362,126 @@ main {
     .page-ops .ops-mobile-filtros input {
         min-width: 0;
     }
+
+    /* Esconde filtros normais */
+    .filtros-desktop {
+        display: none !important;
+    }
+
+    /* Mostrar Botão filtro */
+    .btn-filtrar-mobile {
+        display: inline-block;
+    }
+
+    /* 1️⃣ remove QUALQUER espaço logo após o header */
+    main.container {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    /* 2️⃣ remove espaço do wrapper da página (dashboard, etc) */
+    main > .container-fluid {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    /* 3️⃣ remove margem superior do primeiro título da página */
+    main h1,
+    main h2,
+    main h3 {
+        margin-top: 0 !important;
+    }
+
 }
 
-/* ============================
-   OPS — LAYOUT DESKTOP (FIX)
-============================ */
-@media (min-width: 769px) {
+/* RESPONSIVIDADE: MEDIA QUERY — DESKTOP ESPECÍFICO */
+@media (min-width: 768px) {
+    .page-header-mobile {
+        display: none !important;
+    }
 
+    /* MOSTRA FILTROS NORMAIS */
+    .filtros-desktop {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    /* ESCONDE BOTÃO FILTRAR */
+    .btn-filtrar-mobile {
+        display: none !important;
+    }
+
+    /* GARANTE QUE PAINEL MOBILE NUNCA APAREÇA */
+    .filtro-mobile-overlay {
+        display: none !important;
+    }
+
+    .page-title-wrapper {
+    width: 100%;
+    }
+
+    /* ícone do título */
+    .page-title-icon {
+        width: 26px;
+        height: auto;
+    }
+
+/* Desktop continua igual */
+    .btn-filtrar-mobile {
+        display: none;
+    }
+
+    .filtro-mobile-overlay {
+        display: none !important;
+    }
+
+    /* TOTAL GERAL — DESKTOP */
+    #totalGeralBox {
+        background-color: #0d6efd;
+        color: #ffffff;
+
+        font-size: 20px;
+        font-weight: bold;
+
+        min-height: 36px;
+        padding: 6px 12px;
+
+        border-radius: 8px;
+
+        display: flex;
+        
+        align-items: center;
+        justify-content: center;
+
+        text-align: center;
+        margin-bottom: 6px;
+        gap: 6px;
+    }
+
+/* LIVE.HTML — DESKTOP (FORÇA LAYOUT NORMAL) */
+    /* GARANTE que mobile não vaze */
+    .live-mobile-filtros {
+        display: none !important;
+    }
+
+    /* RESTAURA layout desktop original */
+    .page-live > .d-flex.flex-wrap.align-items-end.gap-2.mb-2 {
+        display: flex !important;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+/* DESKTOP */
+    .page-ops .ops-mobile-filtros {
+        display: none !important;
+    }
+
+    .page-ops .filtros-container {
+        display: block;
+    }
+
+/* OPS — LAYOUT DESKTOP (FIX) */
     .page-ops {
         display: flex;
         flex-direction: column;
@@ -1506,69 +1527,40 @@ main {
         gap: 8px;
         flex-wrap: nowrap;
     }
-}
 
-/* ============================================================
-     RESPONSIVIDADE: MEDIA QUERY — DESKTOP ESPECÍFICO
-   ============================================================ */
-@media (min-width: 769px) {
-    .page-header-mobile {
-        display: none !important;
-    }
-}
-
-/* ================================
-   CONTROLE FILTROS MOBILE x DESKTOP
-================================ */
-
-/* MOBILE */
-@media (max-width: 767px) {
-
-    /* ESCONDE FILTROS NORMAIS */
-    .filtros-desktop {
-        display: none !important;
+/* OPS — DESKTOP ORIGINAL */
+    .page-ops {
+        display: block;
     }
 
-    /* MOSTRA BOTÃO FILTRAR */
-    .btn-filtrar-mobile {
-        display: inline-block;
+    .page-ops .ops-title {
+        margin-bottom: 10px;
     }
-}
 
-/* DESKTOP */
-@media (min-width: 768px) {
-
-    /* MOSTRA FILTROS NORMAIS */
-    .filtros-desktop {
-        display: inline-flex;
-        gap: 8px;
+    .page-ops .filtros-container {
+        display: flex;
         align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
     }
 
-    /* ESCONDE BOTÃO FILTRAR */
-    .btn-filtrar-mobile {
-        display: none !important;
-    }
+/* FIX DEFINITIVO — ÍCONE DO TÍTULO (DESKTOP) */
+    /* qualquer imagem dentro do título */
+    .page-title img,
+    .page-title-icon,
+    .title-inline-icon {
+        width: 26px !important;
+        height: 26px !important;
+        max-width: 26px !important;
+        max-height: 26px !important;
 
-    /* GARANTE QUE PAINEL MOBILE NUNCA APAREÇA */
-    .filtro-mobile-overlay {
-        display: none !important;
+        object-fit: contain;
+        vertical-align: middle;
+        margin-right: 6px;
     }
 }
 
-    .page-title-wrapper {
-    width: 100%;
-    }
-
-    /* ícone do título */
-    .page-title-icon {
-        width: 26px;
-        height: auto;
-    }
-
-/* ============================================================
-     RESPONSIVIDADE: MEDIA QUERY — TABLET (SCROLL HORIZONTAL NA TABELA)
-   ============================================================ */
+/* RESPONSIVIDADE: MEDIA QUERY — TABLET (SCROLL HORIZONTAL NA TABELA) */
 @media (min-width: 768px) and (max-width: 1024px) {
 
     .table-responsive {
@@ -1597,9 +1589,7 @@ main {
 
 }
 
-/* ============================================================
-     RESPONSIVIDADE: MEDIA QUERY — DESKTOP
-   ============================================================ */
+/* RESPONSIVIDADE: MEDIA QUERY — DESKTOP */
 
 @media (min-width: 1024px) {
 
@@ -1614,12 +1604,11 @@ main {
     }
 
     /* OPS — ESPAÇO ENTRE FILTROS E TABELA (DESKTOP) */
-
     .page-ops .filtros-container {
         margin-bottom: 10px; 
     }
 
-        /* linha inteira: status + filtros */
+    /* linha inteira: status + filtros */
     .dashboard-status-row {
         display: flex;
         align-items: center;
@@ -1649,40 +1638,14 @@ main {
         white-space: nowrap;
     }
 
-
 }
 
-/* =========================
-   OPS — DESKTOP ORIGINAL
-========================= */
-@media (min-width: 769px) {
-
-    .page-ops {
-        display: block;
-    }
-
-    .page-ops .ops-title {
-        margin-bottom: 10px;
-    }
-
-    .page-ops .filtros-container {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: nowrap;
-    }
-}
-
-/* ============================================================
-     RESPONSIVIDADE: MEDIA QUERY — MOBILE LANDSCAPE
-   ============================================================ */
+/* RESPONSIVIDADE: MEDIA QUERY — MOBILE LANDSCAPE */
 @media (max-width: 768px) and (orientation: landscape) {
 
 }
 
-/* ============================================================
-     RESPONSIVIDADE: MEDIA QUERY — TABLET LANDSCAPE
-   ============================================================ */
+/* RESPONSIVIDADE: MEDIA QUERY — TABLET LANDSCAPE */
 @media (max-width: 1024px) and (orientation: landscape) {
     table.table {
         min-width: 900px !important;
@@ -1705,13 +1668,11 @@ main {
     }
 }
 
-/* =========================
-   TÍTULO DA PÁGINA — MOBILE
-========================= */
-@media (max-width: 768px) {
+/* TÍTULO DA PÁGINA — MOBILE */
+@media (max-width: 767px) {
 
     .page-title {
-        text-align: center !important;
+        text-align: left !important;
         width: 100%;
         padding-bottom: 3px;
     }
@@ -1732,10 +1693,7 @@ main {
     }
 }
 
-/* =========================================
-   DASHBOARD — STATUS FIXO (JS + JINJA)
-   ========================================= */
-
+/* DASHBOARD — STATUS FIXO (JS + JINJA) */
 .status-badge {
     display: inline-block;
     padding: 0.35em 0.65em;
@@ -1751,8 +1709,7 @@ main {
     border: none !important;
 }
 
-/* ===== STATUS POR TIPO ===== */
-
+/* STATUS POR TIPO */
 .status-aguardando {
     background-color: #ffc107 !important;
     color: #000000 !important;
@@ -1773,3 +1730,4 @@ main {
     background-color: #6c757d !important;
     color: #ffffff !important;
 }
+

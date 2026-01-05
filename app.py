@@ -4,6 +4,7 @@ from datetime import datetime, date, time
 from zoneinfo import ZoneInfo
 from pywebpush import webpush, WebPushException
 import json
+from markupsafe import escape
 import sqlite3, os, qrcode
 from io import BytesIO
 import socket
@@ -1265,6 +1266,14 @@ def clean_display_qr(raw):
                .replace(":", "")
                .strip())
     return txt
+
+def escapejs_filter(s):
+    if s is None:
+        return ''
+    return str(s).replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r")
+
+app.jinja_env.filters['escapejs'] = escapejs_filter
+
 
 def build_dashboard_data():
     conn = get_db()

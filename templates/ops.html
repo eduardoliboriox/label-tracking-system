@@ -116,17 +116,15 @@
                             </a>
 
                             <!-- Alerta -->
-                            <button
-                            type="button"
-                            class="btn btn-sm btn-warning"
-                            onclick="abrirModalAlerta(
-                                {{ op.saldo_id }},
-                                '{{ op.setor }}',
-                                '{{ op.fase }}',
-                                {{ op.quantidade }}
-                            )">
+                            <button type="button" class="btn btn-sm btn-warning"
+                                    data-id="{{ op.saldo_id }}"
+                                    data-setor="{{ op.setor|escapejs }}"
+                                    data-fase="{{ op.fase|escapejs }}"
+                                    data-quant="{{ op.quantidade }}"
+                                    onclick="abrirModalAlertaFromData(this)">
                             🔔
                             </button>
+
                         </td>
                     </tr>
                 {% endfor %}
@@ -262,6 +260,7 @@ document.getElementById("searchInputMobile")?.addEventListener("input", function
     aplicarFiltros();
 });
 </script>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
